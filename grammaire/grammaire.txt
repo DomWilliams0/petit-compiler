@@ -97,7 +97,8 @@ EXPR_LIST       -> AFF_EXPR
 STAT            -> IF
                  | ITER
                  | BLOCK
-                 | EXPR
+                 | EXPR ';'
+                 | ';'
 
 IF              -> if '(' EXPR ')' STAT
                  | if '(' EXPR ')' STAT else STAT
