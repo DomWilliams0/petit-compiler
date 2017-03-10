@@ -1,61 +1,127 @@
-PRIMARY_EXPR    -> CONST | VAR | FONCTION_APPEL
-POSTFIX_EXPR    -> PRIMARY_EXPR | PRIMARY_EXPR++ | PRIMARY_EXPR-- | PRIMARY_EXPR[PRIMARY_EXPR]
-UNARY_EXPR      -> POSTFIX_EXPR | --POSTFIX_EXPR | ++POSTFIX_EXPR
+PRIMARY_EXPR    -> CONST
+                 | VAR
+                 | FONCTION_APPEL
 
-MULT_EXPR       -> UNARY_EXPR | MULT_EXPR * UNARY_EXPR | MULT_EXPR / UNARY_EXPR | MULT_EXPR % UNARY_EXPR
-ADD_EXPR        -> MULT_EXPR | ADD_EXPR + MULT_EXR | ADD_EXPR - MULT_EXR
-REL_EXPR        -> ADD_EXPR | REL_EXPR < ADD_EXPR | REL_EXPR > ADD_EXPR | REL_EXPR <= ADD_EXPR | REL_EXPR >= ADD_EXPR
-EQU_EXPR        -> REL_EXPR | EQU_EXPR == REL_EXPR | EQU_EXPR != REL_EXPR
-AND_EXPR        -> EQU_EXPR | AND_EXPR && EQU_EXPR
-OR_EXPR         -> AND_EXPR | OR_EXPR || AND_EXPR
-AFF_EXPR        -> OR_EXPR | UNARY_EXPR AFF_OP AFF_EXPR
-AFF_OP          -> = | *= | /= | %= | += | -=
-EXPR            -> AFF_EXPR | EXPR ‘,’ AFF_EXPR
+POSTFIX_EXPR    -> PRIMARY_EXPR
+                 | PRIMARY_EXPR++
+                 | PRIMARY_EXPR--
+                 | PRIMARY_EXPR[PRIMARY_EXPR]
+
+UNARY_EXPR      -> POSTFIX_EXPR
+                 | --POSTFIX_EXPR
+                 | ++POSTFIX_EXPR
+
+MULT_EXPR       -> UNARY_EXPR
+                 | MULT_EXPR * UNARY_EXPR
+                 | MULT_EXPR / UNARY_EXPR
+                 | MULT_EXPR % UNARY_EXPR
+
+ADD_EXPR        -> MULT_EXPR
+                 | ADD_EXPR + MULT_EXR
+                 | ADD_EXPR - MULT_EXR
+
+REL_EXPR        -> ADD_EXPR
+                 | REL_EXPR < ADD_EXPR
+                 | REL_EXPR > ADD_EXPR
+                 | REL_EXPR <= ADD_EXPR
+                 | REL_EXPR >= ADD_EXPR
+
+EQU_EXPR        -> REL_EXPR
+                 | EQU_EXPR == REL_EXPR
+                 | EQU_EXPR != REL_EXPR
+
+AND_EXPR        -> EQU_EXPR
+                 | AND_EXPR && EQU_EXPR
+
+OR_EXPR         -> AND_EXPR
+                 | OR_EXPR |
+                 | AND_EXPR
+
+AFF_EXPR        -> OR_EXPR
+                 | UNARY_EXPR AFF_OP AFF_EXPR
+
+AFF_OP          -> =
+                 | *=
+                 | /=
+                 | %=
+                 | +=
+                 | -=
+
+EXPR            -> AFF_EXPR
+                 | EXPR ‘,’ AFF_EXPR
 
 VAR             -> IDENTIFIER
-CONST           -> NUM | CHAR
-IDENTIFIER      -> C[C|N]*
-NUM             -> -?N+
-CHAR            -> 'X'
-TAILLE          -> NUM | e
-TYPE_VAR        -> CHAR | INT32 | INT64
-TYPE_FUNC       -> TYPE_VAR | VOID
 
-FONCTION_APPEL  -> IDENTIFIER '(' ARG_LIST ')' | IDENTIFIER '(' ')'
+CONST           -> NUM
+                 | CHAR
+
+IDENTIFIER      -> {C}[{C}|{N}]*
+
+NUM             -> -?{N}+
+
+CHAR            -> '{X}'
+
+TYPE_VAR        -> CHAR
+                 | INT32
+                 | INT64
+
+TYPE_FUNC       -> TYPE_VAR
+                 | VOID
+
+FONCTION_APPEL  -> IDENTIFIER '(' ARG_LIST ')'
+                 | IDENTIFIER '(' ')'
 
 // type a, b = val, c = val, d, e
 DECL            -> TYPE_VAR DECL'
-DECL'           -> DECL'' | DECL', DECL''
-DECL''          -> AFF_EXPR | VAR_DECL
-DECL_VAR        -> IDENTIFIER | IDENTIFIER[TAILLE]
+
+DECL'           -> DECL''
+                 | DECL', DECL''
+
+DECL''          -> AFF_EXPR
+                 | VAR_DECL
+
+DECL_VAR        -> IDENTIFIER
+                 | IDENTIFIER[NUM]
+                 | IDENTIFIER[]
 
 // type a; seulement
 DECL_UNIQ       -> TYPE_VAR DECL_VAR
-DECL_LIST       -> DECL_UNIQ | DECL_LIST ',' DECL_UNIQ
+
+DECL_LIST       -> DECL_UNIQ
+                 | DECL_LIST ',' DECL_UNIQ
 
 // pour les appels de fonctions
-EXPR_LIST       -> AFF_EXPR | EXPR_LIST ',' AFF_EXPR
+EXPR_LIST       -> AFF_EXPR
+                 | EXPR_LIST ',' AFF_EXPR
 
-STAT            -> IF | ITER | BLOCK | EXPR
+STAT            -> IF
+                 | ITER
+                 | BLOCK
+                 | EXPR
 
-IF              -> if '(' EXPR ')' STAT | if '(' EXPR ')' STAT else STAT
+IF              -> if '(' EXPR ')' STAT
+                 | if '(' EXPR ')' STAT else STAT
 
 ITER            -> while '(' EXPR ')' STAT
-ITER            -> for '(' EXPR ';' EXPR ';' EXPR ')' STAT
-ITER            -> for '(' ';' EXPR ';' EXPR ')' STAT
-ITER            -> for '(' ';'   ';' EXPR ')' STAT
-ITER            -> for '(' ';'  ';'  ')' STAT
-ITER            -> for '(' EXPR ';' EXPR ';' ')' STAT
-ITER            -> for '(' EXPR ';'  ';' ')' STAT
-ITER            -> for '('  ';' EXPR ';' ')' STAT
+                 | for '(' EXPR ';' EXPR ';' EXPR ')' STAT
+                 | for '(' ';' EXPR ';' EXPR ')' STAT
+                 | for '(' ';' ';' EXPR ')' STAT
+                 | for '(' ';' ';' ')' STAT
+                 | for '(' EXPR ';' EXPR ';' ')' STAT
+                 | for '(' EXPR ';' ';' ')' STAT
+                 | for '(' ';' EXPR ';' ')' STAT
 
-BLOCK           -> ‘{‘ '}' | ‘{‘ BLOCK_ITEM_LIST ‘}’
+BLOCK           -> ‘{‘ '}'
+                 | ‘{‘ BLOCK_ITEM_LIST ‘}’
 
-BLOCK_ITEM_LIST -> BLOCK_ITEM | BLOCK_ITEM_LIST BLOCK_ITEM
+BLOCK_ITEM_LIST -> BLOCK_ITEM
+                 | BLOCK_ITEM_LIST BLOCK_ITEM
 
-BLOCK_ITEM      -> DECL | STAT
+BLOCK_ITEM      -> DECL
+                 | STAT
 
 // TODO func_declaration
 FUNC_DEF        -> TYPE_FUNC IDENTIFIER ARGS BLOCK
 
-ARGS            -> '('')' | '(' DECL_LIST ')'
+ARGS            -> '('')'
+                 | '(' DECL_LIST ')'
