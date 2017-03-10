@@ -3,30 +3,34 @@ N = [0-9]
 C = [a-zA-Z_-]
 X = .
 
-VAR        -> IDENT | IDENT[EXPR]
-EXPR       -> CONST | VAR |  FONCTION_APPEL | ARIT
-AFF        -> VAR = EXPR
+VAR            -> IDENT | IDENT[EXPR]
+EXPR           -> CONST | VAR |  FONCTION_APPEL | ARIT
+AFF            -> VAR = EXPR
 
 # TODO: distinguer lvalue et rvalue
 # actuellement, (VAR) = EXPR n'est pas valide, mais il devrait l'être
 
 # ex. int a, b = 1, c = 2
-DECL       -> TYPE DECL'
-DECL'      -> DECL'' | DECL', DECL''
-DECL''     -> AFF | VAR_DECL
-DECL_VAR   -> IDENT | IDENT[TAILLE]
+DECL           -> TYPE DECL'
+DECL'          -> DECL'' | DECL', DECL''
+DECL''         -> AFF | VAR_DECL
+DECL_VAR       -> IDENT | IDENT[TAILLE]
 
-STAT       -> [DECL | FONCTION_APPEL | AFF];
-FICHER     -> [DECL | BLOC]*
-FUNC_INTER -> [BLOC | STAT]*
+STAT           -> [DECL | FONCTION_APPEL | AFF];
+FICHER         -> [DECL | BLOC]*
+FUNC_INTER     -> [BLOC | STAT]*
 
-IDENT      -> C[C|N]*
-NUM        -> -?N+
-CHAR       -> 'X'
-TAILLE     -> NUM | e
-TYPE       -> IDENT
-ARIT       -> (EXPR) | OP_UNAIRE EXPR | EXPR OP_BINAIRE EXPR
+IDENT          -> C[C|N]*
+NUM            -> -?N+
+CHAR           -> 'X'
+TAILLE         -> NUM | e
+TYPE           -> IDENT
+
+ARIT           -> (EXPR) | PRE_OP_UNAIRE EXPR | EXPR POST_OP_UNAIRE | EXPR OP_BINAIRE EXPR
+PRE_OP_UNAIRE  -> ! | ++ | --
+POST_OP_UNAIRE -> ++ --
+OP_BINAIRE     -> + | - | * | / | % | == | != | > | < | >= | <= | && | || | += | -= | *= | /= | %=
 
 # initializer, ex. {0}, {1, 2, var}
-INIT       -> {INIT'}
-INIT'      -> X | INIT', X
+INIT           -> {INIT'}
+INIT'          -> X | INIT', X
