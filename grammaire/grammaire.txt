@@ -1,11 +1,21 @@
+﻿// TODO : Axiome,
+
+VAR             -> identifier
+
+CONST           -> num
+                 | 'char'
+
+FONCTION_APPEL  -> identifier '(' EXPR ')' // défini plus bas
+                 | identifier '(' ')'
+
 PRIMARY_EXPR    -> CONST
                  | VAR
-                 | FONCTION_APPEL
 
 POSTFIX_EXPR    -> PRIMARY_EXPR
                  | PRIMARY_EXPR++
                  | PRIMARY_EXPR--
                  | PRIMARY_EXPR[PRIMARY_EXPR]
+                 | FONCTION_APPEL 
 
 UNARY_EXPR      -> POSTFIX_EXPR
                  | --POSTFIX_EXPR
@@ -37,9 +47,6 @@ OR_EXPR         -> AND_EXPR
                  | OR_EXPR |
                  | AND_EXPR
 
-AFF_EXPR        -> OR_EXPR
-                 | UNARY_EXPR AFF_OP AFF_EXPR
-
 AFF_OP          -> =
                  | *=
                  | /=
@@ -47,52 +54,62 @@ AFF_OP          -> =
                  | +=
                  | -=
 
+AFF_EXPR        -> OR_EXPR
+                 | UNARY_EXPR AFF_OP AFF_EXPR
+
+
 EXPR            -> AFF_EXPR
                  | EXPR ‘,’ AFF_EXPR
 
-VAR             -> IDENTIFIER
 
-CONST           -> NUM
-                 | CHAR
+TYPE_VAR        -> type_char
+                 | int_32
+                 | int_64
 
-IDENTIFIER      -> {C}[{C}|{N}]*
-
-NUM             -> -?{N}+
-
-CHAR            -> '{X}'
-
-TYPE_VAR        -> CHAR
-                 | INT32
-                 | INT64
-
-TYPE_FUNC       -> TYPE_VAR
-                 | VOID
-
-FONCTION_APPEL  -> IDENTIFIER '(' ARG_LIST ')'
-                 | IDENTIFIER '(' ')'
+DECL_VAR        -> identifier
+                 | identifier[num]
+                 | identifier[]
 
 // type a, b = val, c = val, d, e
-DECL            -> TYPE_VAR DECL'
+DECL            -> TYPE_VAR DECL_1
 
-DECL'           -> DECL''
-                 | DECL', DECL''
+DECL_1          -> DECL_2
+                 | DECL_1, DECL_2
 
-DECL''          -> AFF_EXPR
-                 | VAR_DECL
+DECL_2          -> AFF_EXPR
+                 | DECL_VAR
 
-DECL_VAR        -> IDENTIFIER
-                 | IDENTIFIER[NUM]
-                 | IDENTIFIER[]
+TYPE_FUNC       -> TYPE_VAR
+                 | void
 
-// type a; seulement
+// "type a" seulement
 DECL_UNIQ       -> TYPE_VAR DECL_VAR
 
 DECL_LIST       -> DECL_UNIQ
                  | DECL_LIST ',' DECL_UNIQ
 
-// pour les appels de fonctions
-EXPR_LIST       -> AFF_EXPR
-                 | EXPR_LIST ',' AFF_EXPR
+ARGS            -> '('')'
+                 | '(' DECL_LIST ')'
+
+FUNC_DEF        -> TYPE_FUNC identifier ARGS BLOCK
+
+BLOCK_ITEM      -> DECL
+                 | STAT // defini plus bas par (IF | ITER| BLOCK | EXPR ';' | ';' )
+
+BLOCK_ITEM_LIST -> BLOCK_ITEM
+                 | BLOCK_ITEM_LIST BLOCK_ITEM
+
+BLOCK           -> ‘{‘ '}'
+                 | ‘{‘ BLOCK_ITEM_LIST ‘}’
+
+IF              -> if '(' EXPR ')' STAT
+                 | if '(' EXPR ')' STAT else STAT
+
+EXPR_FOR        -> EXPR | /* vide */
+
+ITER            -> while '(' EXPR ')' STAT
+                 | for '(' EXPR_FOR ';' EXPR_FOR ';' EXPR_FOR ')' STAT
+
 
 STAT            -> IF
                  | ITER
@@ -100,29 +117,10 @@ STAT            -> IF
                  | EXPR ';'
                  | ';'
 
-IF              -> if '(' EXPR ')' STAT
-                 | if '(' EXPR ')' STAT else STAT
 
-ITER            -> while '(' EXPR ')' STAT
-                 | for '(' EXPR ';' EXPR ';' EXPR ')' STAT
-                 | for '(' ';' EXPR ';' EXPR ')' STAT
-                 | for '(' ';' ';' EXPR ')' STAT
-                 | for '(' ';' ';' ')' STAT
-                 | for '(' EXPR ';' EXPR ';' ')' STAT
-                 | for '(' EXPR ';' ';' ')' STAT
-                 | for '(' ';' EXPR ';' ')' STAT
+// regex
+identifier : {C}[{C}|{N}]*
 
-BLOCK           -> ‘{‘ '}'
-                 | ‘{‘ BLOCK_ITEM_LIST ‘}’
+num        : -?{N}+
 
-BLOCK_ITEM_LIST -> BLOCK_ITEM
-                 | BLOCK_ITEM_LIST BLOCK_ITEM
-
-BLOCK_ITEM      -> DECL
-                 | STAT
-
-// TODO func_declaration
-FUNC_DEF        -> TYPE_FUNC IDENTIFIER ARGS BLOCK
-
-ARGS            -> '('')'
-                 | '(' DECL_LIST ')'
+char       : X
