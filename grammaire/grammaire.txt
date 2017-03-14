@@ -19,11 +19,11 @@ POSTFIX_EXPR    -> PRIMARY_EXPR
                  | PRIMARY_EXPR++
                  | PRIMARY_EXPR--
                  | PRIMARY_EXPR[PRIMARY_EXPR]
-                 | FONCTION_APPEL 
 
 UNARY_EXPR      -> POSTFIX_EXPR
                  | --POSTFIX_EXPR
                  | ++POSTFIX_EXPR
+                 | FONCTION_APPEL 
 
 MULT_EXPR       -> UNARY_EXPR
                  | MULT_EXPR * UNARY_EXPR
@@ -130,12 +130,15 @@ EXPR_FOR        -> EXPR | /* vide */
 ITER            -> while '(' EXPR ')' STAT
                  | for '(' EXPR_FOR ';' EXPR_FOR ';' EXPR_FOR ')' STAT
 
-
+RETURN_STAT     -> return ';'
+                 | return EXPR ';'
+                 
 STAT            -> IF
                  | ITER
                  | BLOCK
                  | EXPR ';'
                  | ';'
+                 | RETURN_STAT
 
 
 // regex
