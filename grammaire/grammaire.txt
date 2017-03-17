@@ -52,6 +52,7 @@ EXPR            -> EXPR_UNIQ
 TYPE_VAR        -> type_char
                  | int_32
                  | int_64
+                 | void
 
 DECL_VAR        -> identifier
                  | identifier[num]
@@ -69,9 +70,6 @@ DECL_2          -> DECL_VAR
 // "type a" seulement
 DECL_UNIQ       -> TYPE_VAR DECL_VAR
 
-TYPE_FUNC       -> TYPE_VAR
-                 | void
-
 LIST_ARGS_FUNC  -> TYPE_VAR
                  | DECL_UNIQ
                  | TYPE_LIST ',' TYPE_VAR 
@@ -80,7 +78,7 @@ LIST_ARGS_FUNC  -> TYPE_VAR
 DECL_ARGS       -> '('')'
                  | '(' LIST_ARGS_FUNC ')'
 
-FUNC_DECL       -> TYPE_FUNC identifier DECL_ARGS ;
+FUNC_DECL       -> TYPE_VAR identifier DECL_ARGS ';'
 
 ANY_DECL        -> DECL
                  | FUNC_DECL
@@ -91,7 +89,7 @@ DECL_UNIQ_LIST  -> DECL_UNIQ
 ARGS            -> '('')'
                  | '(' DECL_UNIQ_LIST ')'
 
-FUNC_DEF        -> TYPE_FUNC identifier ARGS BLOCK
+FUNC_DEF        -> TYPE_VAR identifier ARGS BLOCK
 
 BLOCK_ITEM      -> DECL
                  | STAT // defini plus bas par (IF | ITER| BLOCK | EXPR ';' | ';' )
@@ -102,8 +100,12 @@ BLOCK_ITEM_LIST -> BLOCK_ITEM
 BLOCK           -> ‘{‘ '}'
                  | ‘{‘ BLOCK_ITEM_LIST ‘}’
 
-IF              -> if '(' EXPR ')' STAT
-                 | if '(' EXPR ')' STAT else STAT
+IF_DECL         -> if '(' EXPR ')' STAT
+
+ELSE            -> /* vide */
+                 | else STAT
+
+IF              -> IF_DECL ELSE
 
 EXPR_FOR        -> EXPR | /* vide */
 
@@ -119,7 +121,6 @@ STAT            -> IF
                  | EXPR ';'
                  | ';'
                  | RETURN_STAT
-
 
 // terminaux
 n                : [0-9]
