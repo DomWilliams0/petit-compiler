@@ -1,6 +1,5 @@
 N [0-9]
 IC [a-zA-Z_]
-C .
 
 
 %{
@@ -12,11 +11,55 @@ C .
 
 %%
 
-"#"[^\n]*		{ /* ignore */ }
+"#"[^\n]* { /* ignore */ }
+[\n\t\r ] { /* ignore */ }
 
-N+        { return CONSTANT; }
-\\?C      { return CONSTANT; }
-IC[IC|N]* { return IDENTIFIER; }
+{N}+ { return CONSTANT; }
+\\?{N} { return CONSTANT; }
+{IC}[{IC}|{N}]* { return IDENTIFIER; }
 
+"'"\\?."'" { return CONSTANT; } 
 
+"if" { return IF; }
+"else" { return ELSE; }
+"while" { return WHILE; }
+"for" { return FOR; }
+
+"return" { return RETURN; }
+"int_32" { return TYPE; }
+"int_64" { return TYPE; }
+"char" { return TYPE; }
+"void" { return TYPE; }
+
+"++" { return INC_OP; }
+"--" { return DEC_OP; }
+"<=" { return LE_OP; }
+"=>" { return GE_OP; }
+"==" { return EQ_OP; }
+"!=" { return NE_OP; }
+"&&" { return AND_OP; }
+"||" { return OR_OP; }
+"+=" { return ADD_ASSIGN; }
+"-=" { return SUB_ASSIGN; }
+"*=" { return MUL_ASSIGN; }
+"/=" { return DIV_ASSIGN; }
+"%=" { return MOD_ASSIGN; }
+
+";" { return ';'; }
+"{" { return '{'; }
+"}" { return '}'; }
+"," { return ','; }
+"=" { return '='; }
+"(" { return '('; }
+")" { return ')'; }
+"[" { return '['; }
+"]" { return ']'; }
+"!" { return '!'; }
+"-" { return '-'; }
+"+" { return '+'; }
+"*" { return '*'; }
+"/" { return '/'; }
+"%" { return '%'; }
+"<" { return '<'; }
+">" { return '>'; }
 %%
