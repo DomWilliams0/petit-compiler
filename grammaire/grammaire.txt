@@ -116,9 +116,9 @@ STAT            -> IF
                  | RETURN_STAT
 
 
-// regex
-identifier : {C}[{C}|{N}]*
-
-num        : -?{N}+
-
-char       : X
+// terminaux
+n                : [0-9]
+c                : . // n'importe quoi
+num              : -?{n}+
+char             : c
+identifier       : {c}[{c}|{n}]*
