@@ -1,7 +1,7 @@
 ﻿// axiome (document = suite de déclarations et de définitions de fonctions)
-DOCUMENT        -> ANY_DECL_LIST
+DOCUMENT        -> ANY_DECL
                  | FUNC_DEF
-                 | DOCUMENT ANY_DECL_LIST
+                 | DOCUMENT ANY_DECL
                  | DOCUMENT FUNC_DEF
 
 VAR             -> identifier
@@ -12,59 +12,37 @@ CONST           -> num
 FONCTION_APPEL  -> identifier '(' EXPR ')' // défini plus bas
                  | identifier '(' ')'
 
-PRIMARY_EXPR    -> CONST
-                 | VAR
+// celui qui peut être affecté
+LVALUE          -> VAR
+                 | VAR[EXPR]
 
-POSTFIX_EXPR    -> PRIMARY_EXPR
-                 | PRIMARY_EXPR++
-                 | PRIMARY_EXPR--
-                 | PRIMARY_EXPR[PRIMARY_EXPR]
-
-UNARY_EXPR      -> POSTFIX_EXPR
-                 | --POSTFIX_EXPR
-                 | ++POSTFIX_EXPR
-                 | FONCTION_APPEL 
-
-MULT_EXPR       -> UNARY_EXPR
-                 | MULT_EXPR * UNARY_EXPR
-                 | MULT_EXPR / UNARY_EXPR
-                 | MULT_EXPR % UNARY_EXPR
-
-ADD_EXPR        -> MULT_EXPR
-                 | ADD_EXPR + MULT_EXR
-                 | ADD_EXPR - MULT_EXR
-
-REL_EXPR        -> ADD_EXPR
-                 | REL_EXPR < ADD_EXPR
-                 | REL_EXPR > ADD_EXPR
-                 | REL_EXPR <= ADD_EXPR
-                 | REL_EXPR >= ADD_EXPR
-
-EQU_EXPR        -> REL_EXPR
-                 | EQU_EXPR == REL_EXPR
-                 | EQU_EXPR != REL_EXPR
-
-AND_EXPR        -> EQU_EXPR
-                 | AND_EXPR && EQU_EXPR
-
-OR_EXPR         -> AND_EXPR
-                 | OR_EXPR |
-                 | AND_EXPR
-
-AFF_OP          -> =
-                 | *=
-                 | /=
-                 | %=
-                 | +=
-                 | -=
-
-AFF_EXPR        -> OR_EXPR
-                 | UNARY_EXPR AFF_OP AFF_EXPR
-
-
-EXPR            -> AFF_EXPR
-                 | EXPR ‘,’ AFF_EXPR
-
+EXPR            -> LVALUE
+                 | LVALUE[EXPR]
+                 | LVALUE++
+                 | LVALUE--
+                 | --LVALUE
+                 | ++LVALUE
+                 | LVALUE / EXPR
+                 | LVALUE * EXPR
+                 | LVALUE % EXPR
+                 | LVALUE + EXPR
+                 | LVALUE - EXPR
+                 | LVALUE < EXPR
+                 | LVALUE <= EXPR
+                 | LVALUE > EXPR
+                 | LVALUE => EXPR
+                 | LVALUE == EXPR
+                 | LVALUE != EXPR
+                 | LVALUE && EXPR
+                 | LVALUE || EXPR
+                 | LVALUE = EXPR
+                 | LVALUE += EXPR
+                 | LVALUE -= EXPR
+                 | LVALUE *= EXPR
+                 | LVALUE /= EXPR
+                 | LVALUE %= EXPR
+                 | EXPR, EXPR
+                 | FONCTION_APPEL
 
 TYPE_VAR        -> type_char
                  | int_32
@@ -80,7 +58,7 @@ DECL            -> TYPE_VAR DECL_1
 DECL_1          -> DECL_2
                  | DECL_1, DECL_2
 
-DECL_2          -> AFF_EXPR
+DECL_2          -> EXPR
                  | DECL_VAR
 
 // "type a" seulement
@@ -101,9 +79,6 @@ FUNC_DECL       -> TYPE_FUNC identifier DECL_ARGS ;
 
 ANY_DECL        -> DECL
                  | FUNC_DECL
-
-ANY_DECL_LIST   -> ANY_DECL
-                 | ANY_DECL_LIST ANY_DECL
 
 DECL_UNIQ_LIST  -> DECL_UNIQ
                  | DECL_UNIQ_LIST ',' DECL_UNIQ
@@ -132,7 +107,7 @@ ITER            -> while '(' EXPR ')' STAT
 
 RETURN_STAT     -> return ';'
                  | return EXPR ';'
-                 
+
 STAT            -> IF
                  | ITER
                  | BLOCK
