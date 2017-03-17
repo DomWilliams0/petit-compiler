@@ -22,6 +22,8 @@ EXPR            -> LVALUE
                  | LVALUE--
                  | --LVALUE
                  | ++LVALUE
+                 | +LVALUE
+                 | -LVALUE
                  | LVALUE / EXPR
                  | LVALUE * EXPR
                  | LVALUE % EXPR
