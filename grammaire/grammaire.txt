@@ -16,35 +16,38 @@ FONCTION_APPEL  -> identifier '(' EXPR ')' // défini plus bas
 LVALUE          -> VAR
                  | VAR[EXPR]
 
-EXPR            -> LVALUE
+EXPR_UNIQ       -> LVALUE
                  | LVALUE[EXPR]
+                 | FONCTION_APPEL[EXPR]
                  | LVALUE++
                  | LVALUE--
                  | --LVALUE
                  | ++LVALUE
-                 | +LVALUE
-                 | -LVALUE
-                 | LVALUE / EXPR
-                 | LVALUE * EXPR
-                 | LVALUE % EXPR
-                 | LVALUE + EXPR
-                 | LVALUE - EXPR
-                 | LVALUE < EXPR
-                 | LVALUE <= EXPR
-                 | LVALUE > EXPR
-                 | LVALUE => EXPR
-                 | LVALUE == EXPR
-                 | LVALUE != EXPR
-                 | LVALUE && EXPR
-                 | LVALUE || EXPR
-                 | LVALUE = EXPR
-                 | LVALUE += EXPR
-                 | LVALUE -= EXPR
-                 | LVALUE *= EXPR
-                 | LVALUE /= EXPR
-                 | LVALUE %= EXPR
-                 | EXPR, EXPR
+                 | +EXPR_UNIQ
+                 | -EXPR_UNIQ
+                 | EXPR_UNIQ / EXPR_UNIQ
+                 | EXPR_UNIQ * EXPR_UNIQ
+                 | EXPR_UNIQ % EXPR_UNIQ
+                 | EXPR_UNIQ + EXPR_UNIQ
+                 | EXPR_UNIQ - EXPR_UNIQ
+                 | EXPR_UNIQ < EXPR_UNIQ
+                 | EXPR_UNIQ <= EXPR_UNIQ
+                 | EXPR_UNIQ > EXPR_UNIQ
+                 | EXPR_UNIQ => EXPR_UNIQ
+                 | EXPR_UNIQ == EXPR_UNIQ
+                 | EXPR_UNIQ != EXPR_UNIQ
+                 | EXPR_UNIQ && EXPR_UNIQ
+                 | EXPR_UNIQ || EXPR_UNIQ
+                 | LVALUE = EXPR_UNIQ
+                 | LVALUE += EXPR_UNIQ
+                 | LVALUE -= EXPR_UNIQ
+                 | LVALUE *= EXPR_UNIQ
+                 | LVALUE /= EXPR_UNIQ
+                 | LVALUE %= EXPR_UNIQ
                  | FONCTION_APPEL
+
+EXPR            -> EXPR_UNIQ
+                 | EXPR_UNIQ, EXPR
 
 TYPE_VAR        -> type_char
                  | int_32
@@ -60,8 +63,8 @@ DECL            -> TYPE_VAR DECL_1
 DECL_1          -> DECL_2
                  | DECL_1, DECL_2
 
-DECL_2          -> EXPR
-                 | DECL_VAR
+DECL_2          -> DECL_VAR
+                 | DECL_VAR = EXPR_UNIQ
 
 // "type a" seulement
 DECL_UNIQ       -> TYPE_VAR DECL_VAR
