@@ -17,6 +17,7 @@ LVALUE          -> VAR
                  | VAR[EXPR]
 
 EXPR_UNIQ       -> LVALUE
+                 | CONST
                  | LVALUE[EXPR]
                  | FONCTION_APPEL[EXPR]
                  | LVALUE++
