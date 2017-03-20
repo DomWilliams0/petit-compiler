@@ -12,6 +12,7 @@ IC [a-zA-Z_]
 %%
 
 "#"[^\n]* { /* ignore */ }
+"//"[^\n]* { /* ignore */ }
 [\n\t\r ] { /* ignore */ }
 
 "if" { return IF; }
