@@ -9,6 +9,8 @@
 %left '-'
 %nonassoc NEG
 
+%define parse.error verbose
+
 %{
 #include <iostream>
 
