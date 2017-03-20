@@ -85,7 +85,7 @@ decl_var
 	| IDENTIFIER '['  ']'
 
 decl
-	: TYPE decl_1
+	: TYPE decl_1 ';'
 
 decl_1
 	: decl_2
