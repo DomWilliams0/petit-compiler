@@ -3,6 +3,12 @@
 %token RETURN TYPE
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP AND_OP OR_OP ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN
 
+%left '+'
+%nonassoc POS
+
+%left '-'
+%nonassoc NEG
+
 %{
 #include <iostream>
 
@@ -44,10 +50,8 @@ expr_uniq
 	| INC_OP lvalue
 	| DEC_OP lvalue
 	| '(' expr_uniq ')'
-/*
-	| '+' expr_uniq
-	| '-' expr_uniq
-*/
+	| '+' expr_uniq %prec POS
+	| '-' expr_uniq %prec NEG
 	| expr_uniq '/' expr_uniq
 	| expr_uniq '*' expr_uniq
 	| expr_uniq '%' expr_uniq
