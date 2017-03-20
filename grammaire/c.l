@@ -14,12 +14,6 @@ IC [a-zA-Z_]
 "#"[^\n]* { /* ignore */ }
 [\n\t\r ] { /* ignore */ }
 
-{N}+ { return CONSTANT; }
-\\?{N} { return CONSTANT; }
-{IC}[{IC}|{N}]* { return IDENTIFIER; }
-
-"'"\\?."'" { return CONSTANT; } 
-
 "if" { return IF; }
 "else" { return ELSE; }
 "while" { return WHILE; }
@@ -30,6 +24,12 @@ IC [a-zA-Z_]
 "int_64" { return TYPE; }
 "char" { return TYPE; }
 "void" { return TYPE; }
+
+{N}+ { return CONSTANT; }
+\\?{N} { return CONSTANT; }
+{IC}({IC}|{N})* { return IDENTIFIER; }
+
+"'"\\?."'" { return CONSTANT; }
 
 "++" { return INC_OP; }
 "--" { return DEC_OP; }
