@@ -45,7 +45,6 @@ lvalue
 expr_uniq
 	: CONSTANT
 	| lvalue
-	| lvalue '[' expr ']'
 	| fonction_appel '[' expr ']'
 	| lvalue INC_OP
 	| lvalue DEC_OP
