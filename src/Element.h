@@ -9,6 +9,7 @@
 #define ELEMENT_H_
 #include <string>
 #include <stdint.h>
+#include <iostream>
 #include <vector>
 
 class Block;

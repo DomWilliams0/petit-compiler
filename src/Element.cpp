@@ -32,16 +32,16 @@ void VarDecl::print()
 	{
 		case INT32:
 			std::cout<<"int32_t ";
-		break;
+			break;
 		case INT64:
 			std::cout<<"int64_t ";
-		break;
+			break;
 		case CHAR:
 			std::cout<<"char ";
-		break;
+			break;
 		case VOID:
 			std::cout<<"void ";
-		break;
+			break;
 	}
 	std::cout<<this->identifier<<";"<<std::endl;
 }
@@ -51,16 +51,16 @@ void FuncDecl::print()
 	{
 		case INT32:
 			std::cout<<"int32_t ";
-		break;
+			break;
 		case INT64:
 			std::cout<<"int64_t ";
-		break;
+			break;
 		case CHAR:
 			std::cout<<"char ";
-		break;
+			break;
 		case VOID:
 			std::cout<<"void ";
-		break;
+			break;
 	}
 	std::cout<<identifier<<"(";
 	for(int i=0;i<args.size();++i)
@@ -74,27 +74,27 @@ void FuncDecl::print()
 void FuncDef::print()
 {
 	switch(functionType)
-		{
-			case INT32:
-				std::cout<<"int32_t ";
+	{
+		case INT32:
+			std::cout<<"int32_t ";
 			break;
-			case INT64:
-				std::cout<<"int64_t ";
+		case INT64:
+			std::cout<<"int64_t ";
 			break;
-			case CHAR:
-				std::cout<<"char ";
+		case CHAR:
+			std::cout<<"char ";
 			break;
-			case VOID:
-				std::cout<<"void ";
+		case VOID:
+			std::cout<<"void ";
 			break;
-		}
-		std::cout<<identifier<<"(";
-		for(int i=0;i<args.size();++i)
-		{
-			args[i].print();
-		}
-		std::cout<<std::endl;
-		block.print();
+	}
+	std::cout<<identifier<<"(";
+	for(int i=0;i<args.size();++i)
+	{
+		args[i].print();
+	}
+	std::cout<<std::endl;
+	block->print();
 }
 
 void VarDef::print()

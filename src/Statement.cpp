@@ -5,6 +5,7 @@
  *      Author: lboucaud
  */
 
+#include <iostream>
 #include "Statement.h"
 
 Statement::Statement() {
