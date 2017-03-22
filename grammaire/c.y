@@ -9,8 +9,8 @@
 %left '+'
 %nonassoc POS
 
-// TODO je crois que certains parmi eux doivent être %right !
-%left '/' '*' '%' '<' LE_OP '>' GE_OP EQ_OP NE_OP AND_OP OR_OP '=' ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ','
+%left '/' '*' '%' '<' LE_OP '>' GE_OP EQ_OP NE_OP AND_OP OR_OP ','
+%right '=' ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN
 
 %define parse.error verbose
 
