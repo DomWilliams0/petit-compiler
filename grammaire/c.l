@@ -21,8 +21,8 @@ IC [a-zA-Z_]
 "for" { return FOR; }
 
 "return" { return RETURN; }
-"int_32" { return TYPE; }
-"int_64" { return TYPE; }
+"int32_t" { return TYPE; }
+"int64_t" { return TYPE; }
 "char" { return TYPE; }
 "void" { return TYPE; }
 
