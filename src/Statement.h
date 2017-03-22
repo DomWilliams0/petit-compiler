@@ -1,20 +1,15 @@
-/*
- * Statement.h
- *
- *  Created on: 22 mars 2017
- *      Author: lboucaud
- */
+#ifndef STATEMENT_H
+#define STATEMENT_H
 
-#ifndef STATEMENT_H_
-#define STATEMENT_H_
 #include "Element.h"
 #include "Expression.h"
 #include <vector>
 
 class Statement {
 public:
-	virtual ~Statement();
-	void print()=0;
+	virtual ~Statement() {}
+	virtual void print() = 0;
+
 protected:
 	Statement();
 };
@@ -34,28 +29,26 @@ protected:
 
 class Cond : public Statement
 {
-public:
-	void print();
-	Cond(Block iBlock,Expression cond):ifBlock(iBlock),condition(cond),elseBlock(NULL){};
-	Cond(Block iBlock,Block eBlock,Expression cond):ifBlock(iBlock),elseBlock(eBlock),condition(cond){};
-	virtual ~Cond();
-protected:
-	Block ifBlock;
-	Block elseBlock;
-	Expression condition;
+	public:
+		void print();
+		Cond(Block *iBlock,Expression *cond):ifBlock(iBlock),condition(cond),elseBlock(NULL){};
+		Cond(Block *iBlock,Block *eBlock,Expression *cond):ifBlock(iBlock),elseBlock(eBlock),condition(cond){};
+		~Cond();
+	protected:
+		Block *ifBlock;
+		Block *elseBlock;
+		Expression *condition;
 };
 
 class Iter : public Statement
 {
-public:
-	void print();
-	Iter(Block iBlock,Expression cond):iterBlock(iBlock),condition(cond){};
-	virtual ~Iter();
-protected:
-	Block iterBlock;
-	Expression condition;
+	public:
+		void print();
+		Iter(Block *iBlock,Expression *cond):iterBlock(iBlock),condition(cond){};
+		~Iter();
+	protected:
+		Block *iterBlock;
+		Expression *condition;
 };
 
-
-
-#endif /* STATEMENT_H_ */
+#endif

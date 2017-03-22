@@ -1,34 +1,29 @@
-#pragma once
-#include <string>
-#include <list>
+#ifndef EXPRESSION_H
+#define EXPRESSION_H
 
-enum Type { INT32, INT64, CHAR, VOID };
+#include <string>
+#include <vector>
+#include "Element.h"
+
 enum UnaryOperator{ EXCLAMATION, NEG };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO };
-
-struct Value {
-	Type type;
-	union {
-		int32_t i32;
-		int64_t i64;
-		char c;
-	};
-};
 
 //==========================================================
 class Expression {
 	public:
 		virtual void print() = 0;
+		virtual ~Expression() {}
 };
 
 //==========================================================
 class Variable : public Expression {
 	protected:
+		std::string name;
 		bool isLvalue;
 		Expression *index;
-		string name;
+
 	public:
-		Variable(string name, Expression *expr = NULL, bool left = true) : name(name), isLvalue(left), index(expr) {};
+		Variable(const std::string &name, Expression *expr = NULL, bool left = true) : name(name), isLvalue(left), index(expr) {};
 		virtual ~Variable();
 		void print();
 };
@@ -37,6 +32,7 @@ class Variable : public Expression {
 class Const : public Expression {
 	protected:
 		Value value;
+
 	public:
 		Const(Value val) : value(val) {};
 		virtual ~Const();
@@ -58,10 +54,10 @@ class Affectation : public Expression {
 //==========================================================
 class FunctionAppel : public Expression {
 	protected:
-		list<Expression*> args;
-		string funcName;
+		std::vector<Expression*> args;
+		std::string funcName;
 	public:
-		FunctionAppel(list<Expression *> args, string name) : args(args), funcName(name) {};
+		FunctionAppel(std::vector<Expression *> args, const std::string &name) : args(args), funcName(name) {};
 		virtual ~FunctionAppel();
 		void print();
 };
@@ -91,3 +87,4 @@ class BinaryExpression : public Expression {
 		virtual ~BinaryExpression();
 		void print();
 };
+#endif

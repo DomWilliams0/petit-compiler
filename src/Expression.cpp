@@ -53,16 +53,16 @@ void Affectation::print()
 
 FunctionAppel::~FunctionAppel()
 {
-	for (int i = 0; i < args.size;i++) {
-		delete(args.front);
-		args.popfront;
+	for (int i = 0; i < args.size();i++) {
+		delete args.back();
+		args.pop_back();
 	}
 }
 
 void FunctionAppel::print()
 {
 	std::cout << funcName << "( ";
-	std::list<Expression*>::constiterator iterator;
+	std::vector<Expression*>::const_iterator iterator;
 	for (iterator = args.begin(); iterator != args.end(); ++iterator) {
 		(*iterator)->print();
 	}

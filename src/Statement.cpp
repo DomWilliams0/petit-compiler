@@ -1,42 +1,34 @@
-/*
- * Statement.cpp
- *
- *  Created on: 22 mars 2017
- *      Author: lboucaud
- */
-
 #include <iostream>
 #include "Statement.h"
 
-Statement::Statement() {
-	// TODO Auto-generated constructor stub
+Cond::~Cond() {
 
 }
 
-Statement::~Statement() {
-	// TODO Auto-generated destructor stub
+Iter::~Iter() {
+
 }
 
 void Cond::print()
 {
-	std::cout<<"if("
-	condition.print();
+	std::cout<<"if(";
+	condition->print();
 	std::cout<<")"<<std::endl;
-	ifBlock.print();
+	ifBlock->print();
 	if(elseBlock!=NULL)
 	{
 		std::cout<<"else";
-		elseBlock.print();
+		elseBlock->print();
 	}
 	std::cout<<std::endl;
 
 }
 void Iter::print()
 {
-	std::cout<<"while("
-	condition.print();
+	std::cout<<"while(";
+	condition->print();
 	std::cout<<")"<<std::endl;
-	iterBlock.print();
+	iterBlock->print();
 	std::cout<<std::endl;
 }
 void Block::print()

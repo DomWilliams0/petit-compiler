@@ -1,12 +1,6 @@
-/*
- * Element.h
- *
- *  Created on: 22 mars 2017
- *      Author: lboucaud
- */
+#ifndef ELEMENT_H
+#define ELEMENT_H
 
-#ifndef ELEMENT_H_
-#define ELEMENT_H_
 #include <string>
 #include <stdint.h>
 #include <iostream>
@@ -129,4 +123,4 @@ protected:
 	std::vector<Element> elements;
 
 };
-#endif /* ELEMENT_H_ */
+#endif
