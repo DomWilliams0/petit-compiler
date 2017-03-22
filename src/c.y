@@ -19,7 +19,7 @@
 
 extern int yylex();
 extern int yyparse();
-int yyerror(const char *p)
+void yyerror(const char *p)
 {
 	std::cout << "Error: " << p << std::endl;
 }

@@ -1,26 +1,33 @@
-/*
- * Element.cpp
- *
- *  Created on: 22 mars 2017
- *      Author: lboucaud
- */
-
 #include "Element.h"
 #include "Statement.h"
 
-
-Element::~Element() {
-	// TODO Auto-generated destructor stub
+void printType(Type type)
+{
+	switch(type)
+	{
+		case INT32:
+			std::cout << "int32_t " << std::endl;
+			break;
+		case INT64:
+			std::cout << "int64_t " << std::endl;
+			break;
+		case CHAR:
+			std::cout << "char " << std::endl;
+			break;
+		case VOID:
+			std::cout << "void " << std::endl;
+			break;
+	}
 }
 
-Document::Document() {
-	// TODO Auto-generated constructor stub
-
+Element::~Element()
+{
 }
 
-Document::~Document() {
-	// TODO Auto-generated destructor stub
+Document::~Document()
+{
 }
+
 FuncDef:: ~FuncDef()
 {
 	delete this->block;
@@ -28,84 +35,58 @@ FuncDef:: ~FuncDef()
 
 void VarDecl::print()
 {
-	switch(this->varType)
-	{
-		case INT32:
-			std::cout<<"int32_t ";
-			break;
-		case INT64:
-			std::cout<<"int64_t ";
-			break;
-		case CHAR:
-			std::cout<<"char ";
-			break;
-		case VOID:
-			std::cout<<"void ";
-			break;
-	}
-	std::cout<<this->identifier<<";"<<std::endl;
+	printType(varType);
+	std::cout << this->identifier << ";";
 }
 void FuncDecl::print()
 {
-	switch(functionType)
-	{
-		case INT32:
-			std::cout<<"int32_t ";
-			break;
-		case INT64:
-			std::cout<<"int64_t ";
-			break;
-		case CHAR:
-			std::cout<<"char ";
-			break;
-		case VOID:
-			std::cout<<"void ";
-			break;
-	}
-	std::cout<<identifier<<"(";
-	for(int i=0;i<args.size();++i)
+	printType(functionType);
+	std::cout << identifier << "(";
+
+	for(size_t i = 0; i < args.size(); ++i)
 	{
 		args[i].print();
-		std::cout<<",";
+		std::cout << ",";
 	}
-	std::cout<<");"<<std::endl;
 
+	std::cout << ");";
 }
 void FuncDef::print()
 {
 	switch(functionType)
 	{
 		case INT32:
-			std::cout<<"int32_t ";
+			std::cout << "int32_t ";
 			break;
 		case INT64:
-			std::cout<<"int64_t ";
+			std::cout << "int64_t ";
 			break;
 		case CHAR:
-			std::cout<<"char ";
+			std::cout << "char ";
 			break;
 		case VOID:
-			std::cout<<"void ";
+			std::cout << "void ";
 			break;
 	}
-	std::cout<<identifier<<"(";
-	for(int i=0;i<args.size();++i)
+	std::cout << identifier << "(";
+	for(int i = 0; i < args.size(); ++i)
 	{
 		args[i].print();
 	}
-	std::cout<<std::endl;
+	std::cout;
 	block->print();
 }
 
 void VarDef::print()
 {
-	value.printType();
-	std::cout<<identifier<<" = ";
+	printType(value.type);
+	std::cout << identifier << " = ";
 	value.printValue();
-	std::cout<<";"<<std::endl;
+	std::cout << ";";
 
 }
+
 void Document::print()
 {
-
+	std::cout << "Document!";
 }

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "Expression.h"
 
 void Expression::print()
@@ -26,7 +27,8 @@ Const::~Const()
 
 void Const::print()
 {
-	switch (value.type) {
+	switch (value.type)
+	{
 		case INT32:
 			std::cout << value.i32;
 			break;
@@ -36,12 +38,14 @@ void Const::print()
 		case CHAR:
 			std::cout << value.c;
 			break;
+		default:
+			break;
 	}
 }
 
 Affectation::~Affectation()
 {
-	delete(rOperand);
+	delete rOperand;
 }
 
 void Affectation::print()
@@ -53,7 +57,8 @@ void Affectation::print()
 
 FunctionAppel::~FunctionAppel()
 {
-	for (int i = 0; i < args.size();i++) {
+	for (size_t i = 0; i < args.size(); i++)
+	{
 		delete args.back();
 		args.pop_back();
 	}
@@ -62,10 +67,7 @@ FunctionAppel::~FunctionAppel()
 void FunctionAppel::print()
 {
 	std::cout << funcName << "( ";
-	std::vector<Expression*>::const_iterator iterator;
-	for (iterator = args.begin(); iterator != args.end(); ++iterator) {
-		(*iterator)->print();
-	}
+	std::for_each(args.begin(), args.end(), [](Expression *e) { e->print(); });
 	std::cout << ")";
 }
 
@@ -76,7 +78,8 @@ UnaryExpression::~UnaryExpression()
 
 void UnaryExpression::print()
 {
-	switch (op) {
+	switch (op)
+	{
 		case NEG:
 			std::cout << "-";
 			break;
@@ -96,7 +99,9 @@ BinaryExpression::~BinaryExpression()
 void BinaryExpression::print()
 {
 	lExpression->print();
-	switch (op) {
+
+	switch (op)
+	{
 		case PLUS:
 			std::cout << "+";
 			break;
@@ -113,5 +118,6 @@ void BinaryExpression::print()
 			std::cout << "%";
 			break;
 	}
+
 	rExpression->print();
 }

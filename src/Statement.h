@@ -5,46 +5,46 @@
 #include "Expression.h"
 #include <vector>
 
-class Statement {
-public:
-	virtual ~Statement() {}
-	virtual void print() = 0;
+class Statement
+{
+	public:
+		virtual ~Statement() {}
+		virtual void print() = 0;
 
-protected:
-	Statement();
+	protected:
+		Statement();
 };
 
 
 class Block : public Statement
 {
-public:
-	Block();
-	virtual ~Block();
-	void print();
-protected:
-	std::vector<VarDecl> declarations;
-	std::vector<VarDef> definitions;
-	std::vector<Statement> statements;
+	public:
+		~Block();
+		void print();
+
+	protected:
+		std::vector<VarDecl> declarations;
+		std::vector<VarDef> definitions;
+		std::vector<Statement> statements;
 };
 
 class Cond : public Statement
 {
 	public:
 		void print();
-		Cond(Block *iBlock,Expression *cond):ifBlock(iBlock),condition(cond),elseBlock(NULL){};
-		Cond(Block *iBlock,Block *eBlock,Expression *cond):ifBlock(iBlock),elseBlock(eBlock),condition(cond){};
+		Cond(Block *iBlock, Expression *cond, Block *eBlock = nullptr) : ifBlock(iBlock), condition(cond), elseBlock(eBlock) {};
 		~Cond();
 	protected:
 		Block *ifBlock;
-		Block *elseBlock;
 		Expression *condition;
+		Block *elseBlock;
 };
 
 class Iter : public Statement
 {
 	public:
 		void print();
-		Iter(Block *iBlock,Expression *cond):iterBlock(iBlock),condition(cond){};
+		Iter(Block *iBlock, Expression *cond) : iterBlock(iBlock), condition(cond) {};
 		~Iter();
 	protected:
 		Block *iterBlock;

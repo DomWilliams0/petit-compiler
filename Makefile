@@ -14,7 +14,7 @@ OBJS := $(addprefix $(OBJ)/,$(notdir $(SRCS:%.cpp=%.o)))
 
 TARGET = c
 CC = g++
-CFLAGS = -std=c++11 -Wall -Wextra -I$(INC) -O1
+CFLAGS = -std=c++11 -Wall -g -I$(INC) -O0
 
 VPATH=%.cpp $(SRC)
 

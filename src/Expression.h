@@ -5,18 +5,20 @@
 #include <vector>
 #include "Element.h"
 
-enum UnaryOperator{ EXCLAMATION, NEG };
+enum UnaryOperator { EXCLAMATION, NEG };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO };
 
 //==========================================================
-class Expression {
+class Expression
+{
 	public:
 		virtual void print() = 0;
 		virtual ~Expression() {}
 };
 
 //==========================================================
-class Variable : public Expression {
+class Variable : public Expression
+{
 	protected:
 		std::string name;
 		bool isLvalue;
@@ -29,7 +31,8 @@ class Variable : public Expression {
 };
 
 //==========================================================
-class Const : public Expression {
+class Const : public Expression
+{
 	protected:
 		Value value;
 
@@ -40,10 +43,11 @@ class Const : public Expression {
 };
 
 //==========================================================
-class Affectation : public Expression {
+class Affectation : public Expression
+{
 	protected:
 		Variable lOperand;
-		Expression * rOperand;
+		Expression *rOperand;
 
 	public :
 		Affectation(Variable lOperand, Expression *rOperand) : lOperand(lOperand), rOperand(rOperand) {};
@@ -52,9 +56,10 @@ class Affectation : public Expression {
 };
 
 //==========================================================
-class FunctionAppel : public Expression {
+class FunctionAppel : public Expression
+{
 	protected:
-		std::vector<Expression*> args;
+		std::vector<Expression *> args;
 		std::string funcName;
 	public:
 		FunctionAppel(std::vector<Expression *> args, const std::string &name) : args(args), funcName(name) {};
@@ -63,27 +68,29 @@ class FunctionAppel : public Expression {
 };
 
 //==========================================================
-class UnaryExpression : public Expression {
+class UnaryExpression : public Expression
+{
 	protected:
 		UnaryOperator op;
-		Expression * expression;
+		Expression *expression;
 	public:
 
-		UnaryExpression(UnaryOperator op, Expression * expression) : op(op), expression(expression) {};
+		UnaryExpression(UnaryOperator op, Expression *expression) : op(op), expression(expression) {};
 		virtual ~UnaryExpression();
 		void print();
 };
 
 //==========================================================
-class BinaryExpression : public Expression {
+class BinaryExpression : public Expression
+{
 	protected:
 		BinaryOperator op;
-		Expression * lExpression;
-		Expression * rExpression;
+		Expression *lExpression;
+		Expression *rExpression;
 
 	public:
 
-		BinaryExpression(Expression * lexpression, BinaryOperator op, Expression * rexpression) : op(op), lExpression(lexpression), rExpression(rexpression) {};
+		BinaryExpression(Expression *lexpression, BinaryOperator op, Expression *rexpression) : op(op), lExpression(lexpression), rExpression(rexpression) {};
 		virtual ~BinaryExpression();
 		void print();
 };
