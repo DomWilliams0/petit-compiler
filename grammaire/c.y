@@ -161,7 +161,6 @@ stat
 
 
 %%
-extern char *yytext;
 int main(int argc, char **argv)
 {
 	yyparse();
