@@ -3,11 +3,14 @@
 %token RETURN TYPE
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP AND_OP OR_OP ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN
 
+%left '-'
+%nonassoc NEG
+
 %left '+'
 %nonassoc POS
 
-%left '-'
-%nonassoc NEG
+// TODO je crois que certains parmi eux doivent être %right !
+%left '/' '*' '%' '<' LE_OP '>' GE_OP EQ_OP NE_OP AND_OP OR_OP '=' ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ','
 
 %define parse.error verbose
 
@@ -42,7 +45,7 @@ lvalue
 	: var
 	| var '[' expr ']'
 
-expr_uniq
+expr
 	: CONSTANT
 	| lvalue
 	| fonction_appel '[' expr ']'
@@ -50,33 +53,30 @@ expr_uniq
 	| lvalue DEC_OP
 	| INC_OP lvalue
 	| DEC_OP lvalue
-	| '(' expr_uniq ')'
-	| '+' expr_uniq %prec POS
-	| '-' expr_uniq %prec NEG
-	| expr_uniq '/' expr_uniq
-	| expr_uniq '*' expr_uniq
-	| expr_uniq '%' expr_uniq
-	| expr_uniq '+' expr_uniq
-	| expr_uniq '-' expr_uniq
-	| expr_uniq '<' expr_uniq
-	| expr_uniq LE_OP expr_uniq
-	| expr_uniq '>' expr_uniq
-	| expr_uniq GE_OP expr_uniq
-	| expr_uniq EQ_OP expr_uniq
-	| expr_uniq NE_OP expr_uniq
-	| expr_uniq AND_OP expr_uniq
-	| expr_uniq OR_OP expr_uniq
-	| lvalue '=' expr_uniq
-	| lvalue ADD_ASSIGN expr_uniq
-	| lvalue SUB_ASSIGN expr_uniq
-	| lvalue MUL_ASSIGN expr_uniq
-	| lvalue DIV_ASSIGN expr_uniq
-	| lvalue MOD_ASSIGN expr_uniq
+	| '(' expr ')'
+	| '+' expr %prec POS
+	| '-' expr %prec NEG
+	| expr '/' expr
+	| expr '*' expr
+	| expr '%' expr
+	| expr '+' expr
+	| expr '-' expr
+	| expr '<' expr
+	| expr LE_OP expr
+	| expr '>' expr
+	| expr GE_OP expr
+	| expr EQ_OP expr
+	| expr NE_OP expr
+	| expr AND_OP expr
+	| expr OR_OP expr
+	| lvalue '=' expr
+	| lvalue ADD_ASSIGN expr
+	| lvalue SUB_ASSIGN expr
+	| lvalue MUL_ASSIGN expr
+	| lvalue DIV_ASSIGN expr
+	| lvalue MOD_ASSIGN expr
 	| fonction_appel
-
-expr
-	: expr_uniq
-	| expr_uniq ',' expr
+	| expr ',' expr
 
 decl_var
 	: IDENTIFIER
@@ -92,7 +92,7 @@ decl_1
 
 decl_2
 	: decl_var
-	| decl_var '=' expr_uniq
+	| decl_var '=' expr
 
 decl_uniq
 	: TYPE decl_var
