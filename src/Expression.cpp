@@ -1,5 +1,5 @@
-#include "expression.h"
 #include <iostream>
+#include "expression.h"
 
 void Expression::print()
 {
@@ -11,12 +11,12 @@ Variable::~Variable()
 
 void Variable::print()
 {
-	cout << name;
+	std::cout << name;
 	if (index != NULL)
 	{
-		cout << "[";
+		std::cout << "[";
 		index->print();
-		cout << "]";
+		std::cout << "]";
 	}
 }
 
@@ -27,17 +27,16 @@ Const::~Const()
 void Const::print()
 {
 	switch (value.type) {
-	case INT32:
-		cout << value.i32;
-		break;
-	case INT64:
-		cout << value.i64;
-		break;
-	case CHAR:
-		cout << value.c;
-		break;
+		case INT32:
+			std::cout << value.i32;
+			break;
+		case INT64:
+			std::cout << value.i64;
+			break;
+		case CHAR:
+			std::cout << value.c;
+			break;
 	}
-	
 }
 
 Affectation::~Affectation()
@@ -48,71 +47,71 @@ Affectation::~Affectation()
 void Affectation::print()
 {
 	lOperand.print();
-	cout << " = ";
+	std::cout << " = ";
 	rOperand->print();
 }
 
-Function_Appel::~Function_Appel()
+FunctionAppel::~FunctionAppel()
 {
 	for (int i = 0; i < args.size;i++) {
 		delete(args.front);
-		args.pop_front;
+		args.popfront;
 	}
 }
 
-void Function_Appel::print()
+void FunctionAppel::print()
 {
-	cout << funcName << "( ";
-	std::list<Expression*>::const_iterator iterator;
+	std::cout << funcName << "( ";
+	std::list<Expression*>::constiterator iterator;
 	for (iterator = args.begin(); iterator != args.end(); ++iterator) {
 		(*iterator)->print();
 	}
-	cout << ")";
+	std::cout << ")";
 }
 
-Unary_Expression::~Unary_Expression()
+UnaryExpression::~UnaryExpression()
 {
 	delete expression;
 }
 
-void Unary_Expression::print()
+void UnaryExpression::print()
 {
 	switch (op) {
-	case NEG:
-		cout << "-";
-		break;
-	case EXCLAMATION:
-		cout << "!";
-		break;
+		case NEG:
+			std::cout << "-";
+			break;
+		case EXCLAMATION:
+			std::cout << "!";
+			break;
 	}
 	expression->print();
 }
 
-Binary_Expression::~Binary_Expression()
+BinaryExpression::~BinaryExpression()
 {
 	delete lExpression;
 	delete rExpression;
 }
 
-void Binary_Expression::print()
+void BinaryExpression::print()
 {
 	lExpression->print();
 	switch (op) {
-	case PLUS:
-		cout << "+";
-		break;
-	case MINUS:
-		cout << "-";
-		break;
-	case MULT:
-		cout << "*";
-		break;
-	case DIV:
-		cout << "/";
-		break;
-	case MODULO:
-		cout << "%";
-		break;
+		case PLUS:
+			std::cout << "+";
+			break;
+		case MINUS:
+			std::cout << "-";
+			break;
+		case MULT:
+			std::cout << "*";
+			break;
+		case DIV:
+			std::cout << "/";
+			break;
+		case MODULO:
+			std::cout << "%";
+			break;
 	}
 	rExpression->print();
 }
