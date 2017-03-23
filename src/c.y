@@ -10,7 +10,7 @@
 %nonassoc POS
 
 %left '/' '*' '%' '<' LE_OP '>' GE_OP EQ_OP NE_OP AND_OP OR_OP ','
-%right '=' ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN
+%right '!' '=' ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN
 
 %define parse.error verbose
 
@@ -56,6 +56,7 @@ expr
 	| '(' expr ')'
 	| '+' expr %prec POS
 	| '-' expr %prec NEG
+	| '!' expr
 	| expr '/' expr
 	| expr '*' expr
 	| expr '%' expr

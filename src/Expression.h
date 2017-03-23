@@ -5,7 +5,7 @@
 #include <vector>
 #include "Element.h"
 
-enum UnaryOperator { EXCLAMATION, NEG };
+enum UnaryOperator { EXCLAMATION, NEG, POS };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO };
 
 //==========================================================

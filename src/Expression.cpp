@@ -70,6 +70,9 @@ void UnaryExpression::print() const
 		case NEG:
 			std::cout << "-";
 			break;
+		case POS:
+			std::cout << "+";
+			break;
 		case EXCLAMATION:
 			std::cout << "!";
 			break;
