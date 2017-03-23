@@ -111,8 +111,33 @@ void BinaryExpression::print() const
 		case MODULO:
 			std::cout << "%";
 			break;
-		default:
-			std::cout << "X"; // TODO
+		case LT:
+			std::cout << "<";
+			break;
+		case LE:
+			std::cout << "<=";
+			break;
+		case GT:
+			std::cout << ">";
+			break;
+		case GE:
+			std::cout << ">=";
+			break;
+		case EQ:
+			std::cout << "==";
+			break;
+		case NE:
+			std::cout << "!=";
+			break;
+		case AND:
+			std::cout << "&&";
+			break;
+		case OR:
+			std::cout << "||";
+			break;
+		case COMMA:
+			std::cout << ",";
+			break;
 	}
 
 	rExpression->print();
