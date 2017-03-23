@@ -61,18 +61,18 @@ class Element : public Node
 		virtual ~Element() {}
 		virtual void print() const = 0;
 
-		std::string *getIdentifier() const { return identifier; }
+		const std::string &getIdentifier() const { return identifier; }
 
 	protected:
-		Element(std::string *id): identifier(id) {}
-		std::string *identifier;
+		Element(const std::string &id): identifier(id) {}
+		std::string identifier;
 };
 
 
 class VarDecl : public Element
 {
 	public:
-		VarDecl(std::string *id, unsigned int arraySize, Type type = PLACEHOLDER_TYPE) : Element(id), type(type), arraySize(arraySize) {}
+		VarDecl(const std::string &id, unsigned int arraySize, Type type = PLACEHOLDER_TYPE) : Element(id), type(type), arraySize(arraySize) {}
 		void print() const;
 		~VarDecl() {}
 
@@ -92,8 +92,7 @@ class VarDeclList : public Element
 		std::vector<Element *> *declarations;
 
 	public:
-		//                                                                     vvvvvvv ooer I don't like this
-		VarDeclList(Type type, std::vector<Element *> *declarations) : Element(nullptr), type(type), declarations(declarations) {}
+		VarDeclList(Type type, std::vector<Element *> *declarations) : Element(""), type(type), declarations(declarations) {}
 		~VarDeclList() {}
 		void print() const;
 
@@ -119,7 +118,7 @@ class VarDef : public Element
 class FuncDecl : public Element
 {
 	public:
-		FuncDecl(std::string *id, Type type, std::vector<Element *> *args): Element(id), functionType(type), args(args) {}
+		FuncDecl(const std::string &id, Type type, std::vector<Element *> *args): Element(id), functionType(type), args(args) {}
 		~FuncDecl() {}
 		void print() const;
 
@@ -132,7 +131,7 @@ class FuncDecl : public Element
 class FuncDef : public Element
 {
 	public:
-		FuncDef(std::string *id, Type type, std::vector<Element *> *args, Block *b): Element(id), decl(id, type, args), block(b) {}
+		FuncDef(const std::string &id, Type type, std::vector<Element *> *args, Block *b): Element(id), decl(id, type, args), block(b) {}
 		~FuncDef() {}
 		void print() const;
 

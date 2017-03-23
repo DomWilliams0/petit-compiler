@@ -26,8 +26,7 @@ void printType(Type type)
 void VarDecl::print() const
 {
 	printType(this->type);
-	if (identifier)
-		std::cout << *identifier;
+	std::cout << identifier;
 }
 
 void VarDecl::updateType(Type type)
@@ -57,7 +56,7 @@ void VarDeclList::addDeclaration(VarDecl *decl)
 void VarDef::print() const
 {
 	decl->print();
-	std::cout << *identifier << " = ";
+	std::cout << identifier << " = ";
 	value->print();
 }
 
@@ -69,7 +68,7 @@ void VarDef::updateType(Type type)
 void FuncDecl::print() const
 {
 	printType(functionType);
-	std::cout << *identifier << "(";
+	std::cout << identifier << "(";
 
 	for(size_t i = 0; i < args->size(); ++i)
 	{

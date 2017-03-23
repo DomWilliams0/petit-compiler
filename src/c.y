@@ -131,9 +131,9 @@ expr
 	| expr ',' expr           { $$ = new BinaryExpression($1, COMMA, $3); }
 
 decl_var
-	: ident { $$ = new VarDecl($1, 1); }
-	| ident '[' CONSTANT_INTEGER ']' { $$ = new VarDecl($1, $3); }
-	| ident '['  ']' { $$ = new VarDecl($1, 0); } // new declaration of array with currently unknown size, this must be resolved by a initialiser list
+	: ident { $$ = new VarDecl(*$1, 1); }
+	| ident '[' CONSTANT_INTEGER ']' { $$ = new VarDecl(*$1, $3); }
+	| ident '['  ']' { $$ = new VarDecl(*$1, 0); } // new declaration of array with currently unknown size, this must be resolved by a initialiser list
 
 decl
 	: TYPE decl_1 ';' { $$ = new VarDeclList($1, $2); }
@@ -150,9 +150,9 @@ decl_uniq
 	: TYPE decl_var { $$ = $2; $2->updateType($1); }
 
 decl_args_list
-	: TYPE { $$ = new std::vector<Element *>; $$->push_back(new VarDecl(nullptr, $1)); }
+	: TYPE { $$ = new std::vector<Element *>; $$->push_back(new VarDecl("", $1)); }
 	| decl_uniq { $$ = new std::vector<Element *>; $$->push_back($1); }
-	| decl_args_list ',' TYPE { $1->push_back(new VarDecl(nullptr, $3)); }
+	| decl_args_list ',' TYPE { $1->push_back(new VarDecl("", $3)); }
 	| decl_args_list ',' decl_uniq { $1->push_back($3); }
 
 decl_args
@@ -160,14 +160,14 @@ decl_args
 	| '(' decl_args_list ')'  { $$ = $2; }
 
 func_decl
-	: TYPE ident decl_args ';' { $$ = new FuncDecl($2, $1, $3); }
+	: TYPE ident decl_args ';' { $$ = new FuncDecl(*$2, $1, $3); }
 
 any_decl
 	: decl { $$ = $1; }
 	| func_decl
 
 func_def
-	: TYPE ident decl_args block { $$ = new FuncDef($2, $1, $3, $4); }
+	: TYPE ident decl_args block { $$ = new FuncDef(*$2, $1, $3, $4); }
 
 block_item
 	: decl { $$ = (Node *)$1; }
