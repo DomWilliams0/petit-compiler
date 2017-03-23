@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Element.h"
 #include "Statement.h"
 
@@ -30,14 +31,25 @@ Document::~Document()
 
 FuncDef:: ~FuncDef()
 {
-	delete this->block;
+	delete block;
+}
+
+VarDecl::~VarDecl()
+{
+
+}
+
+FuncDecl::~FuncDecl()
+{
+
 }
 
 void VarDecl::print()
 {
 	printType(varType);
-	std::cout << this->identifier << ";";
+	std::cout << identifier << ";";
 }
+
 void FuncDecl::print()
 {
 	printType(functionType);
@@ -53,27 +65,7 @@ void FuncDecl::print()
 }
 void FuncDef::print()
 {
-	switch(functionType)
-	{
-		case INT32:
-			std::cout << "int32_t ";
-			break;
-		case INT64:
-			std::cout << "int64_t ";
-			break;
-		case CHAR:
-			std::cout << "char ";
-			break;
-		case VOID:
-			std::cout << "void ";
-			break;
-	}
-	std::cout << identifier << "(";
-	for(int i = 0; i < args.size(); ++i)
-	{
-		args[i].print();
-	}
-	std::cout;
+	decl.print();
 	block->print();
 }
 
@@ -83,10 +75,9 @@ void VarDef::print()
 	std::cout << identifier << " = ";
 	value.printValue();
 	std::cout << ";";
-
 }
 
 void Document::print()
 {
-	std::cout << "Document!";
+	std::for_each(elements.begin(), elements.end(), [] (Element *e) { e->print(); });
 }

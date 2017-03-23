@@ -36,17 +36,17 @@ void Block::print()
 	std::cout << "{" << std::endl;
 	for(size_t i = 0; i < declarations.size(); ++i)
 	{
-		declarations[i].print();
+		declarations[i]->print();
 		std::cout << std::endl;
 	}
 	for(size_t i = 0; i < definitions.size(); ++i)
 	{
-		definitions[i].print();
+		definitions[i]->print();
 		std::cout << std::endl;
 	}
 	for(size_t i = 0; i < statements.size(); ++i)
 	{
-		statements[i].print();
+		statements[i]->print();
 		std::cout << std::endl;
 	}
 	std::cout << "}" << std::endl;

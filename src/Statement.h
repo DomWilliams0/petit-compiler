@@ -23,16 +23,16 @@ class Block : public Statement
 		void print();
 
 	protected:
-		std::vector<VarDecl> declarations;
-		std::vector<VarDef> definitions;
-		std::vector<Statement> statements;
+		std::vector<VarDecl *> declarations;
+		std::vector<VarDef *> definitions;
+		std::vector<Statement *> statements;
 };
 
 class Cond : public Statement
 {
 	public:
 		void print();
-		Cond(Block *iBlock, Expression *cond, Block *eBlock = nullptr) : ifBlock(iBlock), condition(cond), elseBlock(eBlock) {};
+		Cond(Block *iBlock, Expression *cond, Block *eBlock = nullptr) : ifBlock(iBlock), condition(cond), elseBlock(eBlock) {}
 		~Cond();
 	protected:
 		Block *ifBlock;
@@ -44,7 +44,7 @@ class Iter : public Statement
 {
 	public:
 		void print();
-		Iter(Block *iBlock, Expression *cond) : iterBlock(iBlock), condition(cond) {};
+		Iter(Block *iBlock, Expression *cond) : iterBlock(iBlock), condition(cond) {}
 		~Iter();
 	protected:
 		Block *iterBlock;

@@ -13,7 +13,7 @@ Variable::~Variable()
 void Variable::print()
 {
 	std::cout << name;
-	if (index != NULL)
+	if (index != nullptr)
 	{
 		std::cout << "[";
 		index->print();
@@ -27,20 +27,7 @@ Const::~Const()
 
 void Const::print()
 {
-	switch (value.type)
-	{
-		case INT32:
-			std::cout << value.i32;
-			break;
-		case INT64:
-			std::cout << value.i64;
-			break;
-		case CHAR:
-			std::cout << value.c;
-			break;
-		default:
-			break;
-	}
+	value.printValue();
 }
 
 Affectation::~Affectation()
@@ -50,7 +37,7 @@ Affectation::~Affectation()
 
 void Affectation::print()
 {
-	lOperand.print();
+	lOperand->print();
 	std::cout << " = ";
 	rOperand->print();
 }

@@ -37,7 +37,7 @@ class Const : public Expression
 		Value value;
 
 	public:
-		Const(Value val) : value(val) {};
+		Const(const Value &val) : value(val) {};
 		virtual ~Const();
 		void print();
 };
@@ -46,11 +46,11 @@ class Const : public Expression
 class Affectation : public Expression
 {
 	protected:
-		Variable lOperand;
+		Variable *lOperand;
 		Expression *rOperand;
 
 	public :
-		Affectation(Variable lOperand, Expression *rOperand) : lOperand(lOperand), rOperand(rOperand) {};
+		Affectation(Variable *lOperand, Expression *rOperand) : lOperand(lOperand), rOperand(rOperand) {};
 		virtual ~Affectation();
 		void print();
 };
@@ -59,10 +59,11 @@ class Affectation : public Expression
 class FunctionAppel : public Expression
 {
 	protected:
-		std::vector<Expression *> args;
 		std::string funcName;
+		std::vector<Expression *> args;
+
 	public:
-		FunctionAppel(std::vector<Expression *> args, const std::string &name) : args(args), funcName(name) {};
+		FunctionAppel(const std::string &name, const std::initializer_list<Expression *> &args) : funcName(name), args(args) {};
 		virtual ~FunctionAppel();
 		void print();
 };
