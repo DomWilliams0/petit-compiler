@@ -1,15 +1,15 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
+#include <vector>
 #include "Element.h"
 #include "Expression.h"
-#include <vector>
 
-class Statement
+class Statement : public Node
 {
 	public:
-		virtual ~Statement() {}
-		virtual void print() = 0;
+		virtual ~Statement();
+		virtual void print() const = 0;
 
 	protected:
 		Statement();
@@ -20,7 +20,7 @@ class Block : public Statement
 {
 	public:
 		~Block();
-		void print();
+		void print() const;
 
 	protected:
 		std::vector<VarDecl *> declarations;
@@ -31,7 +31,7 @@ class Block : public Statement
 class Cond : public Statement
 {
 	public:
-		void print();
+		void print() const;
 		Cond(Block *iBlock, Expression *cond, Block *eBlock = nullptr) : ifBlock(iBlock), condition(cond), elseBlock(eBlock) {}
 		~Cond();
 	protected:
@@ -43,7 +43,7 @@ class Cond : public Statement
 class Iter : public Statement
 {
 	public:
-		void print();
+		void print() const;
 		Iter(Block *iBlock, Expression *cond) : iterBlock(iBlock), condition(cond) {}
 		~Iter();
 	protected:

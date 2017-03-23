@@ -9,11 +9,11 @@ enum UnaryOperator { EXCLAMATION, NEG };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO };
 
 //==========================================================
-class Expression
+class Expression : public Node
 {
 	public:
-		virtual void print() = 0;
 		virtual ~Expression() {}
+		virtual void print() const = 0;
 };
 
 //==========================================================
@@ -27,7 +27,7 @@ class Variable : public Expression
 	public:
 		Variable(const std::string &name, Expression *expr = NULL, bool left = true) : name(name), isLvalue(left), index(expr) {};
 		virtual ~Variable();
-		void print();
+		void print() const;
 };
 
 //==========================================================
@@ -39,7 +39,7 @@ class Const : public Expression
 	public:
 		Const(const Value &val) : value(val) {};
 		virtual ~Const();
-		void print();
+		void print() const;
 };
 
 //==========================================================
@@ -52,7 +52,7 @@ class Affectation : public Expression
 	public :
 		Affectation(Variable *lOperand, Expression *rOperand) : lOperand(lOperand), rOperand(rOperand) {};
 		virtual ~Affectation();
-		void print();
+		void print() const;
 };
 
 //==========================================================
@@ -65,7 +65,7 @@ class FunctionAppel : public Expression
 	public:
 		FunctionAppel(const std::string &name, const std::initializer_list<Expression *> &args) : funcName(name), args(args) {};
 		virtual ~FunctionAppel();
-		void print();
+		void print() const;
 };
 
 //==========================================================
@@ -78,7 +78,7 @@ class UnaryExpression : public Expression
 
 		UnaryExpression(UnaryOperator op, Expression *expression) : op(op), expression(expression) {};
 		virtual ~UnaryExpression();
-		void print();
+		void print() const;
 };
 
 //==========================================================
@@ -93,6 +93,6 @@ class BinaryExpression : public Expression
 
 		BinaryExpression(Expression *lexpression, BinaryOperator op, Expression *rexpression) : op(op), lExpression(lexpression), rExpression(rexpression) {};
 		virtual ~BinaryExpression();
-		void print();
+		void print() const;
 };
 #endif

@@ -1,6 +1,11 @@
 #include <iostream>
 #include "Statement.h"
 
+Statement::~Statement()
+{
+
+}
+
 Cond::~Cond()
 {
 
@@ -11,7 +16,7 @@ Iter::~Iter()
 
 }
 
-void Cond::print()
+void Cond::print() const
 {
 	std::cout << "if(";
 	condition->print();
@@ -24,14 +29,14 @@ void Cond::print()
 	}
 
 }
-void Iter::print()
+void Iter::print() const
 {
 	std::cout << "while(";
 	condition->print();
 	std::cout << ")" << std::endl;
 	iterBlock->print();
 }
-void Block::print()
+void Block::print() const
 {
 	std::cout << "{" << std::endl;
 	for(size_t i = 0; i < declarations.size(); ++i)

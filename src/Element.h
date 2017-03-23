@@ -6,6 +6,16 @@
 #include <iostream>
 #include <vector>
 
+class Node
+{
+	public:
+		virtual ~Node() {}
+		virtual void print() const = 0;
+
+	protected:
+		Node();
+};
+
 class Block;
 
 enum Type { INT32, INT64, CHAR, VOID };
@@ -19,7 +29,7 @@ struct Value
 		char c;
 	};
 
-	void printValue()
+	void printValue() const
 	{
 		switch(type)
 		{
@@ -41,15 +51,15 @@ struct Value
 
 void printType(Type type);
 
-class Element
+class Element : public Node
 {
 	public:
-		virtual void print() = 0;
 		virtual ~Element();
+		virtual void print() const = 0;
 
 	protected:
 		Element(const std::string &id): identifier(id) {};
-		const std::string &identifier;
+		std::string identifier;
 };
 
 
@@ -57,7 +67,7 @@ class VarDecl : public Element
 {
 	public:
 		VarDecl(const std::string &id, Type type): Element(id), varType(type) {};
-		void print();
+		void print() const;
 		~VarDecl();
 
 	protected:
@@ -70,7 +80,7 @@ class FuncDecl : public Element
 	public:
 		FuncDecl(const std::string &id, Type type): Element(id), functionType(type) {};
 		~FuncDecl();
-		void print();
+		void print() const;
 
 	protected:
 		Type functionType;
@@ -83,7 +93,7 @@ class FuncDef : public Element
 	public:
 		FuncDef(const std::string &id, Type type, Block *b): Element(id), decl(id, type), block(b) {};
 		~FuncDef();
-		void print();
+		void print() const;
 
 	protected:
 		FuncDecl decl;
@@ -96,7 +106,7 @@ class VarDef : public Element
 	public:
 		VarDef(const std::string &id, const Value &val): Element(id), value(val) {};
 		virtual ~VarDef();
-		void print();
+		void print() const;
 
 	protected:
 		Value value;
@@ -106,8 +116,8 @@ class VarDef : public Element
 class Document : public Element
 {
 	public:
-		~Document();
-		void print();
+		~Document() {}
+		void print() const;
 
 	protected:
 		std::vector<Element *> elements;

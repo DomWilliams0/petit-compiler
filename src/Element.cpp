@@ -25,10 +25,6 @@ Element::~Element()
 {
 }
 
-Document::~Document()
-{
-}
-
 FuncDef:: ~FuncDef()
 {
 	delete block;
@@ -44,13 +40,13 @@ FuncDecl::~FuncDecl()
 
 }
 
-void VarDecl::print()
+void VarDecl::print() const
 {
 	printType(varType);
 	std::cout << identifier << ";";
 }
 
-void FuncDecl::print()
+void FuncDecl::print() const
 {
 	printType(functionType);
 	std::cout << identifier << "(";
@@ -63,13 +59,13 @@ void FuncDecl::print()
 
 	std::cout << ");";
 }
-void FuncDef::print()
+void FuncDef::print() const
 {
 	decl.print();
 	block->print();
 }
 
-void VarDef::print()
+void VarDef::print() const
 {
 	printType(value.type);
 	std::cout << identifier << " = ";
@@ -77,7 +73,7 @@ void VarDef::print()
 	std::cout << ";";
 }
 
-void Document::print()
+void Document::print() const
 {
 	std::for_each(elements.begin(), elements.end(), [] (Element *e) { e->print(); });
 }

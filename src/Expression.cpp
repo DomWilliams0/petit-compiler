@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Expression.h"
 
-void Expression::print()
+void Expression::print() const
 {
 }
 
@@ -10,7 +10,7 @@ Variable::~Variable()
 {
 }
 
-void Variable::print()
+void Variable::print() const
 {
 	std::cout << name;
 	if (index != nullptr)
@@ -25,7 +25,7 @@ Const::~Const()
 {
 }
 
-void Const::print()
+void Const::print() const
 {
 	value.printValue();
 }
@@ -35,7 +35,7 @@ Affectation::~Affectation()
 	delete rOperand;
 }
 
-void Affectation::print()
+void Affectation::print() const
 {
 	lOperand->print();
 	std::cout << " = ";
@@ -51,7 +51,7 @@ FunctionAppel::~FunctionAppel()
 	}
 }
 
-void FunctionAppel::print()
+void FunctionAppel::print() const
 {
 	std::cout << funcName << "( ";
 	std::for_each(args.begin(), args.end(), [](Expression *e) { e->print(); });
@@ -63,7 +63,7 @@ UnaryExpression::~UnaryExpression()
 	delete expression;
 }
 
-void UnaryExpression::print()
+void UnaryExpression::print() const
 {
 	switch (op)
 	{
@@ -83,7 +83,7 @@ BinaryExpression::~BinaryExpression()
 	delete rExpression;
 }
 
-void BinaryExpression::print()
+void BinaryExpression::print() const
 {
 	lExpression->print();
 
