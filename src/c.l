@@ -28,10 +28,10 @@ IC [a-zA-Z_]
 "char" { return TYPE; }
 "void" { return TYPE; }
 
-{N}+ { return CONSTANT_INTEGER; }
-{IC}({IC}|{N})* { return IDENTIFIER; }
+{N}+ { yylval.integer = atoi(yytext); return CONSTANT_INTEGER; }
+{IC}({IC}|{N})* { yylval.string = new std::string(yytext); return IDENTIFIER; }
 
-"'"\\?."'" { return CONSTANT_CHARACTER; }
+"'"."'" { yylval.character = yytext[1]; return CONSTANT_CHARACTER; } // TODO allow escaped characters
 
 "++" { return INC_OP; }
 "--" { return DEC_OP; }

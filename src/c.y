@@ -35,7 +35,7 @@ Document doc;
 %}
 
 %union {
-	std::string *identifier;
+	std::string *string;
 	int64_t integer;
 	char character;
 	Type type;
