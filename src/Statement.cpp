@@ -16,19 +16,31 @@ Iter::~Iter()
 
 }
 
+void NullStatement::print() const
+{
+
+}
+
 void Cond::print() const
 {
 	std::cout << "if(";
 	condition->print();
 	std::cout << ")" << std::endl;
 	ifBlock->print();
-	if(elseBlock != NULL)
+	if(elseBlock != nullptr)
 	{
 		std::cout << "else";
 		elseBlock->print();
 	}
 
 }
+
+void Cond::updateElse(Block *newElse)
+{
+	if (elseBlock == nullptr)
+		elseBlock = newElse;
+}
+
 void Iter::print() const
 {
 	std::cout << "while(";
@@ -36,22 +48,13 @@ void Iter::print() const
 	std::cout << ")" << std::endl;
 	iterBlock->print();
 }
+
 void Block::print() const
 {
 	std::cout << "{" << std::endl;
-	for(size_t i = 0; i < declarations.size(); ++i)
+	for(size_t i = 0; i < contents->size(); ++i)
 	{
-		declarations[i]->print();
-		std::cout << std::endl;
-	}
-	for(size_t i = 0; i < definitions.size(); ++i)
-	{
-		definitions[i]->print();
-		std::cout << std::endl;
-	}
-	for(size_t i = 0; i < statements.size(); ++i)
-	{
-		statements[i]->print();
+		contents->at(i)->print();
 		std::cout << std::endl;
 	}
 	std::cout << "}" << std::endl;

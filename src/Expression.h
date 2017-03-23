@@ -6,7 +6,7 @@
 #include "Element.h"
 
 enum UnaryOperator { EXCLAMATION, NEG, POS };
-enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO };
+enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO, LT, LE, GT, GE, EQ, NE, AND, OR, COMMA };
 
 //==========================================================
 class Expression : public Node
@@ -25,21 +25,31 @@ class Variable : public Expression
 		Expression *index;
 
 	public:
-		Variable(const std::string &name, Expression *expr = NULL, bool left = true) : name(name), isLvalue(left), index(expr) {};
+		Variable(const std::string &name, Expression *index = NULL, bool left = true) : name(name), isLvalue(left), index(index) {}
 		virtual ~Variable();
 		void print() const;
 };
 
 //==========================================================
-class Const : public Expression
+class ConstInteger : public Expression
 {
-	protected:
-		Value value;
-
 	public:
-		Const(const Value &val) : value(val) {};
-		virtual ~Const();
+		ConstInteger(uint64_t value) : value(value) {}
 		void print() const;
+
+	protected:
+		uint64_t value;
+};
+
+//==========================================================
+class ConstCharacter : public Expression
+{
+	public:
+		ConstCharacter(char value) : value(value) {}
+		void print() const;
+
+	protected:
+		char value;
 };
 
 //==========================================================

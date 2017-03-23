@@ -15,17 +15,21 @@ class Statement : public Node
 		Statement();
 };
 
+class NullStatement : public Statement
+{
+	void print() const;
+};
 
 class Block : public Statement
 {
 	public:
+		Block() {}
+		Block(std::vector<Node *> *contents) : contents(contents) {}
 		~Block();
 		void print() const;
 
 	protected:
-		std::vector<VarDecl *> declarations;
-		std::vector<VarDef *> definitions;
-		std::vector<Statement *> statements;
+		std::vector<Node *> *contents;
 };
 
 class Cond : public Statement
@@ -34,6 +38,10 @@ class Cond : public Statement
 		void print() const;
 		Cond(Block *iBlock, Expression *cond, Block *eBlock = nullptr) : ifBlock(iBlock), condition(cond), elseBlock(eBlock) {}
 		~Cond();
+
+		// only change if currently null
+		void updateElse(Block *newElse);
+
 	protected:
 		Block *ifBlock;
 		Expression *condition;
@@ -49,6 +57,16 @@ class Iter : public Statement
 	protected:
 		Block *iterBlock;
 		Expression *condition;
+};
+
+class Return : public Statement
+{
+	public:
+		void print() const;
+		Return(Expression *value = nullptr) : value(value) {}
+
+	protected:
+		Expression *value;
 };
 
 #endif

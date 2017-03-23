@@ -17,8 +17,10 @@ class Node
 };
 
 class Block;
+class Expression;
 
-enum Type { INT32, INT64, CHAR, VOID };
+//                                    vvvvvvvvvvvvvvvv unknown at time of parsing
+enum Type { INT32, INT64, CHAR, VOID, PLACEHOLDER_TYPE };
 struct Value
 {
 	Type type;
@@ -28,6 +30,8 @@ struct Value
 		int64_t i64;
 		char c;
 	};
+
+	Value(Type type) : type(type), i32(0) {}
 
 	void printValue() const
 	{
@@ -57,6 +61,8 @@ class Element : public Node
 		virtual ~Element();
 		virtual void print() const = 0;
 
+		const std::string &getIdentifier() const { return identifier; }
+
 	protected:
 		Element(const std::string &id): identifier(id) {};
 		std::string identifier;
@@ -66,32 +72,64 @@ class Element : public Node
 class VarDecl : public Element
 {
 	public:
-		VarDecl(const std::string &id, Type type): Element(id), varType(type) {};
+		VarDecl(const std::string &id, unsigned int arraySize, Type type = PLACEHOLDER_TYPE) : Element(id), type(type), arraySize(arraySize) {}
 		void print() const;
 		~VarDecl();
 
+		// only change if currently placeholder
+		void updateType(Type type);
+
 	protected:
-		Type varType;
+		Type type;
+		unsigned int arraySize;
+
+};
+
+class VarDeclList : public Node
+{
+	protected:
+		Type type;
+		std::vector<VarDecl *> *declarations;
+
+	public:
+		VarDeclList(Type type, std::vector<VarDecl *> *declarations) : type(type), declarations(declarations) {}
+
+		void addDeclaration(VarDecl *decl);
+};
+
+class VarDef : public Element
+{
+	public:
+		VarDef(VarDecl *decl, Expression *value): Element(decl->getIdentifier()), decl(decl), value(value) {}
+		virtual ~VarDef();
+		void print() const;
+
+		// only change if currently placeholder
+		void updateType(Type type);
+
+	protected:
+		VarDecl *decl;
+		Expression *value;
 
 };
 
 class FuncDecl : public Element
 {
 	public:
-		FuncDecl(const std::string &id, Type type): Element(id), functionType(type) {};
+		FuncDecl(const std::string &id, Type type, std::vector<Element *> *args): Element(id), functionType(type), args(args) {}
 		~FuncDecl();
 		void print() const;
 
 	protected:
 		Type functionType;
-		std::vector<VarDecl> args;
+		std::vector<Element *> *args;
 };
 
 
 class FuncDef : public Element
 {
 	public:
-		FuncDef(const std::string &id, Type type, Block *b): Element(id), decl(id, type), block(b) {};
+		FuncDef(const std::string &id, Type type, std::vector<Element *> *args, Block *b): Element(id), decl(id, type, args), block(b) {}
 		~FuncDef();
 		void print() const;
 
@@ -101,23 +139,12 @@ class FuncDef : public Element
 };
 
 
-class VarDef : public Element
+class Document : public Node
 {
 	public:
-		VarDef(const std::string &id, const Value &val): Element(id), value(val) {};
-		virtual ~VarDef();
 		void print() const;
 
-	protected:
-		Value value;
-
-};
-
-class Document : public Element
-{
-	public:
-		~Document() {}
-		void print() const;
+		void addElement(Element *e);
 
 	protected:
 		std::vector<Element *> elements;

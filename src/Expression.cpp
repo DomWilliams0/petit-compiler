@@ -21,13 +21,14 @@ void Variable::print() const
 	}
 }
 
-Const::~Const()
+void ConstInteger::print() const
 {
+	std::cout << value;
 }
 
-void Const::print() const
+void ConstCharacter::print() const
 {
-	value.printValue();
+	std::cout << "'" << value << "'";
 }
 
 Affectation::~Affectation()
@@ -107,6 +108,8 @@ void BinaryExpression::print() const
 		case MODULO:
 			std::cout << "%";
 			break;
+		default:
+			std::cout << "X"; // TODO
 	}
 
 	rExpression->print();

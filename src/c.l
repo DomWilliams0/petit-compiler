@@ -3,7 +3,9 @@ IC [a-zA-Z_]
 
 
 %{
-#include <iostream>
+#include "Element.h"
+#include "Statement.h"
+#include "Expression.h"
 #include "c.tab.h"
 %}
 
@@ -26,11 +28,10 @@ IC [a-zA-Z_]
 "char" { return TYPE; }
 "void" { return TYPE; }
 
-{N}+ { return CONSTANT; }
-\\?{N} { return CONSTANT; }
+{N}+ { return CONSTANT_INTEGER; }
 {IC}({IC}|{N})* { return IDENTIFIER; }
 
-"'"\\?."'" { return CONSTANT; }
+"'"\\?."'" { return CONSTANT_CHARACTER; }
 
 "++" { return INC_OP; }
 "--" { return DEC_OP; }

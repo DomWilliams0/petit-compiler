@@ -18,6 +18,8 @@ void printType(Type type)
 		case VOID:
 			std::cout << "void " << std::endl;
 			break;
+		default:
+			break;
 	}
 }
 
@@ -42,8 +44,32 @@ FuncDecl::~FuncDecl()
 
 void VarDecl::print() const
 {
-	printType(varType);
-	std::cout << identifier << ";";
+	printType(this->type);
+	std::cout << identifier;
+}
+
+void VarDecl::updateType(Type type)
+{
+	if (this->type == PLACEHOLDER_TYPE)
+		this->type = type;
+}
+
+void VarDeclList::addDeclaration(VarDecl *decl)
+{
+	decl->updateType(type);
+	declarations->push_back(decl);
+}
+
+void VarDef::print() const
+{
+	decl->print();
+	std::cout << identifier << " = ";
+	value->print();
+}
+
+void VarDef::updateType(Type type)
+{
+	decl->updateType(type);
 }
 
 void FuncDecl::print() const
@@ -51,9 +77,9 @@ void FuncDecl::print() const
 	printType(functionType);
 	std::cout << identifier << "(";
 
-	for(size_t i = 0; i < args.size(); ++i)
+	for(size_t i = 0; i < args->size(); ++i)
 	{
-		args[i].print();
+		args->at(i)->print();
 		std::cout << ",";
 	}
 
@@ -63,14 +89,6 @@ void FuncDef::print() const
 {
 	decl.print();
 	block->print();
-}
-
-void VarDef::print() const
-{
-	printType(value.type);
-	std::cout << identifier << " = ";
-	value.printValue();
-	std::cout << ";";
 }
 
 void Document::print() const
