@@ -29,7 +29,7 @@ $(TARGET): $(OBJS) bison flex
 
 .PHONY: bison
 bison:
-	bison --defines=$(OBJ)/c.tab.h -o $(BISON_OUT) $(BISON_SRC)
+	bison --defines=$(OBJ)/c.tab.h -o $(BISON_OUT) --report=state --report-file=$(OBJ)/c.output $(BISON_SRC)
 
 .PHONY: flex
 flex:
