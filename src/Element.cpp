@@ -37,13 +37,14 @@ void VarDecl::updateType(Type type)
 
 void VarDeclList::print() const
 {
-	printType(type);
-
 	// TODO fix this and wrap it up in a macro
 	for(size_t i = 0; i < declarations->size(); ++i)
 	{
+		if (i != 0)
+			std::cout << ", ";
+
+		printType(type);
 		declarations->at(i)->print();
-		std::cout << ",";
 	}
 }
 
@@ -76,7 +77,7 @@ void FuncDecl::print() const
 		std::cout << ",";
 	}
 
-	std::cout << ")";
+	std::cout << ")" << std::endl;
 }
 void FuncDef::print() const
 {

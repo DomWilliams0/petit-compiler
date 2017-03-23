@@ -31,15 +31,28 @@ void Iter::print() const
 
 void Block::print() const
 {
-	std::cout << "{" << std::endl;
-	for(size_t i = 0; i < contents->size(); ++i)
+	std::cout << "{";
+	if (contents != nullptr)
 	{
-		contents->at(i)->print();
 		std::cout << std::endl;
+		for(size_t i = 0; i < contents->size(); ++i)
+		{
+			if (i != 0)
+				std::cout << std::endl;
+			contents->at(i)->print();
+		}
 	}
 	std::cout << "}" << std::endl;
 }
 
 void Return::print() const
 {
+	std::cout << "return";
+	if (value)
+	{
+		std::cout << " ";
+		value->print();
+	}
+
+	std::cout << ";";
 }
