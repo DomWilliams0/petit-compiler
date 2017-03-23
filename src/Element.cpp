@@ -7,16 +7,16 @@ void printType(Type type)
 	switch(type)
 	{
 		case INT32:
-			std::cout << "int32_t " << std::endl;
+			std::cout << "int32_t ";
 			break;
 		case INT64:
-			std::cout << "int64_t " << std::endl;
+			std::cout << "int64_t ";
 			break;
 		case CHAR:
-			std::cout << "char " << std::endl;
+			std::cout << "char ";
 			break;
 		case VOID:
-			std::cout << "void " << std::endl;
+			std::cout << "void ";
 			break;
 		default:
 			break;
@@ -26,7 +26,8 @@ void printType(Type type)
 void VarDecl::print() const
 {
 	printType(this->type);
-	std::cout << identifier;
+	if (identifier)
+		std::cout << *identifier;
 }
 
 void VarDecl::updateType(Type type)
@@ -37,7 +38,14 @@ void VarDecl::updateType(Type type)
 
 void VarDeclList::print() const
 {
+	printType(type);
 
+	// TODO fix this and wrap it up in a macro
+	for(size_t i = 0; i < declarations->size(); ++i)
+	{
+		declarations->at(i)->print();
+		std::cout << ",";
+	}
 }
 
 void VarDeclList::addDeclaration(VarDecl *decl)
@@ -49,7 +57,7 @@ void VarDeclList::addDeclaration(VarDecl *decl)
 void VarDef::print() const
 {
 	decl->print();
-	std::cout << identifier << " = ";
+	std::cout << *identifier << " = ";
 	value->print();
 }
 
@@ -61,7 +69,7 @@ void VarDef::updateType(Type type)
 void FuncDecl::print() const
 {
 	printType(functionType);
-	std::cout << identifier << "(";
+	std::cout << *identifier << "(";
 
 	for(size_t i = 0; i < args->size(); ++i)
 	{
@@ -69,7 +77,7 @@ void FuncDecl::print() const
 		std::cout << ",";
 	}
 
-	std::cout << ");";
+	std::cout << ")";
 }
 void FuncDef::print() const
 {

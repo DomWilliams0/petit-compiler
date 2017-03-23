@@ -23,10 +23,10 @@ IC [a-zA-Z_]
 "for" { return FOR; }
 
 "return" { return RETURN; }
-"int32_t" { return TYPE; }
-"int64_t" { return TYPE; }
-"char" { return TYPE; }
-"void" { return TYPE; }
+"int32_t" { yylval.type = INT32; return TYPE; }
+"int64_t" { yylval.type = INT64; return TYPE; }
+"char" { yylval.type = CHAR; return TYPE; }
+"void" { yylval.type = VOID; return TYPE; }
 
 {N}+ { yylval.integer = atoi(yytext); return CONSTANT_INTEGER; }
 {IC}({IC}|{N})* { yylval.string = new std::string(yytext); return IDENTIFIER; }

@@ -12,7 +12,7 @@ Variable::~Variable()
 
 void Variable::print() const
 {
-	std::cout << name;
+	std::cout << *name;
 	if (index != nullptr)
 	{
 		std::cout << "[";
@@ -57,7 +57,7 @@ FunctionAppel::~FunctionAppel()
 
 void FunctionAppel::print() const
 {
-	std::cout << funcName << "( ";
+	std::cout << *funcName << "( ";
 	args->print();
 	std::cout << ")";
 }

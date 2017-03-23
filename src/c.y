@@ -97,6 +97,7 @@ lvalue
 
 expr
 	: CONSTANT_INTEGER { $$ = new ConstInteger($1); }
+	| CONSTANT_CHARACTER { $$ = new ConstCharacter($1); }
 	| lvalue { $$ = (Expression *)$1; }
 	// | fonction_appel '[' expr ']' // TODO this needs some more designing
 	| lvalue INC_OP           { $$ = newAffectationIncrement($1, POST_INC); }
@@ -215,4 +216,6 @@ stat
 int main(int argc, char **argv)
 {
 	yyparse();
+	doc.print();
+	std::cout << std::endl;
 }
