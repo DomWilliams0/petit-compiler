@@ -43,19 +43,22 @@ void Affectation::print() const
 	rOperand->print();
 }
 
+Expression *newAffectationIncrement(Variable *lvalue, IncrementType type)
+{
+	// TODO actually obey the increment type, this is just a placeholder
+	BinaryExpression *inc = new BinaryExpression(lvalue, PLUS, new ConstInteger(1));
+	return new Affectation(lvalue, inc);
+}
+
 FunctionAppel::~FunctionAppel()
 {
-	for (size_t i = 0; i < args.size(); i++)
-	{
-		delete args.back();
-		args.pop_back();
-	}
+	args->print();
 }
 
 void FunctionAppel::print() const
 {
 	std::cout << funcName << "( ";
-	std::for_each(args.begin(), args.end(), [](Expression *e) { e->print(); });
+	args->print();
 	std::cout << ")";
 }
 

@@ -8,16 +8,10 @@
 class Statement : public Node
 {
 	public:
-		virtual ~Statement();
+		virtual ~Statement() {}
 		virtual void print() const = 0;
 
 	protected:
-		Statement();
-};
-
-class NullStatement : public Statement
-{
-	void print() const;
 };
 
 class Block : public Statement
@@ -25,7 +19,7 @@ class Block : public Statement
 	public:
 		Block() {}
 		Block(std::vector<Node *> *contents) : contents(contents) {}
-		~Block();
+		~Block() {}
 		void print() const;
 
 	protected:
@@ -36,26 +30,26 @@ class Cond : public Statement
 {
 	public:
 		void print() const;
-		Cond(Block *iBlock, Expression *cond, Block *eBlock = nullptr) : ifBlock(iBlock), condition(cond), elseBlock(eBlock) {}
-		~Cond();
+		Cond(Statement *iBlock, Expression *cond, Statement *eBlock = nullptr) : ifBlock(iBlock), condition(cond), elseBlock(eBlock) {}
+		~Cond() {}
 
 		// only change if currently null
-		void updateElse(Block *newElse);
+		void updateElse(Statement *newElse);
 
 	protected:
-		Block *ifBlock;
+		Statement *ifBlock;
 		Expression *condition;
-		Block *elseBlock;
+		Statement *elseBlock;
 };
 
 class Iter : public Statement
 {
 	public:
 		void print() const;
-		Iter(Block *iBlock, Expression *cond) : iterBlock(iBlock), condition(cond) {}
-		~Iter();
+		Iter(Statement *iBlock, Expression *cond) : iterBlock(iBlock), condition(cond) {}
+		~Iter() {}
 	protected:
-		Block *iterBlock;
+		Statement *iterBlock;
 		Expression *condition;
 };
 
@@ -64,6 +58,7 @@ class Return : public Statement
 	public:
 		void print() const;
 		Return(Expression *value = nullptr) : value(value) {}
+		~Return() {}
 
 	protected:
 		Expression *value;

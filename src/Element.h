@@ -13,7 +13,7 @@ class Node
 		virtual void print() const = 0;
 
 	protected:
-		Node();
+		Node() {}
 };
 
 class Block;
@@ -58,23 +58,23 @@ void printType(Type type);
 class Element : public Node
 {
 	public:
-		virtual ~Element();
+		virtual ~Element() {}
 		virtual void print() const = 0;
 
-		const std::string &getIdentifier() const { return identifier; }
+		std::string *getIdentifier() const { return identifier; }
 
 	protected:
-		Element(const std::string &id): identifier(id) {};
-		std::string identifier;
+		Element(std::string *id): identifier(id) {}
+		std::string *identifier;
 };
 
 
 class VarDecl : public Element
 {
 	public:
-		VarDecl(const std::string &id, unsigned int arraySize, Type type = PLACEHOLDER_TYPE) : Element(id), type(type), arraySize(arraySize) {}
+		VarDecl(std::string *id, unsigned int arraySize, Type type = PLACEHOLDER_TYPE) : Element(id), type(type), arraySize(arraySize) {}
 		void print() const;
-		~VarDecl();
+		~VarDecl() {}
 
 		// only change if currently placeholder
 		void updateType(Type type);
@@ -85,14 +85,17 @@ class VarDecl : public Element
 
 };
 
-class VarDeclList : public Node
+class VarDeclList : public Element
 {
 	protected:
 		Type type;
-		std::vector<VarDecl *> *declarations;
+		std::vector<Element *> *declarations;
 
 	public:
-		VarDeclList(Type type, std::vector<VarDecl *> *declarations) : type(type), declarations(declarations) {}
+		//                                                                     vvvvvvv ooer I don't like this
+		VarDeclList(Type type, std::vector<Element *> *declarations) : Element(nullptr), type(type), declarations(declarations) {}
+		~VarDeclList() {}
+		void print() const;
 
 		void addDeclaration(VarDecl *decl);
 };
@@ -101,7 +104,7 @@ class VarDef : public Element
 {
 	public:
 		VarDef(VarDecl *decl, Expression *value): Element(decl->getIdentifier()), decl(decl), value(value) {}
-		virtual ~VarDef();
+		~VarDef() {}
 		void print() const;
 
 		// only change if currently placeholder
@@ -116,8 +119,8 @@ class VarDef : public Element
 class FuncDecl : public Element
 {
 	public:
-		FuncDecl(const std::string &id, Type type, std::vector<Element *> *args): Element(id), functionType(type), args(args) {}
-		~FuncDecl();
+		FuncDecl(std::string *id, Type type, std::vector<Element *> *args): Element(id), functionType(type), args(args) {}
+		~FuncDecl() {}
 		void print() const;
 
 	protected:
@@ -129,8 +132,8 @@ class FuncDecl : public Element
 class FuncDef : public Element
 {
 	public:
-		FuncDef(const std::string &id, Type type, std::vector<Element *> *args, Block *b): Element(id), decl(id, type, args), block(b) {}
-		~FuncDef();
+		FuncDef(std::string *id, Type type, std::vector<Element *> *args, Block *b): Element(id), decl(id, type, args), block(b) {}
+		~FuncDef() {}
 		void print() const;
 
 	protected:

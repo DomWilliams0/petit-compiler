@@ -20,12 +20,12 @@ class Expression : public Node
 class Variable : public Expression
 {
 	protected:
-		std::string name;
+		std::string *name;
 		bool isLvalue;
 		Expression *index;
 
 	public:
-		Variable(const std::string &name, Expression *index = NULL, bool left = true) : name(name), isLvalue(left), index(index) {}
+		Variable(std::string *name, Expression *index = nullptr, bool left = true) : name(name), isLvalue(left), index(index) {}
 		virtual ~Variable();
 		void print() const;
 };
@@ -65,15 +65,19 @@ class Affectation : public Expression
 		void print() const;
 };
 
+enum IncrementType { POST_INC, POST_DEC, PRE_INC, PRE_DEC };
+
+Expression *newAffectationIncrement(Variable *lvalue, IncrementType type);
+
 //==========================================================
 class FunctionAppel : public Expression
 {
 	protected:
-		std::string funcName;
-		std::vector<Expression *> args;
+		std::string *funcName;
+		Expression *args;
 
 	public:
-		FunctionAppel(const std::string &name, const std::initializer_list<Expression *> &args) : funcName(name), args(args) {};
+		FunctionAppel(std::string *name, Expression *args = nullptr) : funcName(name), args(args) {};
 		virtual ~FunctionAppel();
 		void print() const;
 };

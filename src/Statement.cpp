@@ -1,26 +1,6 @@
 #include <iostream>
 #include "Statement.h"
 
-Statement::~Statement()
-{
-
-}
-
-Cond::~Cond()
-{
-
-}
-
-Iter::~Iter()
-{
-
-}
-
-void NullStatement::print() const
-{
-
-}
-
 void Cond::print() const
 {
 	std::cout << "if(";
@@ -35,7 +15,7 @@ void Cond::print() const
 
 }
 
-void Cond::updateElse(Block *newElse)
+void Cond::updateElse(Statement *newElse)
 {
 	if (elseBlock == nullptr)
 		elseBlock = newElse;
@@ -58,4 +38,8 @@ void Block::print() const
 		std::cout << std::endl;
 	}
 	std::cout << "}" << std::endl;
+}
+
+void Return::print() const
+{
 }

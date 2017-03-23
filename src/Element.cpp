@@ -23,25 +23,6 @@ void printType(Type type)
 	}
 }
 
-Element::~Element()
-{
-}
-
-FuncDef:: ~FuncDef()
-{
-	delete block;
-}
-
-VarDecl::~VarDecl()
-{
-
-}
-
-FuncDecl::~FuncDecl()
-{
-
-}
-
 void VarDecl::print() const
 {
 	printType(this->type);
@@ -52,6 +33,11 @@ void VarDecl::updateType(Type type)
 {
 	if (this->type == PLACEHOLDER_TYPE)
 		this->type = type;
+}
+
+void VarDeclList::print() const
+{
+
 }
 
 void VarDeclList::addDeclaration(VarDecl *decl)
@@ -94,4 +80,10 @@ void FuncDef::print() const
 void Document::print() const
 {
 	std::for_each(elements.begin(), elements.end(), [] (Element *e) { e->print(); });
+}
+
+void Document::addElement(Element *e)
+{
+	if (e != nullptr)
+		elements.push_back(e);
 }
