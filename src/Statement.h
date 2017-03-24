@@ -10,9 +10,10 @@ class Statement : public Node
 {
 	public:
 		virtual ~Statement() {}
-		virtual void print() const = 0;
-		virtual int getType() const=0;
-	protected:
+		virtual int getType() const = 0;
+		virtual void print(GraphPrinter *) const = 0;
+		virtual std::string printSelf() const = 0;
+
 };
 
 class Block : public Statement
@@ -21,20 +22,21 @@ class Block : public Statement
 		Block() {}
 		Block(std::vector<Node *> *contents) : contents(contents) {}
 		~Block() {}
-		void print() const;
 		void createBlocks();
-	int getType() const {
-		return BLOCK;
-	}
-	std::vector<Node*>*& getContents() {
-		return contents;
-	}
+		int getType() const {
+			return BLOCK;
+		}
+		std::vector<Node*>*& getContents() {
+			return contents;
+		}
 
-	void setContents(std::vector<Node*>*& contents) {
-		this->contents = contents;
-	}
+		void setContents(std::vector<Node*>*& contents) {
+			this->contents = contents;
+		}
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
 
-	;
+		;
 	protected:
 		std::vector<Node *> *contents;
 };
@@ -42,7 +44,8 @@ class Block : public Statement
 class Cond : public Statement
 {
 	public:
-		void print() const;
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
 		Cond(Statement *iBlock, Expression *cond, Statement *eBlock = nullptr) : ifBlock(iBlock), condition(cond), elseBlock(eBlock) {}
 		~Cond() {}
 
@@ -69,7 +72,8 @@ class Cond : public Statement
 class Iter : public Statement
 {
 	public:
-		void print() const;
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
 		Iter(Statement *iBlock, Expression *cond) : iterBlock(iBlock), condition(cond) {}
 		~Iter() {}
 	int getType() const {
@@ -88,8 +92,9 @@ class Iter : public Statement
 class Return : public Statement
 {
 	public:
-		void print() const;
-		int getType() const {return RETURN;};
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		int getType() const { return RETURN_STAT; }
 		Return(Expression *value = nullptr) : value(value) {}
 		~Return() {}
 

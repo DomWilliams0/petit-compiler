@@ -14,8 +14,9 @@ class Expression : public Node
 {
 	public:
 		virtual ~Expression() {}
-		virtual void print() const = 0;
-		virtual int getType() const =0;
+		virtual void print(GraphPrinter *) const = 0;
+		virtual std::string printSelf() const = 0;
+		virtual int getType() const = 0;
 };
 
 //==========================================================
@@ -29,8 +30,9 @@ class Variable : public Expression
 	public:
 		Variable(std::string *name, Expression *index = nullptr, bool left = true) : name(name), isLvalue(left), index(index) {}
 		virtual ~Variable();
-		void print() const;
-		int getType() const {return VAR;}
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		int getType() const { return VAR; }
 };
 
 //==========================================================
@@ -38,8 +40,9 @@ class ConstInteger : public Expression
 {
 	public:
 		ConstInteger(uint64_t value) : value(value) {}
-		void print() const;
-		int getType() const {return CONSTINT;}
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		int getType() const { return CONSTINT; }
 
 	protected:
 		uint64_t value;
@@ -50,8 +53,9 @@ class ConstCharacter : public Expression
 {
 	public:
 		ConstCharacter(char value) : value(value) {}
-		void print() const;
-		int getType() const {return CONSTCHAR;}
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		int getType() const { return CONSTCHAR; }
 
 	protected:
 		char value;
@@ -67,8 +71,9 @@ class Affectation : public Expression
 	public :
 		Affectation(Variable *lOperand, Expression *rOperand) : lOperand(lOperand), rOperand(rOperand) {};
 		virtual ~Affectation();
-		void print() const;
-		int getType() const {return AFFECTATION;}
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		int getType() const { return AFFECTATION; }
 };
 
 enum IncrementType { POST_INC, POST_DEC, PRE_INC, PRE_DEC };
@@ -85,8 +90,9 @@ class FunctionAppel : public Expression
 	public:
 		FunctionAppel(std::string *name, Expression *args = nullptr) : funcName(name), args(args) {};
 		virtual ~FunctionAppel();
-		void print() const;
-		int getType() const {return FUNCAPPEL;}
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		int getType() const { return FUNCAPPEL; }
 };
 
 //==========================================================
@@ -99,8 +105,9 @@ class UnaryExpression : public Expression
 
 		UnaryExpression(UnaryOperator op, Expression *expression) : op(op), expression(expression) {};
 		virtual ~UnaryExpression();
-		void print() const;
-		int getType() const {return UNARY;}
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		int getType() const  {return UNARY; }
 };
 
 //==========================================================
@@ -115,7 +122,12 @@ class BinaryExpression : public Expression
 
 		BinaryExpression(Expression *lexpression, BinaryOperator op, Expression *rexpression) : op(op), lExpression(lexpression), rExpression(rexpression) {};
 		virtual ~BinaryExpression();
-		void print() const;
-		int getType() const {return BINARY;}
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		int getType() const { return BINARY; }
 };
+
+std::string binaryOpToString(BinaryOperator op);
+std::string unaryOpToString(UnaryOperator op);
+
 #endif

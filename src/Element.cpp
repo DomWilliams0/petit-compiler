@@ -1,25 +1,23 @@
+#include <sstream>
 #include <algorithm>
+#include "Printer.h"
 #include "Element.h"
 #include "Statement.h"
 
-void printType(Type type)
+std::string typeToString(Type type)
 {
 	switch(type)
 	{
 		case INT32:
-			std::cout << "int32_t ";
-			break;
+			return "int32_t ";
 		case INT64:
-			std::cout << "int64_t ";
-			break;
+			return "int64_t ";
 		case CHAR:
-			std::cout << "char ";
-			break;
+			return "char ";
 		case VOID:
-			std::cout << "void ";
-			break;
+			return "void ";
 		default:
-			break;
+			return "";
 	}
 }
 void Document::createBlocks()
@@ -34,10 +32,16 @@ void Document::createBlocks()
 	}
 }
 
-void VarDecl::print() const
+std::string VarDecl::printSelf() const
 {
-	printType(this->type);
-	std::cout << identifier;
+	std::stringstream out;
+	out << "VarDecl" << typeToString(type) << " "  << identifier << "[" << arraySize << "]";
+	return out.str();
+}
+
+void VarDecl::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
 }
 
 void VarDecl::updateType(Type type)
@@ -46,16 +50,20 @@ void VarDecl::updateType(Type type)
 		this->type = type;
 }
 
-void VarDeclList::print() const
+std::string VarDeclList::printSelf() const
 {
-	// TODO fix this and wrap it up in a macro
-	for(size_t i = 0; i < declarations->size(); ++i)
-	{
-		if (i != 0)
-			std::cout << ", ";
+	std::stringstream out;
+	out << declarations->size() << " var decl(s)";
+	return out.str();
+}
 
-		printType(type);
-		declarations->at(i)->print();
+void VarDeclList::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+	for (Element *e : *declarations)
+	{
+		printer->addConnection((Node *)this, e);
+		e->print(printer);
 	}
 }
 
@@ -65,11 +73,20 @@ void VarDeclList::addDeclaration(VarDecl *decl)
 	declarations->push_back(decl);
 }
 
-void VarDef::print() const
+std::string VarDef::printSelf() const
 {
-	decl->print();
-	std::cout << identifier << " = ";
-	value->print();
+	return "VarDef";
+}
+
+void VarDef::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, decl);
+	printer->addConnection((Node *)this, value);
+
+	decl->print(printer);
+	value->print(printer);
 }
 
 void VarDef::updateType(Type type)
@@ -77,28 +94,53 @@ void VarDef::updateType(Type type)
 	decl->updateType(type);
 }
 
-void FuncDecl::print() const
+std::string FuncDecl::printSelf() const
 {
-	printType(functionType);
-	std::cout << identifier << "(";
+	return "FuncDecl -> " + typeToString(functionType);
+}
 
-	for(size_t i = 0; i < args->size(); ++i)
+void FuncDecl::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	for (Element *arg : *args)
 	{
-		args->at(i)->print();
-		std::cout << ",";
+		printer->addConnection((Node *)this, arg);
+		arg->print(printer);
 	}
-
-	std::cout << ")" << std::endl;
-}
-void FuncDef::print() const
-{
-	decl.print();
-	block->print();
 }
 
-void Document::print() const
+std::string FuncDef::printSelf() const
 {
-	std::for_each(elements.begin(), elements.end(), [] (Element *e) { e->print(); });
+	std::stringstream out;
+	out << "FuncDef(" << identifier << ")";
+	return out.str();
+}
+
+void FuncDef::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, (Node *)&decl);
+	decl.print(printer);
+
+	printer->addConnection((Node *)this, block);
+	block->print(printer);
+}
+
+std::string Document::printSelf() const
+{
+	return "Document";
+}
+
+void Document::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+	for (Element *e : elements)
+	{
+		printer->addConnection((Node *)this, e);
+		e->print(printer);
+	}
 }
 
 void Document::addElement(Element *e)

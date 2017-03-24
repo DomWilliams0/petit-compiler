@@ -1,16 +1,26 @@
 #include <iostream>
+#include "Printer.h"
 #include "Statement.h"
 
-void Cond::print() const
+std::string Cond::printSelf() const
 {
-	std::cout << "if(";
-	condition->print();
-	std::cout << ")" << std::endl;
-	ifBlock->print();
+	return "If";
+}
+
+void Cond::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, condition);
+	printer->addConnection((Node *)this, ifBlock);
+
+	condition->print(printer);
+	ifBlock->print(printer);
+
 	if(elseBlock != nullptr)
 	{
-		std::cout << "else";
-		elseBlock->print();
+		printer->addConnection((Node *)this, elseBlock);
+		elseBlock->print(printer);
 	}
 
 }
@@ -21,28 +31,38 @@ void Cond::updateElse(Statement *newElse)
 		elseBlock = newElse;
 }
 
-void Iter::print() const
+std::string Iter::printSelf() const
 {
-	std::cout << "while(";
-	condition->print();
-	std::cout << ")" << std::endl;
-	iterBlock->print();
+	return "While";
 }
 
-void Block::print() const
+void Iter::print(GraphPrinter *printer) const
 {
-	std::cout << "{";
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, condition);
+	printer->addConnection((Node *)this, iterBlock);
+
+	condition->print(printer);
+	iterBlock->print(printer);
+}
+
+std::string Block::printSelf() const
+{
+	return "Block"; // TODO add count
+}
+
+void Block::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
 	if (contents != nullptr)
 	{
-		std::cout << std::endl;
-		for(size_t i = 0; i < contents->size(); ++i)
+		for (Node *n : *contents)
 		{
-			if (i != 0)
-				std::cout << std::endl;
-			contents->at(i)->print();
+			printer->addConnection((Node *)this, n);
+			n->print(printer);
 		}
 	}
-	std::cout << "}" << std::endl;
 }
 
 void Block::createBlocks()
@@ -102,14 +122,18 @@ void Block::createBlocks()
 		}
 	}
 }
-void Return::print() const
+std::string Return::printSelf() const
 {
-	std::cout << "return";
+	return "Return";
+}
+
+void Return::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
 	if (value)
 	{
-		std::cout << " ";
-		value->print();
+		printer->addConnection((Node *)this, value);
+		value->print(printer);
 	}
-
-	std::cout << ";";
 }

@@ -1,34 +1,50 @@
-#include <iostream>
 #include <algorithm>
+#include <sstream>
+#include "Printer.h"
 #include "Expression.h"
-
-void Expression::print() const
-{
-}
 
 Variable::~Variable()
 {
 }
 
-void Variable::print() const
+std::string Variable::printSelf() const
 {
-	std::cout << *name;
+	std::stringstream out;
+	out << "Var " << *name;
+	return out.str();
+}
+
+void Variable::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
 	if (index != nullptr)
 	{
-		std::cout << "[";
-		index->print();
-		std::cout << "]";
+		printer->addConnection((Node *)this, index);
+		index->print(printer);
 	}
 }
 
-void ConstInteger::print() const
+std::string ConstInteger::printSelf() const
 {
-	std::cout << value;
+	return std::to_string(value);
 }
 
-void ConstCharacter::print() const
+void ConstInteger::print(GraphPrinter *printer) const
 {
-	std::cout << "'" << value << "'";
+	printer->makeNode((Node *)this);
+}
+
+std::string ConstCharacter::printSelf() const
+{
+	std::stringstream out;
+	out << "'" << value << "'";
+	return out.str();
+}
+
+void ConstCharacter::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
 }
 
 Affectation::~Affectation()
@@ -36,11 +52,19 @@ Affectation::~Affectation()
 	delete rOperand;
 }
 
-void Affectation::print() const
+std::string Affectation::printSelf() const
 {
-	lOperand->print();
-	std::cout << " = ";
-	rOperand->print();
+	return "=";
+}
+
+void Affectation::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, lOperand);
+	printer->addConnection((Node *)this, rOperand);
+	lOperand->print(printer);
+	rOperand->print(printer);
 }
 
 Expression *newAffectationIncrement(Variable *lvalue, IncrementType type)
@@ -52,14 +76,18 @@ Expression *newAffectationIncrement(Variable *lvalue, IncrementType type)
 
 FunctionAppel::~FunctionAppel()
 {
-	args->print();
 }
 
-void FunctionAppel::print() const
+std::string FunctionAppel::printSelf() const
 {
-	std::cout << *funcName << "( ";
-	args->print();
-	std::cout << ")";
+	return "Function call " + *funcName;
+}
+
+void FunctionAppel::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+	printer->addConnection((Node *)this, args);
+	args->print(printer);
 }
 
 UnaryExpression::~UnaryExpression()
@@ -67,21 +95,16 @@ UnaryExpression::~UnaryExpression()
 	delete expression;
 }
 
-void UnaryExpression::print() const
+std::string UnaryExpression::printSelf() const
 {
-	switch (op)
-	{
-		case NEG:
-			std::cout << "-";
-			break;
-		case POS:
-			std::cout << "+";
-			break;
-		case EXCLAMATION:
-			std::cout << "!";
-			break;
-	}
-	expression->print();
+	return unaryOpToString(op);
+}
+
+void UnaryExpression::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+	printer->addConnection((Node *)this, expression);
+	expression->print(printer);
 }
 
 BinaryExpression::~BinaryExpression()
@@ -90,55 +113,70 @@ BinaryExpression::~BinaryExpression()
 	delete rExpression;
 }
 
-void BinaryExpression::print() const
+std::string BinaryExpression::printSelf() const
 {
-	lExpression->print();
+	return binaryOpToString(op);
+}
 
+void BinaryExpression::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, lExpression);
+	printer->addConnection((Node *)this, rExpression);
+
+	lExpression->print(printer);
+	rExpression->print(printer);
+}
+
+std::string binaryOpToString(BinaryOperator op)
+{
 	switch (op)
 	{
 		case PLUS:
-			std::cout << "+";
-			break;
+			return "+";
 		case MINUS:
-			std::cout << "-";
-			break;
+			return "-";
 		case MULT:
-			std::cout << "*";
-			break;
+			return "*";
 		case DIV:
-			std::cout << "/";
-			break;
+			return "/";
 		case MODULO:
-			std::cout << "%";
-			break;
+			return "%";
 		case LT:
-			std::cout << "<";
-			break;
+			return "<";
 		case LE:
-			std::cout << "<=";
-			break;
+			return "<=";
 		case GT:
-			std::cout << ">";
-			break;
+			return ">";
 		case GE:
-			std::cout << ">=";
-			break;
+			return ">=";
 		case EQ:
-			std::cout << "==";
-			break;
+			return "==";
 		case NE:
-			std::cout << "!=";
-			break;
+			return "!=";
 		case AND:
-			std::cout << "&&";
-			break;
+			return "&&";
 		case OR:
-			std::cout << "||";
-			break;
+			return "||";
 		case COMMA:
-			std::cout << ",";
-			break;
+			return ",";
+		default:
+			return "";
 	}
+}
 
-	rExpression->print();
+std::string unaryOpToString(UnaryOperator op)
+{
+	switch (op)
+	{
+		case NEG:
+			return "-";
+		case POS:
+			return "+";
+		case EXCLAMATION:
+			return "!";
+		default:
+			return "";
+	}
 }

@@ -22,6 +22,7 @@
 #include <string>
 #include <cstddef>
 
+#include "Printer.h"
 #include "Element.h"
 #include "Statement.h"
 #include "Expression.h"
@@ -161,7 +162,7 @@ decl_uniq
 	: TYPE decl_var { $$ = $2; $2->updateType($1); }
 
 decl_args_list
-	: TYPE { $$ = new std::vector<Element *>; $$->push_back(new VarDecl("", $1)); }
+	: TYPE { $$ = new std::vector<Element *>; $$->push_back(new VarDecl(typeToString($1), 1)); }
 	| decl_uniq { $$ = new std::vector<Element *>; $$->push_back($1); }
 	| decl_args_list ',' TYPE { $1->push_back(new VarDecl("", $3)); }
 	| decl_args_list ',' decl_uniq { $1->push_back($3); }
@@ -230,6 +231,9 @@ stat
 int main(int argc, char **argv)
 {
 	yyparse();
-	doc.print();
+
+	GraphPrinter printer(std::cerr);
+	printer.printGraph(&doc);
+
 	std::cout << std::endl;
 }
