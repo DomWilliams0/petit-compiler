@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "Printer.h"
 #include "Statement.h"
 
@@ -92,7 +93,9 @@ void Iter::print(GraphPrinter *printer) const
 
 std::string Block::printSelf() const
 {
-	return "Block"; // TODO add count
+	std::stringstream out;
+	out << "Block (" << (contents ? contents->size() : 0) << " size)";
+	return out.str();
 }
 
 void Block::print(GraphPrinter *printer) const

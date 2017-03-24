@@ -35,7 +35,7 @@ void Document::createBlocks()
 std::string VarDecl::printSelf() const
 {
 	std::stringstream out;
-	out << "VarDecl" << typeToString(type) << " "  << identifier << "[" << arraySize << "]";
+	out << "Var Declaration: " << typeToString(type) << identifier << "[" << arraySize << "]";
 	return out.str();
 }
 
@@ -75,7 +75,7 @@ void VarDeclList::addDeclaration(VarDecl *decl)
 
 std::string VarDef::printSelf() const
 {
-	return "VarDef";
+	return "Var Definition";
 }
 
 void VarDef::print(GraphPrinter *printer) const
@@ -96,25 +96,30 @@ void VarDef::updateType(Type type)
 
 std::string FuncDecl::printSelf() const
 {
-	return "FuncDecl -> " + typeToString(functionType);
+	return "Function Declaration: " + typeToString(functionType) + identifier;
 }
 
 void FuncDecl::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
 
-	for (Element *arg : *args)
+	if (args->empty())
 	{
-		printer->addConnection((Node *)this, arg);
-		arg->print(printer);
+		printer->addNullConnection((Node *)this, "No args");
+	}
+	else
+	{
+		for (Element *arg : *args)
+		{
+			printer->addConnection((Node *)this, arg);
+			arg->print(printer);
+		}
 	}
 }
 
 std::string FuncDef::printSelf() const
 {
-	std::stringstream out;
-	out << "FuncDef(" << identifier << ")";
-	return out.str();
+	return "Function Definition: " + identifier;
 }
 
 void FuncDef::print(GraphPrinter *printer) const

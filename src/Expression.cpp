@@ -80,7 +80,7 @@ FunctionAppel::~FunctionAppel()
 
 std::string FunctionAppel::printSelf() const
 {
-	return "Function call " + *funcName;
+	return "Function call: " + *funcName;
 }
 
 void FunctionAppel::print(GraphPrinter *printer) const
