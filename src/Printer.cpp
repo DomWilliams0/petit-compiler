@@ -4,6 +4,7 @@
 void GraphPrinter::printGraph(Node *tree)
 {
 	os << "digraph AST {" << std::endl;
+	os << "    node [shape=box]" << std::endl;
 	tree->print(this);
 	os << "}" << std::endl;
 }
