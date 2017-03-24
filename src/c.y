@@ -1,3 +1,4 @@
+//la definition des jetons. Ici on definit quelles sequences de caracteres sont signficatives
 %token CONSTANT_INTEGER CONSTANT_CHARACTER IDENTIFIER
 %token IF ELSE WHILE FOR
 %token RETURN TYPE

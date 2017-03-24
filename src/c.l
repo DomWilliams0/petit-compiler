@@ -1,5 +1,5 @@
-N [0-9]
-IC [a-zA-Z_]
+N [0-9] // definition en expression reguliere de N
+IC [a-zA-Z_] // definition en expression reguliere de IC
 
 
 %{
@@ -9,13 +9,13 @@ IC [a-zA-Z_]
 #include "c.tab.h"
 %}
 
-%option noyywrap
+%option noyywrap // ce fichier .l ne fera pas appel a la methode yywrap(), cad que notre lexeur genere ne lex qu'1 seul fichier a chaque execution.
 
 %%
 
-"#"[^\n]* { /* ignore */ }
-"//"[^\n]* { /* ignore */ }
-[\n\t\r ] { /* ignore */ }
+"#"[^\n]* { /* ignore */ } // pour tous caracteres suivant un # et qui ne sont pas \n, on les ignore( on ignore aussi le #)
+"//"[^\n]* { /* ignore */ } // pour tous caracteres suivant un // et qui ne sont pas \n, on les ignore( on ignore aussi le #)
+[\n\t\r ] { /* ignore */ } // on ignore \n(changer de ligne), \t(saut) et \r(entrer)
 
 "if" { return IF; }
 "else" { return ELSE; }
@@ -28,8 +28,11 @@ IC [a-zA-Z_]
 "char" { yylval.type = CHAR; return TYPE; }
 "void" { yylval.type = VOID; return TYPE; }
 
-{N}+ { yylval.integer = atoi(yytext); return CONSTANT_INTEGER; }
-{IC}({IC}|{N})* { yylval.string = new std::string(yytext); return IDENTIFIER; }
+{N}+ { yylval.integer = atoi(yytext); return CONSTANT_INTEGER; } // pour toutes les suites de chiffres, on renvoie une valeur et CONSTANT_INTEGER
+																//yyval stocke la valeur correspondante d'un jeton(token)
+																//par defaut, yylval est de type int(ici on veut integer)
+// pour toutes les suites commancant avec une lettre et suivies par des lettres et/ou des chiffres, on les consideres comme un string																
+{IC}({IC}|{N})* { yylval.string = new std::string(yytext); return IDENTIFIER; } 
 
 "'"."'" { yylval.character = yytext[1]; return CONSTANT_CHARACTER; } // TODO allow escaped characters
 
