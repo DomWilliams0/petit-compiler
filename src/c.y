@@ -210,8 +210,8 @@ expr_for
 	| expr
 
 iter
-	: WHILE '(' expr ')' stat { $$ = new Iter($5, $3); }
-	| FOR '(' expr_for ';' expr_for ';' expr_for ')' stat { $$ = new Iter($9, $5); } // TODO new class needed
+	: WHILE '(' expr ')' stat { $$ = new Iter($3, $5); }
+	| FOR '(' expr_for ';' expr_for ';' expr_for ')' stat { $$ = nullptr; } // TODO this takes more work than expected
 
 return_stat
 	: RETURN ';' { $$ = new Return; }

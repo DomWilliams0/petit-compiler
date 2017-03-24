@@ -69,12 +69,27 @@ class Cond : public Statement
 		Statement *elseBlock;
 };
 
+class For : public Statement
+{
+	public:
+		void print(GraphPrinter *) const;
+		std::string printSelf() const;
+		For(Element *init, Element *cond, Element *inc, Statement *block) : init(init), cond(cond), inc(inc), block(block) {}
+		~For() {}
+
+	protected:
+		Element *init;
+		Element *cond;
+		Element *inc;
+		Statement *block;
+};
+
 class Iter : public Statement
 {
 	public:
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		Iter(Statement *iBlock, Expression *cond) : iterBlock(iBlock), condition(cond) {}
+		Iter(Expression *cond, Statement *block) : condition(cond), iterBlock(block) {}
 		~Iter() {}
 	int getType() const {
 		return ITER;
@@ -85,8 +100,8 @@ class Iter : public Statement
 
 	;
 	protected:
-		Statement *iterBlock;
 		Expression *condition;
+		Statement *iterBlock;
 };
 
 class Return : public Statement

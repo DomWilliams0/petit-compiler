@@ -31,6 +31,26 @@ void Cond::updateElse(Statement *newElse)
 		elseBlock = newElse;
 }
 
+std::string For::printSelf() const
+{
+	return "For";
+}
+
+void For::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, init);
+	printer->addConnection((Node *)this, cond);
+	printer->addConnection((Node *)this, inc);
+	printer->addConnection((Node *)this, block);
+
+	init->print(printer);
+	cond->print(printer);
+	inc->print(printer);
+	block->print(printer);
+}
+
 std::string Iter::printSelf() const
 {
 	return "While";
