@@ -40,14 +40,37 @@ void For::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
 
-	printer->addConnection((Node *)this, init);
-	printer->addConnection((Node *)this, cond);
-	printer->addConnection((Node *)this, inc);
-	printer->addConnection((Node *)this, block);
+	if (init)
+	{
+		printer->addConnection((Node *)this, init);
+		init->print(printer);
+	}
+	else
+	{
+		printer->addNullConnection((Node *)this, "No init block");
+	}
 
-	init->print(printer);
-	cond->print(printer);
-	inc->print(printer);
+	if (cond)
+	{
+		printer->addConnection((Node *)this, cond);
+		cond->print(printer);
+	}
+	else
+	{
+		printer->addNullConnection((Node *)this, "No condition block");
+	}
+
+	if (inc)
+	{
+		printer->addConnection((Node *)this, inc);
+		inc->print(printer);
+	}
+	else
+	{
+		printer->addNullConnection((Node *)this, "No post block");
+	}
+
+	printer->addConnection((Node *)this, block);
 	block->print(printer);
 }
 

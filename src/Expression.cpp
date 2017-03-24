@@ -86,8 +86,15 @@ std::string FunctionAppel::printSelf() const
 void FunctionAppel::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
-	printer->addConnection((Node *)this, args);
-	args->print(printer);
+	if (args)
+	{
+		printer->addConnection((Node *)this, args);
+		args->print(printer);
+	}
+	else
+	{
+		printer->addNullConnection((Node *)this, "No args");
+	}
 }
 
 UnaryExpression::~UnaryExpression()

@@ -8,11 +8,14 @@ void GraphPrinter::printGraph(Node *tree)
 	os << "}" << std::endl;
 }
 
+void GraphPrinter::createNode(const char *prefix, size_t id, const std::string &label)
+{
+	os << "    " << prefix << id << " [label=\"" << label << "\"];" << std::endl;
+}
+
 void GraphPrinter::makeNode(Node *n)
 {
-	size_t nodeId = (size_t)n;
-	os << "    " << nodeId << " [label=\"" << n->printSelf() << "\"];" << std::endl;
-	counter += 1;
+	createNode("", (size_t)n, n->printSelf());
 }
 
 void GraphPrinter::addConnection(Node *parent, Node *child)
@@ -22,3 +25,12 @@ void GraphPrinter::addConnection(Node *parent, Node *child)
 	os << "    " << parentId << " -> " << childId << ";" << std::endl;
 }
 
+void GraphPrinter::addNullConnection(Node *parent, const char *label)
+{
+	createNode("null", nullCounter, label);
+
+	// add connection
+	os << "    " << (size_t)parent << " -> null" << nullCounter  << ";" << std::endl;
+
+	nullCounter += 1;
+}
