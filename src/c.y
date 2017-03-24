@@ -4,6 +4,7 @@
 %token RETURN TYPE
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP AND_OP OR_OP ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN
 
+//La delclaration nonassoc montre la non-associativite de  left'-' et de left '+'
 %left '-'
 %nonassoc UMINUS
 
@@ -25,16 +26,21 @@
 #include "Statement.h"
 #include "Expression.h"
 
+//l'analyseur lexical
 extern int yylex();
+//l'analyseur grammatical
 extern int yyparse();
 void yyerror(const char *p)
 {
 	std::cout << "Error: " << p << std::endl;
 }
 
+//l'axiome (le programme, autrement dit)
 Document doc;
 %}
 
+//la structure UNION de la pile de grammaires. La pile est un tableau statique dont chaque element decrit un element grammatical.
+//donc on applique la structure UNION
 %union {
 	std::string *string;
 	int64_t integer;
@@ -55,6 +61,7 @@ Document doc;
 	VarDeclList *varDeclList;
 }
 
+//definition de relation de correspondance, entre un nom et un non-terminal
 %type <doc> document
 %type <element> document_element func_decl func_def any_decl decl_2 decl_uniq
 %type <stat> if else iter return_stat stat
@@ -77,6 +84,7 @@ Document doc;
 %start document
 %%
 
+//notre programme(DOCUMENT) est compose de DOCUMENT_ELEMENT
 document
 	: document_element           { $$ = &doc; $$->addElement($1); }
 	| document document_element  { $1->addElement($2); }
@@ -92,6 +100,7 @@ fonction_appel
 	: ident '(' expr ')' { $$ = new FunctionAppel($1, $3); }
 	| ident '(' ')'      { $$ = new FunctionAppel($1); }
 
+//LVALUE 
 lvalue
 	: ident { $$ = new Variable($1); }
 	| ident '[' expr ']' { $$ = new Variable($1, $3); }
@@ -139,6 +148,7 @@ decl_var
 decl
 	: TYPE decl_1 ';' { $$ = new VarDeclList($1, $2); }
 
+//une serie de declarations successives est autorisee 
 decl_1
 	: decl_2 { $$ = new std::vector<Element *>; $$->push_back($1); }
 	| decl_1 ',' decl_2 { $1->push_back($3); }
@@ -170,6 +180,8 @@ any_decl
 func_def
 	: TYPE ident decl_args block { $$ = new FuncDef(*$2, $1, $3, $4); }
 
+//element qui peut etre contenu dans un bloc est, soit une declaration de varaible/fonction, soit un "statement"
+//la definitiond de "statement" peut etre retrouve tout en bas
 block_item
 	: decl { $$ = (Node *)$1; }
 	| stat { $$ = (Node *)$1; }
@@ -214,6 +226,7 @@ stat
 
 
 %%
+//methode principale pour les tests
 int main(int argc, char **argv)
 {
 	yyparse();
