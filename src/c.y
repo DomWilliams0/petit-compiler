@@ -20,6 +20,7 @@
 %nonassoc UPLUS
 
 %define parse.error verbose
+%parse-param {Document *doc}
 
 %{
 #include <iostream>
@@ -27,22 +28,16 @@
 #include <string>
 #include <cstddef>
 
-#include "Printer.h"
 #include "Element.h"
 #include "Statement.h"
 #include "Expression.h"
 
-//l'analyseur lexical
 extern int yylex();
-//l'analyseur grammatical
-extern int yyparse();
-void yyerror(const char *p)
+void yyerror(Document *doc, const char *p)
 {
 	std::cout << "Error: " << p << std::endl;
 }
 
-//l'axiome (le programme, autrement dit)
-Document doc;
 %}
 
 //la structure UNION de la pile de grammaires. La pile est un tableau statique dont chaque element decrit un element grammatical.
@@ -92,7 +87,7 @@ Document doc;
 
 //notre programme(DOCUMENT) est compose de DOCUMENT_ELEMENT
 document
-	: document_element           { $$ = &doc; $$->addElement($1); }
+	: document_element           { $$ = doc; $$->addElement($1); }
 	| document document_element  { $1->addElement($2); }
 
 document_element
@@ -234,16 +229,4 @@ stat
 	| expr ';'  { $$ = (Statement *)$1; }
 	| ';' { $$ = nullptr; }
 	| return_stat
-
-
 %%
-//methode principale pour les tests
-int main(int argc, char **argv)
-{
-	yyparse();
-
-	GraphPrinter printer(std::cerr);
-	printer.printGraph(&doc);
-
-	std::cout << std::endl;
-}
