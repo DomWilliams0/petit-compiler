@@ -74,6 +74,32 @@ Expression *newAffectationIncrement(Variable *lvalue, IncrementType type)
 	return new Affectation(lvalue, inc);
 }
 
+FunctionAppel::FunctionAppel(std::string *name, Expression *args) : funcName(name)
+{
+	if (args != nullptr)
+	{
+		Expression *current = args;
+		while (true)
+		{
+			if (current->getType() == BINARY)
+			{
+				BinaryExpression *bin = (BinaryExpression *)current;
+				if (bin->getOperator() == COMMA)
+				{
+					this->args.push_back(bin->getRightExpression());
+					current = bin->getLeftExpression();
+					continue;
+				}
+			}
+
+			this->args.push_back(current);
+			break;
+		}
+
+		std::reverse(this->args.begin(), this->args.end());
+	}
+}
+
 FunctionAppel::~FunctionAppel()
 {
 }
@@ -86,14 +112,17 @@ std::string FunctionAppel::printSelf() const
 void FunctionAppel::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
-	if (args)
+	if (args.empty())
 	{
-		printer->addConnection((Node *)this, args);
-		args->print(printer);
+		printer->addNullConnection((Node *)this, "No args");
 	}
 	else
 	{
-		printer->addNullConnection((Node *)this, "No args");
+		for (Expression *arg : args)
+		{
+			printer->addConnection((Node *)this, arg);
+			arg->print(printer);
+		}
 	}
 }
 

@@ -85,10 +85,10 @@ class FunctionAppel : public Expression
 {
 	protected:
 		std::string *funcName;
-		Expression *args;
+		std::vector<Expression *> args;
 
 	public:
-		FunctionAppel(std::string *name, Expression *args = nullptr) : funcName(name), args(args) {};
+		FunctionAppel(std::string *name, Expression *args = nullptr);
 		virtual ~FunctionAppel();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
@@ -125,6 +125,10 @@ class BinaryExpression : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		int getType() const { return BINARY; }
+
+		Expression *getLeftExpression() const { return lExpression; }
+		Expression *getRightExpression() const { return rExpression; }
+		BinaryOperator getOperator() const { return op; }
 };
 
 std::string binaryOpToString(BinaryOperator op);
