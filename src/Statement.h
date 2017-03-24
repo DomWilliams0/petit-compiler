@@ -74,13 +74,15 @@ class For : public Statement
 	public:
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		For(Element *init, Element *cond, Element *inc, Statement *block) : init(init), cond(cond), inc(inc), block(block) {}
+		For(Node *init, Expression *cond, Expression *inc, Statement *block) : init(init), cond(cond), inc(inc), block(block) {}
 		~For() {}
 
+		int getType() const { return ITER; }
+
 	protected:
-		Element *init;
-		Element *cond;
-		Element *inc;
+		Node *init;
+		Expression *cond;
+		Expression *inc;
 		Statement *block;
 };
 
@@ -91,10 +93,10 @@ class Iter : public Statement
 		std::string printSelf() const;
 		Iter(Expression *cond, Statement *block) : condition(cond), iterBlock(block) {}
 		~Iter() {}
-	int getType() const {
-		return ITER;
-	}
-	 Statement*& getIterBlock()  {
+		int getType() const {
+			return ITER;
+		}
+		Statement*& getIterBlock()  {
 		return iterBlock;
 	}
 

@@ -71,7 +71,7 @@ Document doc;
 %type <varDecl> decl_var
 %type <block> block
 %type <cond> if_decl
-%type <node> block_item
+%type <node> block_item expr_for_init
 
 %type <varDeclList> decl
 %type <nodes> block_item_list
@@ -205,13 +205,18 @@ else
 if
 	: if_decl else { $1->updateElse($2); }
 
+expr_for_init
+	: ';' { $$ = nullptr; }
+	| expr ';' { $$ = (Node *)$1; }
+	| decl { $$ = (Node *)$1; }
+
 expr_for
 	: /* vide */ { $$ = nullptr; }
 	| expr
 
 iter
 	: WHILE '(' expr ')' stat { $$ = new Iter($3, $5); }
-	| FOR '(' expr_for ';' expr_for ';' expr_for ')' stat { $$ = nullptr; } // TODO this takes more work than expected
+	| FOR '(' expr_for_init expr_for ';' expr_for ')' stat { $$ = new For($3, $4, $6, $8); }
 
 return_stat
 	: RETURN ';' { $$ = new Return; }
