@@ -22,6 +22,17 @@ void printType(Type type)
 			break;
 	}
 }
+void Document::createBlocks()
+{
+	for(int i=0;i<elements.size();++i)
+	{
+		if(elements[i]->getType()==FUNC_DEF)
+		{
+			FuncDef* fallourd=static_cast < FuncDef* > ( elements[i] ) ;
+			fallourd->getBlock()->createBlocks();
+		}
+	}
+}
 
 void VarDecl::print() const
 {

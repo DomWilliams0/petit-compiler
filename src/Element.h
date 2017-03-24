@@ -11,7 +11,7 @@ class Node
 	public:
 		virtual ~Node() {}
 		virtual void print() const = 0;
-
+		virtual int getType() const=0;
 	protected:
 		Node() {}
 };
@@ -21,6 +21,7 @@ class Expression;
 
 //                                    vvvvvvvvvvvvvvvv unknown at time of parsing
 enum Type { INT32, INT64, CHAR, VOID, PLACEHOLDER_TYPE };
+enum ElementType {VAR_DECL,VAR_DEF,FUNC_DECL,FUNC_DEF,BLOCK,RETURN,COND,ITER,UNKNOWN, DOCUMENT};
 struct Value
 {
 	Type type;
@@ -60,7 +61,7 @@ class Element : public Node
 	public:
 		virtual ~Element() {}
 		virtual void print() const = 0;
-
+		virtual int getType() const = 0;
 		const std::string &getIdentifier() const { return identifier; }
 
 	protected:
@@ -78,7 +79,7 @@ class VarDecl : public Element
 
 		// only change if currently placeholder
 		void updateType(Type type);
-
+		int getType() const{return VAR_DECL;};
 	protected:
 		Type type;
 		unsigned int arraySize;
@@ -95,7 +96,7 @@ class VarDeclList : public Element
 		VarDeclList(Type type, std::vector<Element *> *declarations) : Element(""), type(type), declarations(declarations) {}
 		~VarDeclList() {}
 		void print() const;
-
+		int getType() const{return UNKNOWN;};
 		void addDeclaration(VarDecl *decl);
 };
 
@@ -108,7 +109,7 @@ class VarDef : public Element
 
 		// only change if currently placeholder
 		void updateType(Type type);
-
+		int getType() const{return VAR_DEF;};
 	protected:
 		VarDecl *decl;
 		Expression *value;
@@ -121,7 +122,7 @@ class FuncDecl : public Element
 		FuncDecl(const std::string &id, Type type, std::vector<Element *> *args): Element(id), functionType(type), args(args) {}
 		~FuncDecl() {}
 		void print() const;
-
+		int getType() const{return FUNC_DECL;};
 	protected:
 		Type functionType;
 		std::vector<Element *> *args;
@@ -134,7 +135,16 @@ class FuncDef : public Element
 		FuncDef(const std::string &id, Type type, std::vector<Element *> *args, Block *b): Element(id), decl(id, type, args), block(b) {}
 		~FuncDef() {}
 		void print() const;
+	int getType() const {
+		return FUNC_DEF;
+	}
+	 Block*& getBlock()  {
+		return block;
+	}
 
+
+
+	;
 	protected:
 		FuncDecl decl;
 		Block *block;
@@ -147,6 +157,10 @@ class Document : public Node
 		void print() const;
 
 		void addElement(Element *e);
+
+		void createBlocks();
+
+		int getType() const {return DOCUMENT;}
 
 	protected:
 		std::vector<Element *> elements;

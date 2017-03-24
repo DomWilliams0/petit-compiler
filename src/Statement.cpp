@@ -45,6 +45,63 @@ void Block::print() const
 	std::cout << "}" << std::endl;
 }
 
+void Block::createBlocks()
+{
+	std::vector<Node*>tempEls = std::vector<Node*>();
+	std::vector<Node*>newEls = std::vector<Node*>();
+	bool instr = false;
+	for(int i=0;i<contents->size();++i)
+	{
+		int type=(*contents)[i]->getType();
+		switch(type)
+		{
+			case VAR_DEF:
+			{
+				if(instr)
+				{
+					Block* b=new Block(new std::vector<Node*>(contents->begin()+i-1,contents->end()));
+					contents=new std::vector<Node*>(contents->begin(),contents->begin()+i-1);
+					b->createBlocks();
+					contents->push_back(b);
+					return;
+				}
+				break;
+			}
+			case VAR_DECL:
+			{
+				if(instr)
+				{
+					Block* b=new Block(new std::vector<Node*>(contents->begin()+i-1,contents->end()));
+					contents=new std::vector<Node*>(contents->begin(),contents->begin()+i-1);
+					b->createBlocks();
+					contents->push_back(b);
+					return;
+				}
+				break;
+			}
+			case COND:
+			{
+				Cond* con=( Cond* )( (*contents)[i] ) ;
+				((Block*)(con->getIfBlock()))->createBlocks();
+				((Block*)(con->getElseBlock()))->createBlocks();
+				instr=true;
+				break;
+			}
+			case ITER:
+			{
+				Iter* iter=(Iter* ) ( (*contents)[i] ) ;
+				((Block*)(iter->getIterBlock()))->createBlocks();
+				instr=true;
+				break;
+			}
+			default:
+			{
+				instr=true;
+				break;
+			}
+		}
+	}
+}
 void Return::print() const
 {
 	std::cout << "return";

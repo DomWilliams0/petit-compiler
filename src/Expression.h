@@ -7,6 +7,7 @@
 
 enum UnaryOperator { EXCLAMATION, NEG, POS };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO, LT, LE, GT, GE, EQ, NE, AND, OR, COMMA };
+enum ExprTypes {VAR, CONSTINT, CONSTCHAR, AFFECTATION, FUNCAPPEL, UNARY, BINARY};
 
 //==========================================================
 class Expression : public Node
@@ -14,6 +15,7 @@ class Expression : public Node
 	public:
 		virtual ~Expression() {}
 		virtual void print() const = 0;
+		virtual int getType() const =0;
 };
 
 //==========================================================
@@ -28,6 +30,7 @@ class Variable : public Expression
 		Variable(std::string *name, Expression *index = nullptr, bool left = true) : name(name), isLvalue(left), index(index) {}
 		virtual ~Variable();
 		void print() const;
+		int getType() const {return VAR;}
 };
 
 //==========================================================
@@ -36,6 +39,7 @@ class ConstInteger : public Expression
 	public:
 		ConstInteger(uint64_t value) : value(value) {}
 		void print() const;
+		int getType() const {return CONSTINT;}
 
 	protected:
 		uint64_t value;
@@ -47,6 +51,7 @@ class ConstCharacter : public Expression
 	public:
 		ConstCharacter(char value) : value(value) {}
 		void print() const;
+		int getType() const {return CONSTCHAR;}
 
 	protected:
 		char value;
@@ -63,6 +68,7 @@ class Affectation : public Expression
 		Affectation(Variable *lOperand, Expression *rOperand) : lOperand(lOperand), rOperand(rOperand) {};
 		virtual ~Affectation();
 		void print() const;
+		int getType() const {return AFFECTATION;}
 };
 
 enum IncrementType { POST_INC, POST_DEC, PRE_INC, PRE_DEC };
@@ -80,6 +86,7 @@ class FunctionAppel : public Expression
 		FunctionAppel(std::string *name, Expression *args = nullptr) : funcName(name), args(args) {};
 		virtual ~FunctionAppel();
 		void print() const;
+		int getType() const {return FUNCAPPEL;}
 };
 
 //==========================================================
@@ -93,6 +100,7 @@ class UnaryExpression : public Expression
 		UnaryExpression(UnaryOperator op, Expression *expression) : op(op), expression(expression) {};
 		virtual ~UnaryExpression();
 		void print() const;
+		int getType() const {return UNARY;}
 };
 
 //==========================================================
@@ -108,5 +116,6 @@ class BinaryExpression : public Expression
 		BinaryExpression(Expression *lexpression, BinaryOperator op, Expression *rexpression) : op(op), lExpression(lexpression), rExpression(rexpression) {};
 		virtual ~BinaryExpression();
 		void print() const;
+		int getType() const {return BINARY;}
 };
 #endif
