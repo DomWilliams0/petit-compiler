@@ -1,18 +1,23 @@
-//la definition des jetons. Ici on definit quelles sequences de caracteres sont signficatives
+// La definition des jetons. Ici on definit quelles sequences de caracteres sont signficatives
 %token CONSTANT_INTEGER CONSTANT_CHARACTER IDENTIFIER
 %token IF ELSE WHILE FOR
 %token RETURN TYPE
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP AND_OP OR_OP ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN
 
-//La delclaration nonassoc montre la non-associativite de  left'-' et de left '+'
-%left '-'
+%left ','
+%right MOD_ASSIGN DIV_ASSIGN MUL_ASSIGN SUB_ASSIGN ADD_ASSIGN '='
+%left OR_OP
+%left AND_OP
+%left NE_OP EQ_OP
+%left GE_OP '>' LE_OP '<'
+%left '+' '-'
+%left '%' '*' '/'
+%right'!'
+// TODO ++/-- ?
+
+// La declaration nonassoc montre la non-associativité de left '-' et de left '+'
 %nonassoc UMINUS
-
-%left '+'
 %nonassoc UPLUS
-
-%left '/' '*' '%' '<' LE_OP '>' GE_OP EQ_OP NE_OP AND_OP OR_OP ','
-%right '!' '=' ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN
 
 %define parse.error verbose
 
