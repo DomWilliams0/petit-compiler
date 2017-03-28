@@ -92,6 +92,25 @@ void Iter::print(GraphPrinter *printer) const
 	iterBlock->print(printer);
 }
 
+std::map<std::string,Element*> Block::computeSymbolTable()
+{
+	std::map<std::string,Element*> s={};
+	for(int i=0;i<contents->size();++i)
+	{
+		if((*contents)[i]->getType() ==VAR_DECL)
+		{
+			VarDecl *v=(VarDecl*)(*contents)[i];
+			s[v->getIdentifier()]=v;
+		}
+		else if((*contents)[i]->getType()==VAR_DEF)
+		{
+			VarDef *v=(VarDef*)(*contents)[i];
+			s[v->getIdentifier()]=v;
+		}
+	}
+	return s;
+}
+
 std::string Block::printSelf() const
 {
 	std::stringstream out;

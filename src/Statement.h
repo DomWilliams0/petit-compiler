@@ -36,6 +36,9 @@ class Block : public Statement
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 
+		
+		std::map<std::string,Element*> computeSymbolTable();
+
 		;
 	protected:
 		std::vector<Node *> *contents;
