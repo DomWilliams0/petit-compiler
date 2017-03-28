@@ -27,6 +27,10 @@ $(OBJ)/%.o : %.cpp | build_dirs
 $(TARGET): $(OBJS) bison flex
 	$(CC) $(CFLAGS) $(OBJS) $(FLEX_OUT) $(BISON_OUT) -o $@
 
+.PHONY: ast
+ast: $(TARGET)
+	./$(TARGET) 2> $(OBJ)/ast.dot
+	dot -Tpng $(OBJ)/ast.dot > $(OBJ)/ast.png
 
 .PHONY: bison
 bison: | build_dirs
