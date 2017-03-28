@@ -153,3 +153,42 @@ void Document::addElement(Element *e)
 	if (e != nullptr)
 		elements.push_back(e);
 }
+
+Document::~Document()
+{
+	for (Element *e : elements)
+		delete e;
+	elements.clear();
+}
+
+VarDecl::~VarDecl()
+{
+}
+
+VarDeclList::~VarDeclList()
+{
+	std::for_each(declarations->begin(), declarations->end(), [](Element *e) { delete e; });
+	delete declarations;
+	declarations = nullptr;
+}
+
+VarDef::~VarDef()
+{
+	delete decl;
+	delete value;
+	value = nullptr;
+	decl = nullptr;
+}
+
+FuncDef::~FuncDef()
+{
+	delete block;
+	block = nullptr;
+}
+
+FuncDecl::~FuncDecl()
+{
+	std::for_each(args->begin(), args->end(), [](Element *e) { delete e; });
+	delete args;
+	args = nullptr;
+}

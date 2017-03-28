@@ -98,23 +98,22 @@ ident
 	: IDENTIFIER
 
 fonction_appel
-	: ident '(' expr ')' { $$ = new FunctionAppel($1, $3); }
-	| ident '(' ')'      { $$ = new FunctionAppel($1); }
+	: ident '(' expr ')' { $$ = new FunctionAppel(*$1, $3); delete $1; }
+	| ident '(' ')'      { $$ = new FunctionAppel(*$1); delete $1; }
 
 //LVALUE 
 lvalue
-	: ident { $$ = new Variable($1); }
-	| ident '[' expr ']' { $$ = new Variable($1, $3); }
+	: ident { $$ = new Variable(*$1); delete $1; }
+	| ident '[' expr ']' { $$ = new Variable(*$1, $3); delete $1; }
 
 expr
 	: CONSTANT_INTEGER { $$ = new ConstInteger($1); }
 	| CONSTANT_CHARACTER { $$ = new ConstCharacter($1); }
 	| lvalue { $$ = (Expression *)$1; }
-	// | fonction_appel '[' expr ']' // TODO this needs some more designing
-	| lvalue INC_OP           { $$ = newAffectationIncrement($1, POST_INC); }
-	| lvalue DEC_OP           { $$ = newAffectationIncrement($1, POST_DEC); }
-	| INC_OP lvalue           { $$ = newAffectationIncrement($2, PRE_INC); }
-	| DEC_OP lvalue           { $$ = newAffectationIncrement($2, PRE_DEC); }
+	| lvalue INC_OP           { $$ = new AffectationIncrement(POST_INC, $1); }
+	| lvalue DEC_OP           { $$ = new AffectationIncrement(POST_DEC, $1); }
+	| INC_OP lvalue           { $$ = new AffectationIncrement(PRE_INC, $2); }
+	| DEC_OP lvalue           { $$ = new AffectationIncrement(PRE_DEC, $2); }
 	| '(' expr ')'            { $$ = $2; }
 	| '+' expr %prec UPLUS    { $$ = new UnaryExpression(POS, $2); }
 	| '-' expr %prec UMINUS   { $$ = new UnaryExpression(NEG, $2); }
@@ -133,18 +132,18 @@ expr
 	| expr AND_OP expr        { $$ = new BinaryExpression($1, AND, $3); }
 	| expr OR_OP expr         { $$ = new BinaryExpression($1, OR, $3); }
 	| lvalue '=' expr         { $$ = new Affectation($1, $3); }
-	| lvalue ADD_ASSIGN expr  { $$ = new Affectation($1, new BinaryExpression($1, PLUS, $3)); }
-	| lvalue SUB_ASSIGN expr  { $$ = new Affectation($1, new BinaryExpression($1, MINUS, $3)); }
-	| lvalue MUL_ASSIGN expr  { $$ = new Affectation($1, new BinaryExpression($1, MULT, $3)); }
-	| lvalue DIV_ASSIGN expr  { $$ = new Affectation($1, new BinaryExpression($1, DIV, $3)); }
-	| lvalue MOD_ASSIGN expr  { $$ = new Affectation($1, new BinaryExpression($1, MODULO, $3)); }
+	| lvalue ADD_ASSIGN expr  { $$ = new AffectationCompound($1, PLUS, $3); }
+	| lvalue SUB_ASSIGN expr  { $$ = new AffectationCompound($1, MINUS, $3); }
+	| lvalue MUL_ASSIGN expr  { $$ = new AffectationCompound($1, MULT, $3); }
+	| lvalue DIV_ASSIGN expr  { $$ = new AffectationCompound($1, DIV, $3); }
+	| lvalue MOD_ASSIGN expr  { $$ = new AffectationCompound($1, MODULO, $3); }
 	| fonction_appel          { $$ = $1; }
 	| expr ',' expr           { $$ = new BinaryExpression($1, COMMA, $3); }
 
 decl_var
-	: ident { $$ = new VarDecl(*$1, 1); }
-	| ident '[' CONSTANT_INTEGER ']' { $$ = new VarDecl(*$1, $3); }
-	| ident '['  ']' { $$ = new VarDecl(*$1, 0); } // new declaration of array with currently unknown size, this must be resolved by a initialiser list
+	: ident { $$ = new VarDecl(*$1, 1); delete $1; }
+	| ident '[' CONSTANT_INTEGER ']' { $$ = new VarDecl(*$1, $3); delete $1;}
+	| ident '['  ']' { $$ = new VarDecl(*$1, 0); delete $1; } // new declaration of array with currently unknown size, this must be resolved by a initialiser list
 
 decl
 	: TYPE decl_1 ';' { $$ = new VarDeclList($1, $2); }
@@ -172,14 +171,14 @@ decl_args
 	| '(' decl_args_list ')'  { $$ = $2; }
 
 func_decl
-	: TYPE ident decl_args ';' { $$ = new FuncDecl(*$2, $1, $3); }
+	: TYPE ident decl_args ';' { $$ = new FuncDecl(*$2, $1, $3); delete $2;}
 
 any_decl
 	: decl { $$ = $1; }
 	| func_decl
 
 func_def
-	: TYPE ident decl_args block { $$ = new FuncDef(*$2, $1, $3, $4); }
+	: TYPE ident decl_args block { $$ = new FuncDef(*$2, $1, $3, $4); delete $2; }
 
 //element qui peut etre contenu dans un bloc est, soit une declaration de varaible/fonction, soit un "statement"
 //la definitiond de "statement" peut etre retrouve tout en bas

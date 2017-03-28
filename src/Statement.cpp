@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <sstream>
 #include "Printer.h"
 #include "Statement.h"
@@ -113,6 +114,9 @@ void Block::print(GraphPrinter *printer) const
 
 void Block::createBlocks()
 {
+	if (contents == nullptr)
+		return;
+
 	bool instr = false;
 	for(int i=0;i<contents->size();++i)
 	{
@@ -124,6 +128,8 @@ void Block::createBlocks()
 				if(instr)
 				{
 					Block* b=new Block(new std::vector<Node*>(contents->begin()+i,contents->end()));
+
+					delete contents->at(i - 1);
 					contents->erase(contents->begin() + i - 1, contents->end());
 
 					b->createBlocks();
@@ -136,7 +142,9 @@ void Block::createBlocks()
 			{
 				Cond* con=( Cond* )( (*contents)[i] ) ;
 				((Block*)(con->getIfBlock()))->createBlocks();
-				((Block*)(con->getElseBlock()))->createBlocks(); // TODO is this null ?
+
+				if (con->getElseBlock() != nullptr)
+					((Block*)(con->getElseBlock()))->createBlocks();
 				instr=true;
 				break;
 			}
@@ -176,3 +184,59 @@ void Return::print(GraphPrinter *printer) const
 		value->print(printer);
 	}
 }
+
+Block::~Block()
+{
+	if (contents != nullptr)
+	{
+		std::for_each(contents->begin(), contents->end(), [](Node *n) { delete n; });
+		delete contents;
+		contents = nullptr;
+	}
+}
+
+Cond::~Cond()
+{
+	delete ifBlock;
+	delete condition;
+	if (elseBlock)
+		delete elseBlock;
+
+	ifBlock = nullptr;
+	condition = nullptr;
+	elseBlock = nullptr;
+}
+
+For::~For()
+{
+	if (init)
+		delete init;
+	if (cond)
+		delete cond;
+	if (inc)
+		delete inc;
+	delete block;
+
+	init = nullptr;
+	cond = nullptr;
+	inc = nullptr;
+	block = nullptr;
+}
+
+Iter::~Iter()
+{
+	delete condition;
+	delete iterBlock;
+
+	condition = nullptr;
+	iterBlock = nullptr;
+}
+
+Return::~Return()
+{
+	if (value)
+		delete value;
+
+	value = nullptr;
+}
+

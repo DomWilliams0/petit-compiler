@@ -3,14 +3,10 @@
 #include "Printer.h"
 #include "Expression.h"
 
-Variable::~Variable()
-{
-}
-
 std::string Variable::printSelf() const
 {
 	std::stringstream out;
-	out << "Var " << *name;
+	out << "Var " << name;
 	return out.str();
 }
 
@@ -47,9 +43,42 @@ void ConstCharacter::print(GraphPrinter *printer) const
 	printer->makeNode((Node *)this);
 }
 
-Affectation::~Affectation()
+std::string AffectationCompound::printSelf() const
 {
-	delete rOperand;
+	return binaryOpToString(op) + "=";
+}
+
+void AffectationCompound::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, lvalue);
+	printer->addConnection((Node *)this, rvalue);
+	lvalue->print(printer);
+	rvalue->print(printer);
+}
+
+std::string AffectationIncrement::printSelf() const
+{
+	switch(op)
+	{
+		case POST_INC:
+			return "++ post";
+		case PRE_INC:
+			return "++ pre";
+		case POST_DEC:
+			return "-- post";
+		case PRE_DEC:
+			return "-- pre";
+	}
+}
+
+void AffectationIncrement::print(GraphPrinter *printer) const
+{
+	printer->makeNode((Node *)this);
+
+	printer->addConnection((Node *)this, lvalue);
+	lvalue->print(printer);
 }
 
 std::string Affectation::printSelf() const
@@ -67,14 +96,7 @@ void Affectation::print(GraphPrinter *printer) const
 	rOperand->print(printer);
 }
 
-Expression *newAffectationIncrement(Variable *lvalue, IncrementType type)
-{
-	// TODO actually obey the increment type, this is just a placeholder
-	BinaryExpression *inc = new BinaryExpression(lvalue, PLUS, new ConstInteger(1));
-	return new Affectation(lvalue, inc);
-}
-
-FunctionAppel::FunctionAppel(std::string *name, Expression *args) : funcName(name)
+FunctionAppel::FunctionAppel(const std::string &name, Expression *args) : funcName(name)
 {
 	if (args != nullptr)
 	{
@@ -100,13 +122,9 @@ FunctionAppel::FunctionAppel(std::string *name, Expression *args) : funcName(nam
 	}
 }
 
-FunctionAppel::~FunctionAppel()
-{
-}
-
 std::string FunctionAppel::printSelf() const
 {
-	return "Function call: " + *funcName;
+	return "Function call: " + funcName;
 }
 
 void FunctionAppel::print(GraphPrinter *printer) const
@@ -126,11 +144,6 @@ void FunctionAppel::print(GraphPrinter *printer) const
 	}
 }
 
-UnaryExpression::~UnaryExpression()
-{
-	delete expression;
-}
-
 std::string UnaryExpression::printSelf() const
 {
 	return unaryOpToString(op);
@@ -141,12 +154,6 @@ void UnaryExpression::print(GraphPrinter *printer) const
 	printer->makeNode((Node *)this);
 	printer->addConnection((Node *)this, expression);
 	expression->print(printer);
-}
-
-BinaryExpression::~BinaryExpression()
-{
-	delete lExpression;
-	delete rExpression;
 }
 
 std::string BinaryExpression::printSelf() const
@@ -215,4 +222,52 @@ std::string unaryOpToString(UnaryOperator op)
 		default:
 			return "";
 	}
+}
+
+Variable::~Variable()
+{
+	if (index)
+		delete index;
+
+	index = nullptr;
+}
+
+Affectation::~Affectation()
+{
+	delete lOperand;
+	delete rOperand;
+
+	lOperand = nullptr;
+	rOperand = nullptr;
+}
+
+AffectationIncrement::~AffectationIncrement()
+{
+	delete lvalue;
+}
+
+AffectationCompound::~AffectationCompound()
+{
+	delete lvalue;
+	delete rvalue;
+}
+
+FunctionAppel::~FunctionAppel()
+{
+	std::for_each(args.begin(), args.end(), [] (Expression *e) { delete e; });
+	args.clear();
+}
+
+UnaryExpression::~UnaryExpression()
+{
+	delete expression;
+	expression = nullptr;
+}
+
+BinaryExpression::~BinaryExpression()
+{
+	delete lExpression;
+	delete rExpression;
+
+	lExpression = rExpression = nullptr;
 }

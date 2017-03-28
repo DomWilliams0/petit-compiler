@@ -9,7 +9,7 @@
 class GraphPrinter;
 
 enum Type { INT32, INT64, CHAR, VOID, PLACEHOLDER_TYPE };
-enum ElementType {VAR_DECLS,VAR_DECL,VAR_DEF,FUNC_DECL,FUNC_DEF,BLOCK,RETURN_STAT,COND,ITER,FOR_ITER,UNKNOWN, DOCUMENT, VAR, CONSTINT, CONSTCHAR, AFFECTATION, FUNCAPPEL, UNARY, BINARY};
+enum ElementType {VAR_DECLS,VAR_DECL,VAR_DEF,FUNC_DECL,FUNC_DEF,BLOCK,RETURN_STAT,COND,ITER,FOR_ITER,UNKNOWN, DOCUMENT, VAR, CONSTINT, CONSTCHAR, AFFECTATION, AFFECTATION_INC, AFFECTATION_COMPOUND, FUNCAPPEL, UNARY, BINARY};
 class Node
 {
 	public:
@@ -81,7 +81,7 @@ class VarDecl : public Element
 		VarDecl(const std::string &id, unsigned int arraySize, Type type = PLACEHOLDER_TYPE) : Element(id), type(type), arraySize(arraySize) {}
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		~VarDecl() {}
+		~VarDecl();
 
 		// only change if currently placeholder
 		void updateType(Type type);
@@ -100,7 +100,7 @@ class VarDeclList : public Element
 
 	public:
 		VarDeclList(Type type, std::vector<Element *> *declarations) : Element(""), type(type), declarations(declarations) {}
-		~VarDeclList() {}
+		~VarDeclList();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const{ return VAR_DECLS; };
@@ -112,7 +112,7 @@ class VarDef : public Element
 {
 	public:
 		VarDef(VarDecl *decl, Expression *value): Element(decl->getIdentifier()), decl(decl), value(value) {}
-		~VarDef() {}
+		~VarDef();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 
@@ -129,7 +129,7 @@ class FuncDecl : public Element
 {
 	public:
 		FuncDecl(const std::string &id, Type type, std::vector<Element *> *args): Element(id), functionType(type), args(args) {}
-		~FuncDecl() {}
+		~FuncDecl();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return FUNC_DECL; }
@@ -144,7 +144,7 @@ class FuncDef : public Element
 {
 	public:
 		FuncDef(const std::string &id, Type type, std::vector<Element *> *args, Block *b): Element(id), decl(id, type, args), block(b) {}
-		~FuncDef() {}
+		~FuncDef();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return FUNC_DEF; }
@@ -160,6 +160,7 @@ class FuncDef : public Element
 class Document : public Node
 {
 	public:
+		~Document();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 
