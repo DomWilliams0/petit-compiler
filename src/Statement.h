@@ -10,7 +10,7 @@ class Statement : public Node
 {
 	public:
 		virtual ~Statement() {}
-		virtual int getType() const = 0;
+		virtual ElementType getType() const = 0;
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
 
@@ -23,7 +23,7 @@ class Block : public Statement
 		Block(std::vector<Node *> *contents) : contents(contents) {}
 		~Block() {}
 		void createBlocks();
-		int getType() const {
+		ElementType getType() const {
 			return BLOCK;
 		}
 		std::vector<Node*>*& getContents() {
@@ -51,7 +51,7 @@ class Cond : public Statement
 
 		// only change if currently null
 		void updateElse(Statement *newElse);
-	int getType() const {
+	ElementType getType() const {
 		return COND;
 	}
 	 Statement*& getElseBlock()  {
@@ -77,7 +77,11 @@ class For : public Statement
 		For(Node *init, Expression *cond, Expression *inc, Statement *block) : init(init), cond(cond), inc(inc), block(block) {}
 		~For() {}
 
-		int getType() const { return ITER; }
+		ElementType getType() const { return FOR_ITER; }
+
+		Statement*& getBlock()  {
+			return block;
+		}
 
 	protected:
 		Node *init;
@@ -93,12 +97,12 @@ class Iter : public Statement
 		std::string printSelf() const;
 		Iter(Expression *cond, Statement *block) : condition(cond), iterBlock(block) {}
 		~Iter() {}
-		int getType() const {
+		ElementType getType() const {
 			return ITER;
 		}
 		Statement*& getIterBlock()  {
-		return iterBlock;
-	}
+			return iterBlock;
+		}
 
 	;
 	protected:
@@ -111,7 +115,7 @@ class Return : public Statement
 	public:
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return RETURN_STAT; }
+		ElementType getType() const { return RETURN_STAT; }
 		Return(Expression *value = nullptr) : value(value) {}
 		~Return() {}
 

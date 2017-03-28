@@ -8,13 +8,15 @@
 
 class GraphPrinter;
 
+enum Type { INT32, INT64, CHAR, VOID, PLACEHOLDER_TYPE };
+enum ElementType {VAR_DECLS,VAR_DECL,VAR_DEF,FUNC_DECL,FUNC_DEF,BLOCK,RETURN_STAT,COND,ITER,FOR_ITER,UNKNOWN, DOCUMENT, VAR, CONSTINT, CONSTCHAR, AFFECTATION, FUNCAPPEL, UNARY, BINARY};
 class Node
 {
 	public:
 		virtual ~Node() {}
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
-		virtual int getType() const = 0;
+		virtual ElementType getType() const = 0;
 	protected:
 		Node() {}
 };
@@ -23,8 +25,6 @@ class Block;
 class Expression;
 
 //                                    vvvvvvvvvvvvvvvv unknown at time of parsing
-enum Type { INT32, INT64, CHAR, VOID, PLACEHOLDER_TYPE };
-enum ElementType {VAR_DECL,VAR_DEF,FUNC_DECL,FUNC_DEF,BLOCK,RETURN_STAT,COND,ITER,UNKNOWN, DOCUMENT};
 struct Value
 {
 	Type type;
@@ -65,7 +65,7 @@ class Element : public Node
 		virtual ~Element() {}
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
-		virtual int getType() const = 0;
+		virtual ElementType getType() const = 0;
 
 		const std::string &getIdentifier() const { return identifier; }
 
@@ -85,7 +85,7 @@ class VarDecl : public Element
 
 		// only change if currently placeholder
 		void updateType(Type type);
-		int getType() const{return VAR_DECL;};
+		ElementType getType() const{return VAR_DECL;};
 	protected:
 		Type type;
 		unsigned int arraySize;
@@ -103,7 +103,7 @@ class VarDeclList : public Element
 		~VarDeclList() {}
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const{ return UNKNOWN; };
+		ElementType getType() const{ return VAR_DECLS; };
 
 		void addDeclaration(VarDecl *decl);
 };
@@ -118,7 +118,7 @@ class VarDef : public Element
 
 		// only change if currently placeholder
 		void updateType(Type type);
-		int getType() const{return VAR_DEF;};
+		ElementType getType() const{return VAR_DEF;};
 	protected:
 		VarDecl *decl;
 		Expression *value;
@@ -132,7 +132,7 @@ class FuncDecl : public Element
 		~FuncDecl() {}
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return FUNC_DECL; }
+		ElementType getType() const { return FUNC_DECL; }
 
 	protected:
 		Type functionType;
@@ -147,7 +147,7 @@ class FuncDef : public Element
 		~FuncDef() {}
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return FUNC_DEF; }
+		ElementType getType() const { return FUNC_DEF; }
 
 	 	Block*& getBlock()  { return block; }
 
@@ -167,7 +167,7 @@ class Document : public Node
 
 		void createBlocks();
 
-		int getType() const {return DOCUMENT;}
+		ElementType getType() const {return DOCUMENT;}
 
 	protected:
 		std::vector<Element *> elements;

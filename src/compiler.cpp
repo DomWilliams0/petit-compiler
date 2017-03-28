@@ -11,6 +11,8 @@ int main(int argc, char **argv)
 	if (ret != 0)
 		return 1;
 
+	d.createBlocks();
+
 	GraphPrinter printer(std::cerr);
 	printer.printGraph(&d);
 

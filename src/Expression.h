@@ -7,7 +7,6 @@
 
 enum UnaryOperator { EXCLAMATION, NEG, POS };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO, LT, LE, GT, GE, EQ, NE, AND, OR, COMMA };
-enum ExprTypes {VAR, CONSTINT, CONSTCHAR, AFFECTATION, FUNCAPPEL, UNARY, BINARY};
 
 //==========================================================
 class Expression : public Node
@@ -16,7 +15,7 @@ class Expression : public Node
 		virtual ~Expression() {}
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
-		virtual int getType() const = 0;
+		virtual ElementType getType() const = 0;
 };
 
 //==========================================================
@@ -32,7 +31,7 @@ class Variable : public Expression
 		virtual ~Variable();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return VAR; }
+		ElementType getType() const { return VAR; }
 };
 
 //==========================================================
@@ -42,7 +41,7 @@ class ConstInteger : public Expression
 		ConstInteger(uint64_t value) : value(value) {}
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return CONSTINT; }
+		ElementType getType() const { return CONSTINT; }
 
 	protected:
 		uint64_t value;
@@ -55,7 +54,7 @@ class ConstCharacter : public Expression
 		ConstCharacter(char value) : value(value) {}
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return CONSTCHAR; }
+		ElementType getType() const { return CONSTCHAR; }
 
 	protected:
 		char value;
@@ -73,7 +72,7 @@ class Affectation : public Expression
 		virtual ~Affectation();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return AFFECTATION; }
+		ElementType getType() const { return AFFECTATION; }
 };
 
 enum IncrementType { POST_INC, POST_DEC, PRE_INC, PRE_DEC };
@@ -92,7 +91,7 @@ class FunctionAppel : public Expression
 		virtual ~FunctionAppel();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return FUNCAPPEL; }
+		ElementType getType() const { return FUNCAPPEL; }
 };
 
 //==========================================================
@@ -107,7 +106,7 @@ class UnaryExpression : public Expression
 		virtual ~UnaryExpression();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const  {return UNARY; }
+		ElementType getType() const  {return UNARY; }
 };
 
 //==========================================================
@@ -124,7 +123,7 @@ class BinaryExpression : public Expression
 		virtual ~BinaryExpression();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		int getType() const { return BINARY; }
+		ElementType getType() const { return BINARY; }
 
 		Expression *getLeftExpression() const { return lExpression; }
 		Expression *getRightExpression() const { return rExpression; }

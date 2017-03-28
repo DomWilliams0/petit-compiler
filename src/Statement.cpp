@@ -113,32 +113,19 @@ void Block::print(GraphPrinter *printer) const
 
 void Block::createBlocks()
 {
-	std::vector<Node*>tempEls = std::vector<Node*>();
-	std::vector<Node*>newEls = std::vector<Node*>();
 	bool instr = false;
 	for(int i=0;i<contents->size();++i)
 	{
-		int type=(*contents)[i]->getType();
+		ElementType type=(ElementType)(*contents)[i]->getType();
 		switch(type)
 		{
-			case VAR_DEF:
+			case VAR_DECLS:
 			{
 				if(instr)
 				{
-					Block* b=new Block(new std::vector<Node*>(contents->begin()+i-1,contents->end()));
-					contents=new std::vector<Node*>(contents->begin(),contents->begin()+i-1);
-					b->createBlocks();
-					contents->push_back(b);
-					return;
-				}
-				break;
-			}
-			case VAR_DECL:
-			{
-				if(instr)
-				{
-					Block* b=new Block(new std::vector<Node*>(contents->begin()+i-1,contents->end()));
-					contents=new std::vector<Node*>(contents->begin(),contents->begin()+i-1);
+					Block* b=new Block(new std::vector<Node*>(contents->begin()+i,contents->end()));
+					contents->erase(contents->begin() + i - 1, contents->end());
+
 					b->createBlocks();
 					contents->push_back(b);
 					return;
@@ -149,7 +136,7 @@ void Block::createBlocks()
 			{
 				Cond* con=( Cond* )( (*contents)[i] ) ;
 				((Block*)(con->getIfBlock()))->createBlocks();
-				((Block*)(con->getElseBlock()))->createBlocks();
+				((Block*)(con->getElseBlock()))->createBlocks(); // TODO is this null ?
 				instr=true;
 				break;
 			}
@@ -160,11 +147,17 @@ void Block::createBlocks()
 				instr=true;
 				break;
 			}
-			default:
+			case FOR_ITER:
 			{
+				For *f = (For *)( (*contents)[i] ) ;
+				((Block*)(f->getBlock()))->createBlocks();
 				instr=true;
 				break;
 			}
+
+			default:
+				instr=true;
+				break;
 		}
 	}
 }
