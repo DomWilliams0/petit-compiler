@@ -27,11 +27,12 @@ $(OBJ)/%.o : %.cpp | build_dirs
 $(TARGET): $(OBJS) bison flex
 	$(CC) $(CFLAGS) $(OBJS) $(FLEX_OUT) $(BISON_OUT) -o $@
 
+
 .PHONY: bison
-bison:
+bison: | build_dirs
 	bison --defines=$(OBJ)/c.tab.h -o $(BISON_OUT) --report=state --report-file=$(OBJ)/c.output $(BISON_SRC)
 
-.PHONY: flex
+.PHONY: flex | build_dirs
 flex:
 	flex -o $(FLEX_OUT) $(FLEX_SRC)
 
