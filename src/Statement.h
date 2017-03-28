@@ -19,7 +19,7 @@ class Statement : public Node
 class Block : public Statement
 {
 	public:
-		Block() {}
+		Block() : contents(nullptr){}
 		Block(std::vector<Node *> *contents) : contents(contents) {}
 		~Block() {}
 		void createBlocks();
