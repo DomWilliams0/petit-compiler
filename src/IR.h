@@ -1,6 +1,6 @@
 #pragma once
-#ifndef IR.H
-#define IR.H
+#ifndef IR_H
+#define IR_H
 
 #include <vector>
 #include <string>
@@ -8,6 +8,9 @@
 #include <map>
 
 #include "Element.h"
+
+class BasicBlock;
+class CFG;
 
 class IRInstr {
 public:
@@ -33,7 +36,7 @@ public:
 		lower,
 		lowerOrEqual,
 		notEqual,
-		assign,
+		assignInstr,
 		add_Assign,
 		sub_Assign,
 		mul_Assign,
@@ -48,7 +51,7 @@ public:
 	typedef enum {
 		unary_expr,
 		binary_expr,
-		assign,
+		assignType,
 		assignIncrement
 	} Type;
 	

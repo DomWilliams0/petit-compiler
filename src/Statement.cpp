@@ -95,7 +95,7 @@ void Iter::print(GraphPrinter *printer) const
 std::map<std::string,Element*> Block::computeSymbolTable()
 {
 	std::map<std::string,Element*> s={};
-	for(int i=0;i<contents->size();++i)
+	for(size_t i=0;i<contents->size();++i)
 	{
 		if((*contents)[i]->getType() ==VAR_DECL)
 		{
@@ -137,7 +137,7 @@ void Block::createBlocks()
 		return;
 
 	bool instr = false;
-	for(int i=0;i<contents->size();++i)
+	for(size_t i=0;i<contents->size();++i)
 	{
 		ElementType type=(ElementType)(*contents)[i]->getType();
 		switch(type)
