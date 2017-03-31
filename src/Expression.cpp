@@ -70,6 +70,8 @@ std::string AffectationIncrement::printSelf() const
 			return "-- post";
 		case PRE_DEC:
 			return "-- pre";
+		default:
+			return "";
 	}
 }
 

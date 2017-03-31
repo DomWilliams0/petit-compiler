@@ -22,7 +22,7 @@ std::string typeToString(Type type)
 }
 void Document::createBlocks()
 {
-	for(int i=0;i<elements.size();++i)
+	for(size_t i=0;i<elements.size();++i)
 	{
 		if(elements[i]->getType()==FUNC_DEF)
 		{
