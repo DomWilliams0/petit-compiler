@@ -6,7 +6,9 @@
 
 namespace IR {
     enum Type{
-        Char, Integer, Long
+        CHAR  =1,
+        INT_32=2,
+        INT_64=4
     };
 
     class Data
@@ -16,9 +18,10 @@ namespace IR {
 
         std::string getName() const;
         Type getType() const;
+         int getSizeInMemory() const;
 
     protected:
-        Type dataType; // 1, 2 or 4 byte(s)
+        Type dataType; // 1, 2 ou 4 octet
         std::string dataName;
     };
 

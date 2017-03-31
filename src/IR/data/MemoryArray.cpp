@@ -9,3 +9,8 @@ void MemoryArray::MemoryArray(Type type, std::string name, unsigned size):
 {
 
 }
+
+int MemoryArray::getSizeInMemory() const
+{
+    return dataType * dataSize;
+}

@@ -19,3 +19,7 @@ Type Data::getType() const
 {
     return dataType;
 }
+int Data::getSizeInMemory() const
+{
+    return dataType;
+}
