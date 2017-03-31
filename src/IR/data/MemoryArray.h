@@ -2,16 +2,17 @@
 #define MEMORYARRAY_H
 
 #include <memory>
-#include <string>
-#include <iostream>
 
-#include "Data.h"
+#include "AbstractData.h"
+#include "Memory.h"
 
 namespace IR {
-    class MemoryArray : public Data
+    class MemoryArray : public Memory
     {
     public:
-        void MemoryArray(Type type, std::string name, unsigned size);
+        MemoryArray(Type type, std::string name, unsigned size);
+
+         int getSizeInMemory() const;
 
     protected:
         unsigned dataSize;
