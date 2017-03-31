@@ -51,20 +51,34 @@ public:
 		assign,
 		assignIncrement
 	} Type;
+
+	//typedef std::shared_ptr<Instruction> sh_Instruction;
 	
-	IRInstr(Operation op, Type t, std::vector<std::string> ls_param);
+	IRInstr(Operation op, Type t, std::vector<std::string> ls_param) : op(op), type(t), params(ls_param) {};
 	void gen_codeAsm(std::ostream &o);
+	virtual std::string toX86() const = 0;
+
+	std::vector<sh_Register> getReadRegisterVector() const;
+	std::vector<sh_Register> getWroteRegisterVector() const;
+	std::vector<sh_Data> getReadRegisterVector() const;
+	std::vector<sh_Data> getWroteRegisterVector() const;
 
 protected:
 	BasicBlock * bb;
 	Operation op;
 	Type type;
 	std::vector<std::string> params;
+
+	std::vector<sh_Register> readRegisterVecotr;
+	std::vector<sh_Register> wroteRegisterVecotr;
+	std::vector<sh_Data> readRegisterVecotr;
+	std::vector<sh_Data> wroteRegisterVecotr;
 };
 
 class BasicBlock {
 public:
 	BasicBlock();
+	/**< x86 assembly code generation for this basic block (very simple) */
 	void gen_codeAsm(std::ostream o);
 	//                                      ^^^^^^^^^^^^^ todo: to modify?
 	void add_IRInstr(IRInstr::Operation op, IRInstr::Type type, std::vector<std::string> params);
