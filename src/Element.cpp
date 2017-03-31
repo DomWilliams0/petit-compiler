@@ -3,6 +3,7 @@
 #include "Printer.h"
 #include "Element.h"
 #include "Statement.h"
+#include "Interpreter.h"
 
 std::string typeToString(Type type)
 {
@@ -131,6 +132,13 @@ void FuncDef::print(GraphPrinter *printer) const
 
 	printer->addConnection((Node *)this, block);
 	block->print(printer);
+}
+
+void FuncDef::solveScopes(std::stack<SymbolTable*>* environments){
+	SymbolTable *blockTable = this->block->computeSymbolTable();
+	for(Element * n : *(this->decl.getArgs())){
+		//TODO: treat args as var defs, insert them into the symbol table of the following block
+	}
 }
 
 std::string Document::printSelf() const

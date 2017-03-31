@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include "Element.h"
 
 enum UnaryOperator { EXCLAMATION, NEG, POS };
@@ -121,6 +122,8 @@ class FunctionAppel : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return FUNCAPPEL; }
+		std::map<std::string,Element*> computeSymbolTable();
+
 };
 
 //==========================================================

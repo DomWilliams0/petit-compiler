@@ -3,6 +3,7 @@
 #include <sstream>
 #include "Printer.h"
 #include "Statement.h"
+#include "Interpreter.h"
 
 std::string Cond::printSelf() const
 {
@@ -92,23 +93,27 @@ void Iter::print(GraphPrinter *printer) const
 	iterBlock->print(printer);
 }
 
-std::map<std::string,Element*> Block::computeSymbolTable()
+SymbolTable * Block::computeSymbolTable()
 {
-	std::map<std::string,Element*> s={};
+	std::map<std::string,VarRef> s={};
 	for(int i=0;i<contents->size();++i)
 	{
 		if((*contents)[i]->getType() ==VAR_DECL)
 		{
 			VarDecl *v=(VarDecl*)(*contents)[i];
-			s[v->getIdentifier()]=v;
+			s[v->getIdentifier()]= {v, 8};
+			//TODO : use var counter
 		}
 		else if((*contents)[i]->getType()==VAR_DEF)
 		{
 			VarDef *v=(VarDef*)(*contents)[i];
-			s[v->getIdentifier()]=v;
+			s[v->getIdentifier()]={v, 8};
 		}
 	}
-	return s;
+	SymbolTable *table = new SymbolTable();
+	table->vars = s;
+
+	return table;
 }
 
 std::string Block::printSelf() const

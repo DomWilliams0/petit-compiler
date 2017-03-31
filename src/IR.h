@@ -8,7 +8,8 @@
 #include <map>
 
 #include "Element.h"
-
+class BasicBlock;
+class CFG;
 class IRInstr {
 public:
 	typedef enum {
@@ -48,7 +49,7 @@ public:
 	typedef enum {
 		unary_expr,
 		binary_expr,
-		assign,
+		//assign,
 		assignIncrement
 	} Type;
 	

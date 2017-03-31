@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <iostream>
 #include <vector>
+#include <stack>
+
+typedef struct SymbolTable;
 
 class GraphPrinter;
 
@@ -133,7 +136,7 @@ class FuncDecl : public Element
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return FUNC_DECL; }
-
+		std::vector<Element *> *getArgs() { return args;}
 	protected:
 		Type functionType;
 		std::vector<Element *> *args;
@@ -150,6 +153,8 @@ class FuncDef : public Element
 		ElementType getType() const { return FUNC_DEF; }
 
 	 	Block*& getBlock()  { return block; }
+
+	 	void solveScopes(std::stack<SymbolTable*>*);
 
 	protected:
 		FuncDecl decl;
@@ -170,8 +175,13 @@ class Document : public Node
 
 		ElementType getType() const {return DOCUMENT;}
 
+	std::vector<Element*>& getElements()  {
+		return elements;
+	}
+
 	protected:
 		std::vector<Element *> elements;
+
 
 };
 #endif

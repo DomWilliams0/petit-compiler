@@ -6,7 +6,8 @@ extern int yyparse(Document *);
 
 int main(int argc, char **argv)
 {
-	Document d;
+
+	/*Document d;
 	int ret = yyparse(&d);
 	if (ret != 0)
 		return 1;
@@ -16,5 +17,5 @@ int main(int argc, char **argv)
 	GraphPrinter printer(std::cerr);
 	printer.printGraph(&d);
 
-	std::cout << std::endl;
+	std::cout << std::endl;*/
 }

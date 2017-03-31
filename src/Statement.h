@@ -4,6 +4,7 @@
 #include <vector>
 #include "Element.h"
 #include "Expression.h"
+#include <map>
 
 
 class Statement : public Node
@@ -37,7 +38,7 @@ class Block : public Statement
 		std::string printSelf() const;
 
 		
-		std::map<std::string,Element*> computeSymbolTable();
+		SymbolTable * computeSymbolTable();
 
 		;
 	protected:

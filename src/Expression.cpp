@@ -127,6 +127,25 @@ std::string FunctionAppel::printSelf() const
 	return "Function call: " + funcName;
 }
 
+/*std::map<std::string,Element*> FunctionAppel::computeSymbolTable()
+{
+	std::map<std::string,Element*> s={};
+	for(int i=0;i<contents->size();++i)
+	{
+		if((*contents)[i]->getType() ==VAR_DECL)
+		{
+			VarDecl *v=(VarDecl*)(*contents)[i];
+			s[v->getIdentifier()]=v;
+		}
+		else if((*contents)[i]->getType()==VAR_DEF)
+		{
+			VarDef *v=(VarDef*)(*contents)[i];
+			s[v->getIdentifier()]=v;
+		}
+	}
+	return s;
+}*/
+
 void FunctionAppel::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
