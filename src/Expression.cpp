@@ -2,12 +2,36 @@
 #include <sstream>
 #include "Printer.h"
 #include "Expression.h"
+#include "Interpreter.h"
 
 std::string Variable::printSelf() const
 {
 	std::stringstream out;
 	out << "Var " << name;
 	return out.str();
+}
+
+Node* Variable::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	std::string id = this->name;
+	int var_id = -777;
+
+	for (int i = environments->size() - 1; i >= 0; i--)
+	{
+		
+		if ((((*environments)[i])->vars).find(id) != (((*environments)[i])->vars).end()) {
+			var_id = (((*environments)[i])->vars)[id].id;
+			break;
+		}
+	}
+
+	if (var_id != -777) {
+		// VAR FOUND -> BUILD ASM
+	}
+	else {
+		// ERROR : UNDEFINED VAR
+	}
+	return nullptr;
 }
 
 void Variable::print(GraphPrinter *printer) const
@@ -26,6 +50,12 @@ std::string ConstInteger::printSelf() const
 	return std::to_string(value);
 }
 
+Node* ConstInteger::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	// nothing to do
+	return nullptr;
+}
+
 void ConstInteger::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
@@ -38,6 +68,12 @@ std::string ConstCharacter::printSelf() const
 	return out.str();
 }
 
+Node* ConstCharacter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	// nothing to do
+	return nullptr;
+}
+
 void ConstCharacter::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
@@ -46,6 +82,13 @@ void ConstCharacter::print(GraphPrinter *printer) const
 std::string AffectationCompound::printSelf() const
 {
 	return binaryOpToString(op) + "=";
+}
+
+Node* AffectationCompound::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	this->lvalue->solveScopes(environments, varCounter);
+	this->rvalue->solveScopes(environments, varCounter);
+	return nullptr;
 }
 
 void AffectationCompound::print(GraphPrinter *printer) const
@@ -73,6 +116,12 @@ std::string AffectationIncrement::printSelf() const
 	}
 }
 
+Node* AffectationIncrement::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	this->lvalue->solveScopes(environments, varCounter);
+	return nullptr;
+}
+
 void AffectationIncrement::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
@@ -84,6 +133,13 @@ void AffectationIncrement::print(GraphPrinter *printer) const
 std::string Affectation::printSelf() const
 {
 	return "=";
+}
+
+Node* Affectation::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	this->lOperand->solveScopes(environments, varCounter);
+	this->rOperand->solveScopes(environments, varCounter);
+	return nullptr;
 }
 
 void Affectation::print(GraphPrinter *printer) const
@@ -127,6 +183,36 @@ std::string FunctionAppel::printSelf() const
 	return "Function call: " + funcName;
 }
 
+Node* FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	std::string id = this->funcName;
+	Node * ref = nullptr;
+
+	for (int i = environments->size() - 1; i >= 0; i--)
+	{
+
+		if ((((*environments)[i])->vars).find(id) != (((*environments)[i])->vars).end()) {
+			ref = (((*environments)[i])->vars)[id].ref;
+			break;
+		}
+	}
+
+	if (ref != nullptr) {
+		if (ref->getType() == FUNC_DEF) {
+			// FUNC FOUND -> BUILD ASM
+			ref->solveScopes(environments, varCounter);
+		}
+		else
+		{
+			//ERROR : FUNC NOT DEFINED
+		}
+	}
+	else {
+		// ERROR : UNDECLARED FUNC
+	}
+	return nullptr;
+}
+
 /*std::map<std::string,Element*> FunctionAppel::computeSymbolTable()
 {
 	std::map<std::string,Element*> s={};
@@ -168,6 +254,12 @@ std::string UnaryExpression::printSelf() const
 	return unaryOpToString(op);
 }
 
+Node* UnaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	this->expression->solveScopes(environments, varCounter);
+	return nullptr;
+}
+
 void UnaryExpression::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
@@ -178,6 +270,13 @@ void UnaryExpression::print(GraphPrinter *printer) const
 std::string BinaryExpression::printSelf() const
 {
 	return binaryOpToString(op);
+}
+
+Node* BinaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	this->lExpression->solveScopes(environments, varCounter);
+	this->rExpression->solveScopes(environments, varCounter);
+	return nullptr;
 }
 
 void BinaryExpression::print(GraphPrinter *printer) const

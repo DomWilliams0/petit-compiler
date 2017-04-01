@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include "Element.h"
-
+typedef struct SymbolTable;
 enum UnaryOperator { EXCLAMATION, NEG, POS };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO, LT, LE, GT, GE, EQ, NE, AND, OR, COMMA };
 
@@ -17,6 +17,8 @@ class Expression : public Node
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
 		virtual ElementType getType() const = 0;
+
+		virtual Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) = 0;
 };
 
 //==========================================================
@@ -33,6 +35,8 @@ class Variable : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return VAR; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 //==========================================================
@@ -43,6 +47,8 @@ class ConstInteger : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return CONSTINT; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 
 	protected:
 		uint64_t value;
@@ -56,6 +62,8 @@ class ConstCharacter : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return CONSTCHAR; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 
 	protected:
 		char value;
@@ -74,6 +82,8 @@ class Affectation : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 enum IncrementType { POST_INC, POST_DEC, PRE_INC, PRE_DEC };
@@ -91,6 +101,8 @@ class AffectationIncrement : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION_INC; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 class AffectationCompound : public Expression
@@ -107,6 +119,8 @@ class AffectationCompound : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION_COMPOUND; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 //==========================================================
@@ -122,8 +136,9 @@ class FunctionAppel : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const { return FUNCAPPEL; }
-		std::map<std::string,Element*> computeSymbolTable();
+		//std::map<std::string,Element*> computeSymbolTable();
 
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 //==========================================================
@@ -139,6 +154,8 @@ class UnaryExpression : public Expression
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const  {return UNARY; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 //==========================================================
@@ -160,6 +177,8 @@ class BinaryExpression : public Expression
 		Expression *getLeftExpression() const { return lExpression; }
 		Expression *getRightExpression() const { return rExpression; }
 		BinaryOperator getOperator() const { return op; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 std::string binaryOpToString(BinaryOperator op);

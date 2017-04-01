@@ -33,6 +33,7 @@ void Document::createBlocks()
 	}
 }
 
+
 std::string VarDecl::printSelf() const
 {
 	std::stringstream out;
@@ -49,6 +50,20 @@ void VarDecl::updateType(Type type)
 {
 	if (this->type == PLACEHOLDER_TYPE)
 		this->type = type;
+}
+
+
+Node* VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
+	{
+		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
+	}
+	else
+	{
+		//ERROR REDIFINITION VARIABLE
+	}
+	return nullptr;
 }
 
 std::string VarDeclList::printSelf() const
@@ -74,6 +89,15 @@ void VarDeclList::addDeclaration(VarDecl *decl)
 	declarations->push_back(decl);
 }
 
+Node* VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	for (Element* e : *declarations)
+	{
+		e->solveScopes(environments, varCounter);
+	}
+	return nullptr;
+}
+
 std::string VarDef::printSelf() const
 {
 	return "Var Definition";
@@ -95,9 +119,29 @@ void VarDef::updateType(Type type)
 	decl->updateType(type);
 }
 
+Node* VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
+	{
+		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
+	}
+	else
+	{
+		//ERROR REDEFINITON VARIABLE
+	}
+	
+	return nullptr;
+}
+
 std::string FuncDecl::printSelf() const
 {
 	return "Function Declaration: " + typeToString(functionType) + identifier;
+}
+
+Node* FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	(environments->back()->funct)[identifier] = { this };
+	return nullptr;
 }
 
 void FuncDecl::print(GraphPrinter *printer) const
@@ -134,11 +178,16 @@ void FuncDef::print(GraphPrinter *printer) const
 	block->print(printer);
 }
 
-void FuncDef::solveScopes(std::stack<SymbolTable*>* environments){
-	SymbolTable *blockTable = this->block->computeSymbolTable();
+Node* FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounter){
+	SymbolTable *blockTable = new SymbolTable();
 	for(Element * n : *(this->decl.getArgs())){
-		//TODO: treat args as var defs, insert them into the symbol table of the following block
+		VarDecl* temp = (VarDecl*)n;
+		(blockTable->vars)[temp->getIdentifier()] = { temp,(*varCounter)++ };
 	}
+
+	environments->push_back(blockTable);
+	block->solveScopes(environments, varCounter);
+	return nullptr;
 }
 
 std::string Document::printSelf() const
@@ -200,3 +249,4 @@ FuncDecl::~FuncDecl()
 	delete args;
 	args = nullptr;
 }
+

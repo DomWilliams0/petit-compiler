@@ -21,16 +21,16 @@ typedef struct VarRef
 typedef struct SymbolTable
 {
 	std::map<std::string,VarRef> vars;
-	std::map<std::string,FuncDef*> funct;
+	std::map<std::string, Element*> funct;
 } SymbolTable;
 
 class Interpreter {
 protected:
-	Document doc;
-	std::stack<SymbolTable*>* environments;
+	Document* doc;
+	std::deque<SymbolTable*>* environments;
 	int varCounter;
 public:
-	Interpreter(Document d): doc(d), varCounter(0){};
+	Interpreter(Document* d): doc(d), varCounter(0){};
 	virtual ~Interpreter();
 	void solveScopes();
 

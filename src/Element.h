@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <vector>
-#include <stack>
+#include <deque>
 
 typedef struct SymbolTable;
 
@@ -20,6 +20,8 @@ class Node
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
 		virtual ElementType getType() const = 0;
+
+		virtual Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) = 0;
 	protected:
 		Node() {}
 };
@@ -72,6 +74,8 @@ class Element : public Node
 
 		const std::string &getIdentifier() const { return identifier; }
 
+		virtual Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) = 0;
+
 	protected:
 		Element(const std::string &id): identifier(id) {}
 		std::string identifier;
@@ -89,6 +93,7 @@ class VarDecl : public Element
 		// only change if currently placeholder
 		void updateType(Type type);
 		ElementType getType() const{return VAR_DECL;};
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int * varCounter);
 	protected:
 		Type type;
 		unsigned int arraySize;
@@ -106,9 +111,10 @@ class VarDeclList : public Element
 		~VarDeclList();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
-		ElementType getType() const{ return VAR_DECLS; };
+		ElementType getType() const{ return VAR_DECL; };
 
 		void addDeclaration(VarDecl *decl);
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int * varCounter);
 };
 
 class VarDef : public Element
@@ -122,6 +128,10 @@ class VarDef : public Element
 		// only change if currently placeholder
 		void updateType(Type type);
 		ElementType getType() const{return VAR_DEF;};
+		Expression* getValue() { return value; }
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int * varCounter);
+
 	protected:
 		VarDecl *decl;
 		Expression *value;
@@ -137,6 +147,8 @@ class FuncDecl : public Element
 		std::string printSelf() const;
 		ElementType getType() const { return FUNC_DECL; }
 		std::vector<Element *> *getArgs() { return args;}
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int * varCounter);
 	protected:
 		Type functionType;
 		std::vector<Element *> *args;
@@ -154,7 +166,7 @@ class FuncDef : public Element
 
 	 	Block*& getBlock()  { return block; }
 
-	 	void solveScopes(std::stack<SymbolTable*>*);
+		Node* solveScopes(std::deque<SymbolTable*>*,int* varCounter);
 
 	protected:
 		FuncDecl decl;
@@ -174,6 +186,9 @@ class Document : public Node
 		void createBlocks();
 
 		ElementType getType() const {return DOCUMENT;}
+
+
+		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) { return nullptr; }
 
 	std::vector<Element*>& getElements()  {
 		return elements;

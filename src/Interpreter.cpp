@@ -14,30 +14,15 @@ Interpreter::~Interpreter() {
 
 void Interpreter::solveScopes(){
 	varCounter = 0;
-	environments = new std::stack<SymbolTable*>;
-	std::vector<Element *> elements=doc.getElements();
+	environments = new std::deque<SymbolTable*>;
+	std::vector<Element *> elements=doc->getElements();
 	SymbolTable *s = new SymbolTable();
 
-	environments->push(s);
+	environments->push_back(s);
 
-	for(uint i = 0; i<elements.size(); i++)
+	for(int i = 0; i<elements.size(); i++)
 	{
-		if(elements[i]->getType() == FUNC_DEF)
-		{
-			FuncDef *f = (FuncDef*)(elements[i]);
-			(s->funct)[f->getIdentifier()]=f;
-			f->solveScopes(environments);
-		}
-		else if(elements[i]->getType() == VAR_DECL)
-		{
-			VarDecl* decl = (VarDecl*)(elements[i]);
-			(s->vars)[decl->getIdentifier()] = {decl, varCounter++};
-		}
-		else if(elements[i]->getType() == VAR_DEF)
-		{
-			VarDef* def = (VarDef*)(elements[i]);
-			(s->vars)[def->getIdentifier()] = {def, varCounter++};
-		}
+		elements[i]->solveScopes(environments, &varCounter);
 	}
 }
 

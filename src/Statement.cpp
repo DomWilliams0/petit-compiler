@@ -34,6 +34,19 @@ void Cond::updateElse(Statement *newElse)
 		elseBlock = newElse;
 }
 
+Node* Cond::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+
+	this->condition->solveScopes(environments, varCounter);
+	SymbolTable* temp = new SymbolTable();
+	environments->push_back(temp);
+	this->ifBlock->solveScopes(environments, varCounter);
+	if(this->elseBlock != nullptr)
+		this->elseBlock->solveScopes(environments, varCounter);
+
+	return nullptr;
+}
+
 std::string For::printSelf() const
 {
 	return "For";
@@ -92,29 +105,43 @@ void Iter::print(GraphPrinter *printer) const
 	condition->print(printer);
 	iterBlock->print(printer);
 }
-
-SymbolTable * Block::computeSymbolTable()
+Node* Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter)
 {
-	std::map<std::string,VarRef> s={};
-	for(int i=0;i<contents->size();++i)
-	{
-		if((*contents)[i]->getType() ==VAR_DECL)
-		{
-			VarDecl *v=(VarDecl*)(*contents)[i];
-			s[v->getIdentifier()]= {v, 8};
-			//TODO : use var counter
+	SymbolTable *blockTable = environments->back();
+	for (Node *node : *(this->contents)) {
+		if (node->getType() == BLOCK) {
+			SymbolTable *env = new SymbolTable();
+			environments->push_back(env);
 		}
-		else if((*contents)[i]->getType()==VAR_DEF)
-		{
-			VarDef *v=(VarDef*)(*contents)[i];
-			s[v->getIdentifier()]={v, 8};
-		}
+		node->solveScopes(environments, varCounter);
 	}
-	SymbolTable *table = new SymbolTable();
-	table->vars = s;
-
-	return table;
+	delete environments->back();
+	environments->pop_back();
+	return nullptr;
 }
+
+//SymbolTable * Block::computeSymbolTable()
+//{
+//	std::map<std::string,VarRef> s={};
+//	for(int i=0;i<contents->size();++i)
+//	{
+//		if((*contents)[i]->getType() ==VAR_DECL)
+//		{
+//			VarDecl *v=(VarDecl*)(*contents)[i];
+//			s[v->getIdentifier()]= {v, 8};
+//			//TODO : use var counter
+//		}
+//		else if((*contents)[i]->getType()==VAR_DEF)
+//		{
+//			VarDef *v=(VarDef*)(*contents)[i];
+//			s[v->getIdentifier()]={v, 8};
+//		}
+//	}
+//	SymbolTable *table = new SymbolTable();
+//	table->vars = s;
+//
+//	return table;
+//}
 
 std::string Block::printSelf() const
 {
@@ -147,7 +174,8 @@ void Block::createBlocks()
 		ElementType type=(ElementType)(*contents)[i]->getType();
 		switch(type)
 		{
-			case VAR_DECLS:
+			case VAR_DECL:
+			case VAR_DEF:
 			{
 				if(instr)
 				{
@@ -247,6 +275,18 @@ For::~For()
 	block = nullptr;
 }
 
+Node* For::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	SymbolTable* temp = new SymbolTable();
+	environments->push_back(temp);
+	this->init->solveScopes(environments, varCounter);
+	this->cond->solveScopes(environments, varCounter);
+	this->inc->solveScopes(environments, varCounter);
+	this->block->solveScopes(environments, varCounter);
+
+	return nullptr;
+}
+
 Iter::~Iter()
 {
 	delete condition;
@@ -256,11 +296,25 @@ Iter::~Iter()
 	iterBlock = nullptr;
 }
 
+Node* Iter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	this->condition->solveScopes(environments, varCounter);
+	SymbolTable* temp = new SymbolTable();
+	environments->push_back(temp);	
+	this->iterBlock->solveScopes(environments, varCounter);
+	return nullptr;
+}
+
 Return::~Return()
 {
 	if (value)
 		delete value;
 
 	value = nullptr;
+}
+
+Node* Return::solveScopes(std::deque<SymbolTable*>*, int * varCounter)
+{
+	return nullptr;
 }
 

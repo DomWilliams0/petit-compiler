@@ -1,6 +1,6 @@
 #pragma once
-#ifndef IR.H
-#define IR.H
+#ifndef IR_H
+#define IR_H
 
 #include <vector>
 #include <string>
