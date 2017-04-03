@@ -5,6 +5,7 @@
 #include <map>
 #include "Element.h"
 #include "Expression.h"
+#include <map>
 
 
 class Statement : public Node
@@ -14,6 +15,8 @@ class Statement : public Node
 		virtual ElementType getType() const = 0;
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
+
+		virtual Type solveScopes(std::deque<SymbolTable*>*, int* varCounter) = 0;		
 
 };
 
@@ -37,8 +40,9 @@ class Block : public Statement
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 		
-		std::map<std::string,Element*> computeSymbolTable();
+		//SymbolTable * computeSymbolTable();
 
 		;
 	protected:
@@ -55,18 +59,20 @@ class Cond : public Statement
 
 		// only change if currently null
 		void updateElse(Statement *newElse);
-	ElementType getType() const {
-		return COND;
-	}
-	 Statement*& getElseBlock()  {
-		return elseBlock;
-	}
 
-	 Statement*& getIfBlock()  {
-		return ifBlock;
-	}
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 
-	;
+		ElementType getType() const {
+			return COND;
+		}
+		 Statement*& getElseBlock()  {
+			return elseBlock;
+		}
+
+		 Statement*& getIfBlock()  {
+			return ifBlock;
+		}
+
 	protected:
 		Statement *ifBlock;
 		Expression *condition;
@@ -86,6 +92,9 @@ class For : public Statement
 		Statement*& getBlock()  {
 			return block;
 		}
+
+
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 
 	protected:
 		Node *init;
@@ -108,6 +117,9 @@ class Iter : public Statement
 			return iterBlock;
 		}
 
+
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+
 	;
 	protected:
 		Expression *condition;
@@ -122,6 +134,8 @@ class Return : public Statement
 		ElementType getType() const { return RETURN_STAT; }
 		Return(Expression *value = nullptr) : value(value) {}
 		~Return();
+
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 
 	protected:
 		Expression *value;

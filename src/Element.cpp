@@ -3,6 +3,7 @@
 #include "Printer.h"
 #include "Element.h"
 #include "Statement.h"
+#include "Interpreter.h"
 
 std::string typeToString(Type type)
 {
@@ -32,6 +33,7 @@ void Document::createBlocks()
 	}
 }
 
+
 std::string VarDecl::printSelf() const
 {
 	std::stringstream out;
@@ -48,6 +50,20 @@ void VarDecl::updateType(Type type)
 {
 	if (this->type == PLACEHOLDER_TYPE)
 		this->type = type;
+}
+
+
+Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
+	{
+		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
+	}
+	else
+	{
+		std::cerr << "Error: redeclaration of variable: " << this->identifier << std::endl;
+	}
+	return NOTYPE;
 }
 
 std::string VarDeclList::printSelf() const
@@ -73,6 +89,15 @@ void VarDeclList::addDeclaration(VarDecl *decl)
 	declarations->push_back(decl);
 }
 
+Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	for (Element* e : *declarations)
+	{
+		e->solveScopes(environments, varCounter);
+	}
+	return NOTYPE;
+}
+
 std::string VarDef::printSelf() const
 {
 	return "Var Definition";
@@ -94,9 +119,42 @@ void VarDef::updateType(Type type)
 	decl->updateType(type);
 }
 
+Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
+	{
+		if (this->getVarType() != this->getValue()->solveScopes(environments, varCounter))
+		{
+			std::cerr << "Error: variable " << identifier << " initialized with mismatching type expression" << std::endl;
+		}
+
+		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
+	}
+	else
+	{
+		std::cerr << "Error: redefinition of variable: " << this->identifier << std::endl;
+	}
+	
+	return NOTYPE;
+}
+
 std::string FuncDecl::printSelf() const
 {
 	return "Function Declaration: " + typeToString(functionType) + identifier;
+}
+
+Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+{
+	if ((environments->back()->funct).find(identifier) == (environments->back()->funct).end())
+	{
+		(environments->back()->funct)[identifier] = { this };
+	}
+	else
+	{
+		
+	}
+	
+	return functionType;
 }
 
 void FuncDecl::print(GraphPrinter *printer) const
@@ -131,6 +189,47 @@ void FuncDef::print(GraphPrinter *printer) const
 
 	printer->addConnection((Node *)this, block);
 	block->print(printer);
+}
+
+Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounter){
+	SymbolTable *blockTable = new SymbolTable();
+	auto it= (environments->back()->funct).find(identifier);
+	if (it == (environments->back()->funct).end())
+	{
+		(environments->back()->funct)[identifier] = { this };
+		for (Element * n : *(this->decl.getArgs())) {
+			VarDecl* temp = (VarDecl*)n;
+			(blockTable->vars)[temp->getIdentifier()] = { temp,(*varCounter)++ };
+		}
+		
+		environments->push_back(blockTable);
+		block->solveScopes(environments, varCounter);
+	}
+	else
+	{
+		if (it->second->getType() == FUNC_DECL)
+		{
+			std::vector<Element*>* argsDecl = (((FuncDecl*)(it->second))->getArgs());
+			std::vector<Element*>* argsDef = decl.getArgs();
+			int size = argsDecl->size();
+			bool identical = (argsDef->size() == size);
+			int i = 0;
+			
+			while (identical && i < size)
+			{
+				VarDecl* a = (VarDecl*)((*argsDecl)[i]);
+				VarDecl* b = (VarDecl*)((*argsDef)[i]);
+				identical = ( a->getVarType() == b->getVarType() );
+				i++;
+			}
+			if (!identical)
+			{
+				std::cerr << "Error: definition of function args do not match with previous declaration: " << this->identifier << std::endl;
+			}
+		}
+		std::cerr << "Error: redefinition of function: " << this->identifier << std::endl;
+	}
+	return decl.getFuncType();
 }
 
 std::string Document::printSelf() const
@@ -192,3 +291,4 @@ FuncDecl::~FuncDecl()
 	delete args;
 	args = nullptr;
 }
+

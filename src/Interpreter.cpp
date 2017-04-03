@@ -13,6 +13,18 @@ Interpreter::~Interpreter() {
 }
 
 void Interpreter::solveScopes(){
+	varCounter = 0;
+	environments = new std::deque<SymbolTable*>;
+	std::vector<Element *> elements=doc->getElements();
+	SymbolTable *s = new SymbolTable();
 
+	environments->push_back(s);
+
+	for(int i = 0; i<elements.size(); i++)
+	{
+		elements[i]->solveScopes(environments, &varCounter);
+	}
+	delete environments->back();
+	environments->pop_back();
 }
 

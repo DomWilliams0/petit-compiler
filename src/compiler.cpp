@@ -4,6 +4,10 @@
 #include <getopt.h>
 #include "Printer.h"
 #include "Element.h"
+#include "Expression.h"
+#include "Statement.h"
+#include <fstream>
+#include "Interpreter.h"
 
 extern int yyparse(Document *);
 extern FILE *yyin;
