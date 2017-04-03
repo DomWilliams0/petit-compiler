@@ -18,7 +18,7 @@ class Expression : public Node
 		virtual std::string printSelf() const = 0;
 		virtual ElementType getType() const = 0;
 
-		virtual Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) = 0;
+		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) = 0;
 };
 
 //==========================================================
@@ -36,7 +36,7 @@ class Variable : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return VAR; }
 
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 //==========================================================
@@ -48,7 +48,7 @@ class ConstInteger : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return CONSTINT; }
 
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 
 	protected:
 		uint64_t value;
@@ -63,7 +63,7 @@ class ConstCharacter : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return CONSTCHAR; }
 
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 
 	protected:
 		char value;
@@ -83,7 +83,7 @@ class Affectation : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION; }
 
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 enum IncrementType { POST_INC, POST_DEC, PRE_INC, PRE_DEC };
@@ -102,7 +102,7 @@ class AffectationIncrement : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION_INC; }
 
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 class AffectationCompound : public Expression
@@ -120,7 +120,7 @@ class AffectationCompound : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION_COMPOUND; }
 
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 //==========================================================
@@ -137,8 +137,8 @@ class FunctionAppel : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return FUNCAPPEL; }
 		//std::map<std::string,Element*> computeSymbolTable();
-
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		void addArg(Expression* e) { args.push_back(e); }
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 //==========================================================
@@ -155,7 +155,7 @@ class UnaryExpression : public Expression
 		std::string printSelf() const;
 		ElementType getType() const  {return UNARY; }
 
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 //==========================================================
@@ -178,7 +178,7 @@ class BinaryExpression : public Expression
 		Expression *getRightExpression() const { return rExpression; }
 		BinaryOperator getOperator() const { return op; }
 
-		Node* solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter);
 };
 
 std::string binaryOpToString(BinaryOperator op);

@@ -34,7 +34,7 @@ void Cond::updateElse(Statement *newElse)
 		elseBlock = newElse;
 }
 
-Node* Cond::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Cond::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
 
 	this->condition->solveScopes(environments, varCounter);
@@ -44,7 +44,7 @@ Node* Cond::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter
 	if(this->elseBlock != nullptr)
 		this->elseBlock->solveScopes(environments, varCounter);
 
-	return nullptr;
+	return NOTYPE;
 }
 
 std::string For::printSelf() const
@@ -105,7 +105,7 @@ void Iter::print(GraphPrinter *printer) const
 	condition->print(printer);
 	iterBlock->print(printer);
 }
-Node* Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter)
+Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter)
 {
 	SymbolTable *blockTable = environments->back();
 	for (Node *node : *(this->contents)) {
@@ -117,7 +117,7 @@ Node* Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter
 	}
 	delete environments->back();
 	environments->pop_back();
-	return nullptr;
+	return NOTYPE;
 }
 
 //SymbolTable * Block::computeSymbolTable()
@@ -181,8 +181,8 @@ void Block::createBlocks()
 				{
 					Block* b=new Block(new std::vector<Node*>(contents->begin()+i,contents->end()));
 
-					delete contents->at(i - 1);
-					contents->erase(contents->begin() + i - 1, contents->end());
+					//delete contents->at(i - 1);
+					contents->erase(contents->begin() + i , contents->end());
 
 					b->createBlocks();
 					contents->push_back(b);
@@ -275,7 +275,7 @@ For::~For()
 	block = nullptr;
 }
 
-Node* For::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type For::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);
@@ -284,7 +284,7 @@ Node* For::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 	this->inc->solveScopes(environments, varCounter);
 	this->block->solveScopes(environments, varCounter);
 
-	return nullptr;
+	return NOTYPE;
 }
 
 Iter::~Iter()
@@ -296,13 +296,13 @@ Iter::~Iter()
 	iterBlock = nullptr;
 }
 
-Node* Iter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Iter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
 	this->condition->solveScopes(environments, varCounter);
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);	
 	this->iterBlock->solveScopes(environments, varCounter);
-	return nullptr;
+	return NOTYPE;
 }
 
 Return::~Return()
@@ -313,8 +313,8 @@ Return::~Return()
 	value = nullptr;
 }
 
-Node* Return::solveScopes(std::deque<SymbolTable*>*, int * varCounter)
+Type Return::solveScopes(std::deque<SymbolTable*>*, int * varCounter)
 {
-	return nullptr;
+	return NOTYPE;
 }
 

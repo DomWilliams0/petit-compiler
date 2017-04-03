@@ -10,9 +10,9 @@ extern int yyparse(Document *);
 
 int main(int argc, char **argv)
 {
-	VarDef* a = new VarDef(new  VarDecl("a", 1), new ConstInteger(0));a->updateType(INT32);
+	VarDef* a = new VarDef(new  VarDecl("a", 1), new ConstInteger(0));a->updateType(INT64);
 	Affectation * v = new Affectation(new Variable("b"),new Variable("a"));
-	VarDef* d = new VarDef(new  VarDecl("d", 1), new ConstInteger(1)); d->updateType(INT32);
+	VarDef* d = new VarDef(new  VarDecl("d", 1), new ConstInteger(1)); d->updateType(INT64);
 	AffectationIncrement* i = new AffectationIncrement(POST_INC, new Variable("d"));
 
 	Block* b = new Block(); 
@@ -22,14 +22,17 @@ int main(int argc, char **argv)
 	t->push_back(i);
 	b->setContents(t);
 
-	VarDecl *j = new  VarDecl("b", 1); j->updateType(INT32);
-	VarDecl *k = new  VarDecl("c", 1); k->updateType(INT32);
+	VarDecl *j = new  VarDecl("b", 1); j->updateType(INT64);
+	VarDecl *k = new  VarDecl("c", 1); k->updateType(INT64);
 	std::vector<Element*>* args = new std::vector<Element*>;
 	args->push_back(j); args->push_back(k);
 	FuncDef* F1 = new FuncDef("F1",VOID, args, b);
-	VarDef* q = new VarDef(new  VarDecl("c", 1), new ConstInteger(2)); q->updateType(INT32);
-	VarDef* l = new VarDef(new  VarDecl("b", 1), new ConstInteger(0)); l->updateType(INT32);
-	FunctionAppel* call = new FunctionAppel("F1", {});
+	VarDef* q = new VarDef(new  VarDecl("c", 1), new ConstInteger(2)); q->updateType(INT64);
+	VarDef* l = new VarDef(new  VarDecl("b", 1), new ConstInteger(0)); l->updateType(INT64);
+
+	FunctionAppel* call = new FunctionAppel("F1");
+	call->addArg(new Variable("a"));
+	call->addArg(new Variable("c"));
 	Block* bl = new Block();
 	std::vector<Node*>* lb = new std::vector<Node*>;
 

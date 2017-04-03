@@ -24,5 +24,7 @@ void Interpreter::solveScopes(){
 	{
 		elements[i]->solveScopes(environments, &varCounter);
 	}
+	delete environments->back();
+	environments->pop_back();
 }
 

@@ -11,27 +11,35 @@ std::string Variable::printSelf() const
 	return out.str();
 }
 
-Node* Variable::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Variable::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
 	std::string id = this->name;
 	int var_id = -777;
+	Node *ref;
 
 	for (int i = environments->size() - 1; i >= 0; i--)
 	{
 		
 		if ((((*environments)[i])->vars).find(id) != (((*environments)[i])->vars).end()) {
 			var_id = (((*environments)[i])->vars)[id].id;
+			ref = (((*environments)[i])->vars)[id].ref;
 			break;
 		}
 	}
 
 	if (var_id != -777) {
 		// VAR FOUND -> BUILD ASM
+		if (ref->getType() == VAR_DECL) {
+			return ((VarDecl*)(ref))->getVarType();
+		}
+		else if (ref->getType() == VAR_DEF) {
+			return ((VarDef*)(ref))->getVarType();
+		}
 	}
 	else {
-		// ERROR : UNDEFINED VAR
+		std::cerr << "Error: variable not defined " << id << std::endl;
 	}
-	return nullptr;
+	return NOTYPE;
 }
 
 void Variable::print(GraphPrinter *printer) const
@@ -50,10 +58,10 @@ std::string ConstInteger::printSelf() const
 	return std::to_string(value);
 }
 
-Node* ConstInteger::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type ConstInteger::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
 	// nothing to do
-	return nullptr;
+	return INT64;
 }
 
 void ConstInteger::print(GraphPrinter *printer) const
@@ -68,10 +76,10 @@ std::string ConstCharacter::printSelf() const
 	return out.str();
 }
 
-Node* ConstCharacter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type ConstCharacter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
 	// nothing to do
-	return nullptr;
+	return CHAR;
 }
 
 void ConstCharacter::print(GraphPrinter *printer) const
@@ -84,11 +92,16 @@ std::string AffectationCompound::printSelf() const
 	return binaryOpToString(op) + "=";
 }
 
-Node* AffectationCompound::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type AffectationCompound::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
-	this->lvalue->solveScopes(environments, varCounter);
-	this->rvalue->solveScopes(environments, varCounter);
-	return nullptr;
+	Type ltype = this->lvalue->solveScopes(environments, varCounter);
+	Type rtype = this->rvalue->solveScopes(environments, varCounter);
+
+	if (rtype == ltype)
+		return ltype;
+	else
+		std::cerr << "Error: operand types do not match in affectation "  << std::endl;
+	return NOTYPE;
 }
 
 void AffectationCompound::print(GraphPrinter *printer) const
@@ -116,10 +129,9 @@ std::string AffectationIncrement::printSelf() const
 	}
 }
 
-Node* AffectationIncrement::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type AffectationIncrement::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
-	this->lvalue->solveScopes(environments, varCounter);
-	return nullptr;
+	return this->lvalue->solveScopes(environments, varCounter);
 }
 
 void AffectationIncrement::print(GraphPrinter *printer) const
@@ -135,11 +147,16 @@ std::string Affectation::printSelf() const
 	return "=";
 }
 
-Node* Affectation::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Affectation::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
-	this->lOperand->solveScopes(environments, varCounter);
-	this->rOperand->solveScopes(environments, varCounter);
-	return nullptr;
+	Type ltype = this->lOperand->solveScopes(environments, varCounter);
+	Type rtype = this->rOperand->solveScopes(environments, varCounter);
+
+	if (rtype == ltype)
+		return ltype;
+	else
+		std::cerr << "Error: operand types do not match in affectation " << std::endl;
+	return NOTYPE;
 }
 
 void Affectation::print(GraphPrinter *printer) const
@@ -183,7 +200,7 @@ std::string FunctionAppel::printSelf() const
 	return "Function call: " + funcName;
 }
 
-Node* FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
 	std::string id = this->funcName;
 	Node * ref = nullptr;
@@ -191,46 +208,61 @@ Node* FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * v
 	for (int i = environments->size() - 1; i >= 0; i--)
 	{
 
-		if ((((*environments)[i])->vars).find(id) != (((*environments)[i])->vars).end()) {
-			ref = (((*environments)[i])->vars)[id].ref;
+		if ((((*environments)[i])->funct).find(id) != (((*environments)[i])->funct).end()) {
+			ref = (((*environments)[i])->funct)[id];
 			break;
 		}
 	}
 
 	if (ref != nullptr) {
+		std::vector<Element*>* argsDef;
+		std::vector<Expression*>* argsCall = &(this->args);
+		
+		if (ref->getType() == FUNC_DEF)
+		{
+			argsDef = ((FuncDef*)ref)->getDecl()->getArgs();
+		}
+		else
+		{
+			argsDef = ((FuncDecl*)ref)->getArgs();
+		}
+		
+		
+		int size = argsCall->size();
+		bool identical = (argsDef->size() == size);
+		int i = 0;
+
+		while (identical && i < size)
+		{
+			Type t = ((Expression*)((*argsCall)[i]))->solveScopes(environments, varCounter);
+			VarDecl* b = (VarDecl*)((*argsDef)[i]);
+			identical = (t == b->getVarType());
+			i++;
+		}
+		if (!identical)
+		{
+			std::cerr << "Error: definition of function args do not match with function call: " <<id << std::endl;
+			return NOTYPE;
+			//break or let the execution continue?
+		}
+
 		if (ref->getType() == FUNC_DEF) {
 			// FUNC FOUND -> BUILD ASM
-			ref->solveScopes(environments, varCounter);
+			return ref->solveScopes(environments, varCounter);
 		}
 		else
 		{
 			//ERROR : FUNC NOT DEFINED
+			//TODO : consider forward declarations ?
 		}
 	}
 	else {
-		// ERROR : UNDECLARED FUNC
+		std::cerr << "Error: undeclared function " <<id<< std::endl;
 	}
-	return nullptr;
+
+	return NOTYPE;
 }
 
-/*std::map<std::string,Element*> FunctionAppel::computeSymbolTable()
-{
-	std::map<std::string,Element*> s={};
-	for(int i=0;i<contents->size();++i)
-	{
-		if((*contents)[i]->getType() ==VAR_DECL)
-		{
-			VarDecl *v=(VarDecl*)(*contents)[i];
-			s[v->getIdentifier()]=v;
-		}
-		else if((*contents)[i]->getType()==VAR_DEF)
-		{
-			VarDef *v=(VarDef*)(*contents)[i];
-			s[v->getIdentifier()]=v;
-		}
-	}
-	return s;
-}*/
 
 void FunctionAppel::print(GraphPrinter *printer) const
 {
@@ -254,10 +286,9 @@ std::string UnaryExpression::printSelf() const
 	return unaryOpToString(op);
 }
 
-Node* UnaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type UnaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
-	this->expression->solveScopes(environments, varCounter);
-	return nullptr;
+	return this->expression->solveScopes(environments, varCounter);
 }
 
 void UnaryExpression::print(GraphPrinter *printer) const
@@ -272,11 +303,16 @@ std::string BinaryExpression::printSelf() const
 	return binaryOpToString(op);
 }
 
-Node* BinaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type BinaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
 {
-	this->lExpression->solveScopes(environments, varCounter);
-	this->rExpression->solveScopes(environments, varCounter);
-	return nullptr;
+	Type ltype = this->lExpression->solveScopes(environments, varCounter);
+	Type rtype = this->rExpression->solveScopes(environments, varCounter);
+
+	if (rtype == ltype)
+		return ltype;
+	else
+		std::cerr << "Error: operand types do not match in binary expression of operator: "<<op << std::endl;
+	return NOTYPE;
 }
 
 void BinaryExpression::print(GraphPrinter *printer) const

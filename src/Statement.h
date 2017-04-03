@@ -15,7 +15,7 @@ class Statement : public Node
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
 
-		virtual Node* solveScopes(std::deque<SymbolTable*>*, int* varCounter) = 0;		
+		virtual Type solveScopes(std::deque<SymbolTable*>*, int* varCounter) = 0;		
 
 };
 
@@ -39,7 +39,7 @@ class Block : public Statement
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 
-		Node* solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 		
 		//SymbolTable * computeSymbolTable();
 
@@ -59,7 +59,7 @@ class Cond : public Statement
 		// only change if currently null
 		void updateElse(Statement *newElse);
 
-		Node* solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 
 		ElementType getType() const {
 			return COND;
@@ -93,7 +93,7 @@ class For : public Statement
 		}
 
 
-		Node* solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 
 	protected:
 		Node *init;
@@ -117,7 +117,7 @@ class Iter : public Statement
 		}
 
 
-		Node* solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 
 	;
 	protected:
@@ -134,7 +134,7 @@ class Return : public Statement
 		Return(Expression *value = nullptr) : value(value) {}
 		~Return();
 
-		Node* solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
 
 	protected:
 		Expression *value;
