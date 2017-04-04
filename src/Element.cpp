@@ -21,10 +21,12 @@ std::string typeToString(Type type)
 			return "";
 	}
 }
+
 void Document::createBlocks()
 {
 	for(size_t i=0;i<elements.size();++i)
 	{
+	// a "basic block" is created each time when we have definition of a function 
 		if(elements[i]->getType()==FUNC_DEF)
 		{
 			FuncDef* fallourd=static_cast < FuncDef* > ( elements[i] ) ;
@@ -149,11 +151,6 @@ Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCoun
 	{
 		(environments->back()->funct)[identifier] = { this };
 	}
-	else
-	{
-		
-	}
-	
 	return functionType;
 }
 

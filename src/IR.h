@@ -8,6 +8,8 @@
 #include <map>
 
 #include "Element.h"
+#include "Register.h"
+#include "Data.h"
 
 class BasicBlock;
 class CFG;
@@ -63,8 +65,8 @@ public:
 
 	std::vector<sh_Register> getReadRegisterVector() const;
 	std::vector<sh_Register> getWroteRegisterVector() const;
-	std::vector<sh_Data> getReadRegisterVector() const;
-	std::vector<sh_Data> getWroteRegisterVector() const;
+	std::vector<sh_Data> getReadDataVector() const;
+	std::vector<sh_Data> getWroteDataVector() const;
 
 protected:
 	BasicBlock * bb;

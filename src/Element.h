@@ -71,9 +71,7 @@ class Element : public Node
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
 		virtual ElementType getType() const = 0;
-
 		const std::string &getIdentifier() const { return identifier; }
-
 		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) = 0;
 
 	protected:
