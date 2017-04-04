@@ -1,7 +1,15 @@
+#ifdef _WIN32
+#define WINDOZE
+#endif
+
+
+#ifndef WINDOZE
+#include <getopt.h>
+#endif
+
 #include <cstdio>
 #include <iostream>
 #include <fstream>
-#include <getopt.h>
 #include "Printer.h"
 #include "Element.h"
 #include "Expression.h"
@@ -67,15 +75,8 @@ void printUsage(char *arg0);
 
 int main(int argc, char **argv)
 {
-	// ./c <fichier>
-	// -a -> static analysis
-	// -o -> optimisation
-	// -c -> compile to <filename>.asm
-	// --outfile <filename> -> defaults to filename.asm
-	// -t -> ast.png
-	// --astfile -> output file for ast.png
 	Settings settings;
-
+#ifndef WINDOZE
 	option options[] = {
 		{"outfile", required_argument, 0, 0},
 		{"astfile", required_argument, 0, 0},
@@ -141,6 +142,16 @@ int main(int argc, char **argv)
 	}
 
 	settings.fileToCompile = argv[optind];
+#else
+
+	// placeholder options without getopt for those who
+	// torture themselves with windows
+	settings.astTree = true;
+	settings.staticAnalysis = true;
+	settings.compile = true;
+	settings.fileToCompile = argc > 1 ? argv[1] : "file.c";
+
+#endif
 
 	return doWork(settings);
 }
