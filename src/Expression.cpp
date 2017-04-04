@@ -19,7 +19,7 @@ Type Variable::solveScopes(std::deque<SymbolTable*>* environments, int * varCoun
 
 	for (int i = environments->size() - 1; i >= 0; i--)
 	{
-		
+
 		if ((((*environments)[i])->vars).find(id) != (((*environments)[i])->vars).end()) {
 			var_id = (((*environments)[i])->vars)[id].id;
 			ref = (((*environments)[i])->vars)[id].ref;
@@ -100,7 +100,7 @@ Type AffectationCompound::solveScopes(std::deque<SymbolTable*>* environments, in
 	if (rtype == ltype)
 		return ltype;
 	else
-		std::cerr << "Error: operand types do not match in affectation "  << std::endl;
+		std::cerr << "Error: operand types do not match in affectation " << std::endl;
 	return NOTYPE;
 }
 
@@ -116,18 +116,18 @@ void AffectationCompound::print(GraphPrinter *printer) const
 
 std::string AffectationIncrement::printSelf() const
 {
-	switch(op)
+	switch (op)
 	{
-		case POST_INC:
-			return "++ post";
-		case PRE_INC:
-			return "++ pre";
-		case POST_DEC:
-			return "-- post";
-		case PRE_DEC:
-			return "-- pre";
-		default:
-			return "";
+	case POST_INC:
+		return "++ post";
+	case PRE_INC:
+		return "++ pre";
+	case POST_DEC:
+		return "-- post";
+	case PRE_DEC:
+		return "-- pre";
+	default:
+		return "";
 	}
 }
 
@@ -219,7 +219,7 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 	if (ref != nullptr) {
 		std::vector<Element*>* argsDef;
 		std::vector<Expression*>* argsCall = &(this->args);
-		
+
 		if (ref->getType() == FUNC_DEF)
 		{
 			argsDef = ((FuncDef*)ref)->getDecl()->getArgs();
@@ -228,8 +228,8 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 		{
 			argsDef = ((FuncDecl*)ref)->getArgs();
 		}
-		
-		
+
+
 		int size = argsCall->size();
 		bool identical = (argsDef->size() == size);
 		int i = 0;
@@ -243,7 +243,7 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 		}
 		if (!identical)
 		{
-			std::cerr << "Error: definition of function args do not match with function call: " <<id << std::endl;
+			std::cerr << "Error: definition of function args do not match with function call: " << id << std::endl;
 			return NOTYPE;
 			//break or let the execution continue?
 		}
@@ -259,7 +259,7 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 		}
 	}
 	else {
-		std::cerr << "Error: undeclared function " <<id<< std::endl;
+		std::cerr << "Error: undeclared function " << id << std::endl;
 	}
 
 	return NOTYPE;
@@ -313,7 +313,7 @@ Type BinaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int *
 	if (rtype == ltype)
 		return ltype;
 	else
-		std::cerr << "Error: operand types do not match in binary expression of operator: "<<op << std::endl;
+		std::cerr << "Error: operand types do not match in binary expression of operator: " << op << std::endl;
 	return NOTYPE;
 }
 
@@ -332,36 +332,36 @@ std::string binaryOpToString(BinaryOperator op)
 {
 	switch (op)
 	{
-		case PLUS:
-			return "+";
-		case MINUS:
-			return "-";
-		case MULT:
-			return "*";
-		case DIV:
-			return "/";
-		case MODULO:
-			return "%";
-		case LT:
-			return "<";
-		case LE:
-			return "<=";
-		case GT:
-			return ">";
-		case GE:
-			return ">=";
-		case EQ:
-			return "==";
-		case NE:
-			return "!=";
-		case AND:
-			return "&&";
-		case OR:
-			return "||";
-		case COMMA:
-			return ",";
-		default:
-			return "";
+	case PLUS:
+		return "+";
+	case MINUS:
+		return "-";
+	case MULT:
+		return "*";
+	case DIV:
+		return "/";
+	case MODULO:
+		return "%";
+	case LT:
+		return "<";
+	case LE:
+		return "<=";
+	case GT:
+		return ">";
+	case GE:
+		return ">=";
+	case EQ:
+		return "==";
+	case NE:
+		return "!=";
+	case AND:
+		return "&&";
+	case OR:
+		return "||";
+	case COMMA:
+		return ",";
+	default:
+		return "";
 	}
 }
 
@@ -369,14 +369,14 @@ std::string unaryOpToString(UnaryOperator op)
 {
 	switch (op)
 	{
-		case NEG:
-			return "-";
-		case POS:
-			return "+";
-		case EXCLAMATION:
-			return "!";
-		default:
-			return "";
+	case NEG:
+		return "-";
+	case POS:
+		return "+";
+	case EXCLAMATION:
+		return "!";
+	default:
+		return "";
 	}
 }
 
@@ -410,7 +410,7 @@ AffectationCompound::~AffectationCompound()
 
 FunctionAppel::~FunctionAppel()
 {
-	std::for_each(args.begin(), args.end(), [] (Expression *e) { delete e; });
+	std::for_each(args.begin(), args.end(), [](Expression *e) { delete e; });
 	args.clear();
 }
 
