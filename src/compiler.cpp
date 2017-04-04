@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
-#include "getopt/getopt.h"
+#include <getopt.h>
 #include "Printer.h"
 #include "Element.h"
 #include "Expression.h"
