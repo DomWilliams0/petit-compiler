@@ -74,17 +74,17 @@ protected:
 	Type type;
 	std::vector<std::string> params;
 
-	std::vector<sh_Register> readRegisterVecotr;
-	std::vector<sh_Register> wroteRegisterVecotr;
-	std::vector<sh_Data> readRegisterVecotr;
-	std::vector<sh_Data> wroteRegisterVecotr;
+	std::vector<sh_Register> readRegisterVector;
+	std::vector<sh_Register> wroteRegisterVector;
+	std::vector<sh_Data> readRegisterVector;
+	std::vector<sh_Data> wroteRegisterVector;
 };
 
 class BasicBlock {
 public:
 	BasicBlock();
 	/**< x86 assembly code generation for this basic block (very simple) */
-	void gen_codeAsm(std::ostream o);
+	void gen_codeAsm(std::ostream & o);
 	//                                      ^^^^^^^^^^^^^ todo: to modify?
 	void add_IRInstr(IRInstr::Operation op, IRInstr::Type type, std::vector<std::string> params);
 protected:
