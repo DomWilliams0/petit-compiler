@@ -6,12 +6,13 @@
 #include <iostream>
 #include <vector>
 #include <deque>
+#include "IR.h"
 
-typedef struct SymbolTable;
+struct SymbolTable;
 
 class GraphPrinter;
 
-enum Type { INT32, INT64, CHAR, VOID, PLACEHOLDER_TYPE, NOTYPE };
+//enum Type { INT32, INT64, CHAR, VOID, PLACEHOLDER_TYPE, NOTYPE };
 enum ElementType {VAR_DECLS,VAR_DECL,VAR_DEF,FUNC_DECL,FUNC_DEF,BLOCK,RETURN_STAT,COND,ITER,FOR_ITER,UNKNOWN, DOCUMENT, VAR, CONSTINT, CONSTCHAR, AFFECTATION, AFFECTATION_INC, AFFECTATION_COMPOUND, FUNCAPPEL, UNARY, BINARY};
 class Node
 {
@@ -21,7 +22,8 @@ class Node
 		virtual std::string printSelf() const = 0;
 		virtual ElementType getType() const = 0;
 
-		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) = 0;
+		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg) = 0;
+		virtual std::string buildIR(CFG* cfg) = 0;
 	protected:
 		Node() {}
 };
@@ -74,7 +76,8 @@ class Element : public Node
 
 		const std::string &getIdentifier() const { return identifier; }
 
-		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) = 0;
+		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter,CFG* cfg) = 0;
+		virtual std::string buildIR(CFG* cfg) = 0;
 
 	protected:
 		Element(const std::string &id): identifier(id) {}
@@ -93,8 +96,11 @@ class VarDecl : public Element
 		// only change if currently placeholder
 		void updateType(Type type);
 		ElementType getType() const{return VAR_DECL;};
-		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter);
 		Type getVarType() { return type; }
+
+		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
+		std::string buildIR(CFG* cfg);
+
 	protected:
 		Type type;
 		unsigned int arraySize;
@@ -115,7 +121,8 @@ class VarDeclList : public Element
 		ElementType getType() const{ return VAR_DECL; };
 
 		void addDeclaration(VarDecl *decl);
-		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
+		std::string buildIR(CFG* cfg);
 };
 
 class VarDef : public Element
@@ -132,7 +139,8 @@ class VarDef : public Element
 		Expression* getValue() { return value; }
 		Type getVarType() { return decl->getVarType(); }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
+		std::string buildIR(CFG* cfg);
 
 	protected:
 		VarDecl *decl;
@@ -150,7 +158,9 @@ class FuncDecl : public Element
 		ElementType getType() const { return FUNC_DECL; }
 		std::vector<Element *> *getArgs() { return args;}
 		Type getFuncType() { return functionType; }
-		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter);
+
+		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
+		std::string buildIR(CFG* cfg);
 	protected:
 		Type functionType;
 		std::vector<Element *> *args;
@@ -168,7 +178,9 @@ class FuncDef : public Element
 
 	 	Block*& getBlock()  { return block; }
 		FuncDecl *getDecl() { return &decl; }
-		Type solveScopes(std::deque<SymbolTable*>*,int* varCounter);
+
+		Type solveScopes(std::deque<SymbolTable*>*,int* varCounter, CFG* cfg);
+		std::string buildIR(CFG* cfg);
 
 	protected:
 		FuncDecl decl;
@@ -190,7 +202,8 @@ class Document : public Node
 		ElementType getType() const {return DOCUMENT;}
 
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter) { return NOTYPE; }
+		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg) { return NOTYPE; }
+		std::string buildIR(CFG* cfg);
 
 	std::vector<Element*>& getElements()  {
 		return elements;

@@ -11,7 +11,7 @@ std::string Variable::printSelf() const
 	return out.str();
 }
 
-Type Variable::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Variable::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	std::string id = this->name;
 	int var_id = -777;
@@ -42,6 +42,11 @@ Type Variable::solveScopes(std::deque<SymbolTable*>* environments, int * varCoun
 	return NOTYPE;
 }
 
+std::string Variable::buildIR(CFG * cfg)
+{
+	return std::string();
+}
+
 void Variable::print(GraphPrinter *printer) const
 {
 	printer->makeNode((Node *)this);
@@ -58,10 +63,19 @@ std::string ConstInteger::printSelf() const
 	return std::to_string(value);
 }
 
-Type ConstInteger::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type ConstInteger::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	// nothing to do
 	return INT64;
+}
+
+std::string ConstInteger::buildIR(CFG * cfg)
+{
+	std::string name = cfg->create_new_tempvar(INT64);
+	std::vector<std::string> operands = { name };
+	cfg->addInstruction(IRInstr::ldconst, INT64, operands);
+
+	return std::string();
 }
 
 void ConstInteger::print(GraphPrinter *printer) const
@@ -76,10 +90,15 @@ std::string ConstCharacter::printSelf() const
 	return out.str();
 }
 
-Type ConstCharacter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type ConstCharacter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	// nothing to do
 	return CHAR;
+}
+
+std::string ConstCharacter::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 void ConstCharacter::print(GraphPrinter *printer) const
@@ -92,16 +111,21 @@ std::string AffectationCompound::printSelf() const
 	return binaryOpToString(op) + "=";
 }
 
-Type AffectationCompound::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type AffectationCompound::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
-	Type ltype = this->lvalue->solveScopes(environments, varCounter);
-	Type rtype = this->rvalue->solveScopes(environments, varCounter);
+	Type ltype = this->lvalue->solveScopes(environments, varCounter, cfg);
+	Type rtype = this->rvalue->solveScopes(environments, varCounter,cfg);
 
 	if (rtype == ltype)
 		return ltype;
 	else
 		std::cerr << "Error: operand types do not match in affectation "  << std::endl;
 	return NOTYPE;
+}
+
+std::string AffectationCompound::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 void AffectationCompound::print(GraphPrinter *printer) const
@@ -126,12 +150,19 @@ std::string AffectationIncrement::printSelf() const
 			return "-- post";
 		case PRE_DEC:
 			return "-- pre";
+		default:
+			return "";
 	}
 }
 
-Type AffectationIncrement::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type AffectationIncrement::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
-	return this->lvalue->solveScopes(environments, varCounter);
+	return this->lvalue->solveScopes(environments, varCounter,cfg);
+}
+
+std::string AffectationIncrement::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 void AffectationIncrement::print(GraphPrinter *printer) const
@@ -147,16 +178,21 @@ std::string Affectation::printSelf() const
 	return "=";
 }
 
-Type Affectation::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Affectation::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
-	Type ltype = this->lOperand->solveScopes(environments, varCounter);
-	Type rtype = this->rOperand->solveScopes(environments, varCounter);
+	Type ltype = this->lOperand->solveScopes(environments, varCounter,cfg);
+	Type rtype = this->rOperand->solveScopes(environments, varCounter,cfg);
 
 	if (rtype == ltype)
 		return ltype;
 	else
 		std::cerr << "Error: operand types do not match in affectation " << std::endl;
 	return NOTYPE;
+}
+
+std::string Affectation::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 void Affectation::print(GraphPrinter *printer) const
@@ -200,7 +236,7 @@ std::string FunctionAppel::printSelf() const
 	return "Function call: " + funcName;
 }
 
-Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	std::string id = this->funcName;
 	Node * ref = nullptr;
@@ -234,7 +270,7 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 
 		while (identical && i < size)
 		{
-			Type t = ((Expression*)((*argsCall)[i]))->solveScopes(environments, varCounter);
+			Type t = ((Expression*)((*argsCall)[i]))->solveScopes(environments, varCounter,cfg);
 			VarDecl* b = (VarDecl*)((*argsDef)[i]);
 			identical = (t == b->getVarType());
 			i++;
@@ -248,7 +284,7 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 
 		if (ref->getType() == FUNC_DEF) {
 			// FUNC FOUND -> BUILD ASM
-			return ref->solveScopes(environments, varCounter);
+			return ref->solveScopes(environments, varCounter,nullptr);
 		}
 		else
 		{
@@ -261,6 +297,11 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 	}
 
 	return NOTYPE;
+}
+
+std::string FunctionAppel::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 
@@ -286,9 +327,14 @@ std::string UnaryExpression::printSelf() const
 	return unaryOpToString(op);
 }
 
-Type UnaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type UnaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
-	return this->expression->solveScopes(environments, varCounter);
+	return this->expression->solveScopes(environments, varCounter,cfg);
+}
+
+std::string UnaryExpression::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 void UnaryExpression::print(GraphPrinter *printer) const
@@ -303,16 +349,21 @@ std::string BinaryExpression::printSelf() const
 	return binaryOpToString(op);
 }
 
-Type BinaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type BinaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
-	Type ltype = this->lExpression->solveScopes(environments, varCounter);
-	Type rtype = this->rExpression->solveScopes(environments, varCounter);
+	Type ltype = this->lExpression->solveScopes(environments, varCounter,cfg);
+	Type rtype = this->rExpression->solveScopes(environments, varCounter,cfg);
 
 	if (rtype == ltype)
 		return ltype;
 	else
 		std::cerr << "Error: operand types do not match in binary expression of operator: "<<op << std::endl;
 	return NOTYPE;
+}
+
+std::string BinaryExpression::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 void BinaryExpression::print(GraphPrinter *printer) const

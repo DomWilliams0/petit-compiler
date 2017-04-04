@@ -34,17 +34,22 @@ void Cond::updateElse(Statement *newElse)
 		elseBlock = newElse;
 }
 
-Type Cond::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Cond::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 
-	this->condition->solveScopes(environments, varCounter);
+	this->condition->solveScopes(environments, varCounter,  cfg);
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);
-	this->ifBlock->solveScopes(environments, varCounter);
+	this->ifBlock->solveScopes(environments, varCounter,  cfg);
 	if(this->elseBlock != nullptr)
-		this->elseBlock->solveScopes(environments, varCounter);
+		this->elseBlock->solveScopes(environments, varCounter,  cfg);
 
 	return NOTYPE;
+}
+
+std::string Cond::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 std::string For::printSelf() const
@@ -105,7 +110,7 @@ void Iter::print(GraphPrinter *printer) const
 	condition->print(printer);
 	iterBlock->print(printer);
 }
-Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter)
+Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg)
 {
 	SymbolTable *blockTable = environments->back();
 	for (Node *node : *(this->contents)) {
@@ -113,11 +118,16 @@ Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter)
 			SymbolTable *env = new SymbolTable();
 			environments->push_back(env);
 		}
-		node->solveScopes(environments, varCounter);
+		node->solveScopes(environments, varCounter,  cfg);
 	}
 	delete environments->back();
 	environments->pop_back();
 	return NOTYPE;
+}
+
+std::string Block::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 //SymbolTable * Block::computeSymbolTable()
@@ -275,16 +285,21 @@ For::~For()
 	block = nullptr;
 }
 
-Type For::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type For::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);
-	this->init->solveScopes(environments, varCounter);
-	this->cond->solveScopes(environments, varCounter);
-	this->inc->solveScopes(environments, varCounter);
-	this->block->solveScopes(environments, varCounter);
+	this->init->solveScopes(environments, varCounter,  cfg);
+	this->cond->solveScopes(environments, varCounter,  cfg);
+	this->inc->solveScopes(environments, varCounter,  cfg);
+	this->block->solveScopes(environments, varCounter, cfg);
 
 	return NOTYPE;
+}
+
+std::string For::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 Iter::~Iter()
@@ -296,13 +311,18 @@ Iter::~Iter()
 	iterBlock = nullptr;
 }
 
-Type Iter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Iter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
-	this->condition->solveScopes(environments, varCounter);
+	this->condition->solveScopes(environments, varCounter,  cfg);
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);	
-	this->iterBlock->solveScopes(environments, varCounter);
+	this->iterBlock->solveScopes(environments, varCounter,  cfg);
 	return NOTYPE;
+}
+
+std::string Iter::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 Return::~Return()
@@ -313,8 +333,13 @@ Return::~Return()
 	value = nullptr;
 }
 
-Type Return::solveScopes(std::deque<SymbolTable*>*, int * varCounter)
+Type Return::solveScopes(std::deque<SymbolTable*>*, int * varCounter, CFG* cfg)
 {
 	return NOTYPE;
+}
+
+std::string Return::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 

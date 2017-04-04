@@ -8,9 +8,16 @@
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
-#include "Element.h"
+//#include "Element.h"
 #include <stack>
 #include <map>
+#include <vector>
+
+//#include "IR.h"
+class Node;
+class Element;
+class Document;
+class CFG;
 
 typedef struct VarRef
 {
@@ -29,6 +36,7 @@ protected:
 	Document* doc;
 	std::deque<SymbolTable*>* environments;
 	int varCounter;
+	std::vector<CFG*> CFGs;
 public:
 	Interpreter(Document* d): doc(d), varCounter(0){};
 	virtual ~Interpreter();

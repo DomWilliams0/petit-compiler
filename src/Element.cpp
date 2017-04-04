@@ -33,6 +33,11 @@ void Document::createBlocks()
 	}
 }
 
+std::string Document::buildIR(CFG * cfg)
+{
+	return std::string();
+}
+
 
 std::string VarDecl::printSelf() const
 {
@@ -53,17 +58,26 @@ void VarDecl::updateType(Type type)
 }
 
 
-Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
 	{
 		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
+		if (cfg != nullptr)
+		{
+			cfg->add_to_symbol_table(identifier, this->getVarType());
+		}
 	}
 	else
 	{
 		std::cerr << "Error: redeclaration of variable: " << this->identifier << std::endl;
 	}
 	return NOTYPE;
+}
+
+std::string VarDecl::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 std::string VarDeclList::printSelf() const
@@ -89,13 +103,18 @@ void VarDeclList::addDeclaration(VarDecl *decl)
 	declarations->push_back(decl);
 }
 
-Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	for (Element* e : *declarations)
 	{
-		e->solveScopes(environments, varCounter);
+		e->solveScopes(environments, varCounter,  cfg);
 	}
 	return NOTYPE;
+}
+
+std::string VarDeclList::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 std::string VarDef::printSelf() const
@@ -119,16 +138,20 @@ void VarDef::updateType(Type type)
 	decl->updateType(type);
 }
 
-Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
 	{
-		if (this->getVarType() != this->getValue()->solveScopes(environments, varCounter))
+		if (this->getVarType() != this->getValue()->solveScopes(environments, varCounter,  cfg))
 		{
 			std::cerr << "Error: variable " << identifier << " initialized with mismatching type expression" << std::endl;
 		}
 
 		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
+		if (cfg != nullptr)
+		{
+			cfg->add_to_symbol_table(identifier, this->getVarType());
+		}
 	}
 	else
 	{
@@ -138,12 +161,17 @@ Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounte
 	return NOTYPE;
 }
 
+std::string VarDef::buildIR(CFG * cfg)
+{
+	return std::string();
+}
+
 std::string FuncDecl::printSelf() const
 {
 	return "Function Declaration: " + typeToString(functionType) + identifier;
 }
 
-Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
 {
 	if ((environments->back()->funct).find(identifier) == (environments->back()->funct).end())
 	{
@@ -155,6 +183,11 @@ Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCoun
 	}
 	
 	return functionType;
+}
+
+std::string FuncDecl::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 void FuncDecl::print(GraphPrinter *printer) const
@@ -191,7 +224,7 @@ void FuncDef::print(GraphPrinter *printer) const
 	block->print(printer);
 }
 
-Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounter){
+Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounter, CFG* cfg){
 	SymbolTable *blockTable = new SymbolTable();
 	auto it= (environments->back()->funct).find(identifier);
 	if (it == (environments->back()->funct).end())
@@ -200,10 +233,14 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounte
 		for (Element * n : *(this->decl.getArgs())) {
 			VarDecl* temp = (VarDecl*)n;
 			(blockTable->vars)[temp->getIdentifier()] = { temp,(*varCounter)++ };
+			if (cfg != nullptr)
+			{
+				cfg->add_to_symbol_table(temp->getIdentifier(), temp->getVarType());
+			}
 		}
 		
 		environments->push_back(blockTable);
-		block->solveScopes(environments, varCounter);
+		block->solveScopes(environments, varCounter,  cfg);
 	}
 	else
 	{
@@ -230,6 +267,11 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounte
 		std::cerr << "Error: redefinition of function: " << this->identifier << std::endl;
 	}
 	return decl.getFuncType();
+}
+
+std::string FuncDef::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 std::string Document::printSelf() const
