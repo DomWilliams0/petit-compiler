@@ -8,10 +8,16 @@ IC [a-zA-Z_]
 #include "Expression.h"
 #include "c.tab.h"
 
-// ce fichier .l ne fera pas appel a la methode yywrap(), cad que notre lexeur genere ne lex qu'1 seul fichier a chaque execution.
+#undef yywrap
+extern "C" {
+	int yywrap()
+	{
+		return 1;
+	}
+}
 %}
 
-%option noyywrap
+%option nounput
 
 %%
 

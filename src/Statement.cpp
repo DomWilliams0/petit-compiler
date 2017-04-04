@@ -107,7 +107,7 @@ void Iter::print(GraphPrinter *printer) const
 }
 Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter)
 {
-	SymbolTable *blockTable = environments->back();
+	/* SymbolTable *blockTable = environments->back(); */
 	for (Node *node : *(this->contents)) {
 		if (node->getType() == BLOCK) {
 			SymbolTable *env = new SymbolTable();

@@ -208,9 +208,9 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounte
 		{
 			std::vector<Element*>* argsDecl = (((FuncDecl*)(it->second))->getArgs());
 			std::vector<Element*>* argsDef = decl.getArgs();
-			int size = argsDecl->size();
+			size_t size = argsDecl->size();
 			bool identical = (argsDef->size() == size);
-			int i = 0;
+			size_t i = 0;
 			
 			while (identical && i < size)
 			{

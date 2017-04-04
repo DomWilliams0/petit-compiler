@@ -9,7 +9,6 @@
 
 
 Interpreter::~Interpreter() {
-	// TODO Auto-generated destructor stub
 }
 
 void Interpreter::solveScopes(){
@@ -20,7 +19,7 @@ void Interpreter::solveScopes(){
 
 	environments->push_back(s);
 
-	for(int i = 0; i<elements.size(); i++)
+	for(size_t i = 0; i<elements.size(); i++)
 	{
 		elements[i]->solveScopes(environments, &varCounter);
 	}

@@ -7,7 +7,7 @@
 #include <vector>
 #include <deque>
 
-typedef struct SymbolTable;
+struct SymbolTable;
 
 class GraphPrinter;
 

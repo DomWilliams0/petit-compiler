@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include "Element.h"
-typedef struct SymbolTable;
+struct SymbolTable;
 enum UnaryOperator { EXCLAMATION, NEG, POS };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO, LT, LE, GT, GE, EQ, NE, AND, OR, COMMA };
 

@@ -207,7 +207,7 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 	std::string id = this->funcName;
 	Node * ref = nullptr;
 
-	for (int i = environments->size() - 1; i >= 0; i--)
+	for (size_t i = environments->size() - 1; i-- > 0;) // il a l'air bizarre mais il compte toujours de (size-1) jusqu'à 0
 	{
 
 		if ((((*environments)[i])->funct).find(id) != (((*environments)[i])->funct).end()) {
@@ -228,11 +228,11 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int * va
 		{
 			argsDef = ((FuncDecl*)ref)->getArgs();
 		}
-
-
-		int size = argsCall->size();
+		
+		
+		size_t size = argsCall->size();
 		bool identical = (argsDef->size() == size);
-		int i = 0;
+		size_t i = 0;
 
 		while (identical && i < size)
 		{

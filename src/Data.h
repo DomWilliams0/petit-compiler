@@ -14,8 +14,8 @@ public:
 	Type getType() const;
 
 protected:
-	Type dataType; // 1, 2 or 4 byte(s)
 	std::string dataName;
+	Type dataType; // 1, 2 or 4 byte(s)
 };
 
 typedef std::shared_ptr<Data> sh_Data;

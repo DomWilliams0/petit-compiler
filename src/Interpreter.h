@@ -12,17 +12,17 @@
 #include <stack>
 #include <map>
 
-typedef struct VarRef
+struct VarRef
 {
 	Node* ref;
 	int id;
-} VarRef;
+};
 
-typedef struct SymbolTable
+struct SymbolTable
 {
 	std::map<std::string,VarRef> vars;
 	std::map<std::string, Element*> funct;
-} SymbolTable;
+};
 
 class Interpreter {
 protected:
