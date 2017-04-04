@@ -76,8 +76,8 @@ protected:
 
 	std::vector<sh_Register> readRegisterVector;
 	std::vector<sh_Register> wroteRegisterVector;
-	std::vector<sh_Data> readRegisterVector;
-	std::vector<sh_Data> wroteRegisterVector;
+	std::vector<sh_Data> readDataVector;
+	std::vector<sh_Data> wroteDataVector;
 };
 
 class BasicBlock {
