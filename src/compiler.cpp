@@ -63,6 +63,7 @@ struct Settings
 };
 
 int doWork(const Settings &settings);
+void printUsage(char *arg0);
 
 int main(int argc, char **argv)
 {
@@ -73,7 +74,6 @@ int main(int argc, char **argv)
 	// --outfile <filename> -> defaults to filename.asm
 	// -t -> ast.png
 	// --astfile -> output file for ast.png
-
 	Settings settings;
 
 	option options[] = {
@@ -84,6 +84,7 @@ int main(int argc, char **argv)
 
 	int optionIndex = 0;
 
+	bool error = false;
 	int i;
 	while ((i = getopt_long(argc, argv, "aoct", options, &optionIndex)) != -1)
 	{
@@ -120,6 +121,9 @@ int main(int argc, char **argv)
 			case 't':
 				settings.astTree = true;
 				break;
+			case '?':
+				error = true;
+				break;
 
 		}
 	}
@@ -127,6 +131,12 @@ int main(int argc, char **argv)
 	if (optind + 1 != argc)
 	{
 		std::cerr << "A single file to compile must be given" << std::endl;
+		error = true;
+	}
+
+	if (error)
+	{
+		printUsage(argv[0]);
 		return 1;
 	}
 
@@ -134,6 +144,25 @@ int main(int argc, char **argv)
 
 	return doWork(settings);
 }
+
+void printUsage(char *arg0)
+{
+	static const char usage[] =
+        "Un petit compiler.\n"
+        "   Usage:\n"
+        "       %s <file>\n"
+        "\n"
+        "   Options:\n"
+        "       -a          Static analysis.\n"
+        "       -o          Enable optimisation.\n"
+        "       -c          Compile to <file>.asm, or the path specified by `--outfile` if given.\n"
+        "       --outfile   Specify the output path for compilation.\n"
+        "       -t          Generate a Graphviz dot graph of the AST in <file>.dot, or the path specified by `--astfile` if given.\n"
+        "       --astfile   Specify the output path for AST graph\n"
+        "\n";
+	fprintf(stderr, usage, arg0);
+}
+
 
 void parseFileName(const std::string &originalFile, const std::string &replacement, const std::string &extension, std::ostream **out,
 		bool &freeMe)
