@@ -29,13 +29,18 @@ public:
 		ldconst,
 		add,
 		sub,
-		mul,
+		mult,
+		div,
+		mod,
 		rmem,
 		wmem,
 		call,
 		cmp_eq,
+		cmp_ne,
 		cmp_lt,
-		cmp_le
+		cmp_le,
+		cmp_gt,
+		cmp_ge
 	} Operation;
 
 
@@ -44,7 +49,7 @@ public:
 
 	/** Actual code generation */
 	void gen_asm(std::ostream &o); /**< x86 assembly code generation for this IR instruction */
-
+	Operation getOp() { return op; }
 private:
 	BasicBlock* bb; /**< The BB this instruction belongs to, which provides a pointer to the CFG this instruction belong to */
 	Operation op;
@@ -74,7 +79,7 @@ otherwise it generates an unconditional jmp to the exit_true branch
 
 class BasicBlock {
 public:
-	BasicBlock(CFG* cfg, std::string entry_label);
+	BasicBlock(CFG* _cfg, std::string entry_label) :cfg(_cfg), label(entry_label) {};
 	void gen_asm(std::ostream &o); /**< x86 assembly code generation for this basic block (very simple) */
 
 	void add_IRInstr(IRInstr::Operation op, Type t, std::vector<std::string> params);
@@ -104,7 +109,7 @@ The exit block is the one with both exit pointers equal to nullptr.
 */
 class CFG {
 public:
-	CFG(FuncDef* ast) :nextFreeSymbolIndex(1) {};
+	CFG(FuncDef* ast) :nextFreeSymbolIndex(1), nextBBnumber(0){};
 
 	FuncDef* ast; /**< The AST this CFG comes from */
 

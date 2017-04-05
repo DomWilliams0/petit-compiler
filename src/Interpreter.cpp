@@ -55,3 +55,8 @@ void Interpreter::solveScopes(){
 	environments->pop_back();
 }
 
+void Interpreter::buildIR()
+{
+
+}
+

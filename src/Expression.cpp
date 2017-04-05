@@ -44,7 +44,7 @@ Type Variable::solveScopes(std::deque<SymbolTable*>* environments, int * varCoun
 
 std::string Variable::buildIR(CFG * cfg)
 {
-	return std::string();
+	return name;//car on ne gère pas les tableaux
 }
 
 void Variable::print(GraphPrinter *printer) const
@@ -72,7 +72,7 @@ Type ConstInteger::solveScopes(std::deque<SymbolTable*>* environments, int * var
 std::string ConstInteger::buildIR(CFG * cfg)
 {
 	std::string name = cfg->create_new_tempvar(INT64);
-	std::vector<std::string> operands = { name };
+	std::vector<std::string> operands = { name,std::to_string(value) };
 	cfg->addInstruction(IRInstr::ldconst, INT64, operands);
 
 	return std::string();
@@ -363,7 +363,51 @@ Type BinaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int *
 
 std::string BinaryExpression::buildIR(CFG * cfg)
 {
-	return std::string();
+	std::string reg1 = lExpression->buildIR(cfg);
+	std::string reg2 = rExpression->buildIR(cfg);
+	std::string reg3 = cfg->create_new_tempvar(INT64);//typage des noeuds intermédiaires?
+	IRInstr::Operation o;
+	switch (op)
+	{
+	case PLUS:
+		o = IRInstr::add;
+	break;
+	case MINUS:
+		o = IRInstr::sub;
+		break;
+	case MULT:
+		o = IRInstr::mult;
+		break;
+	case DIV:
+		o = IRInstr::div;
+		break;
+	case MODULO:
+		o = IRInstr::mod;
+		break;
+	case LT:
+		o = IRInstr::cmp_lt;
+		break;
+	case LE:
+		o = IRInstr::cmp_le;
+		break;
+	case GT:
+		o = IRInstr::cmp_gt;
+		break;
+	case GE:
+		o = IRInstr::cmp_ge;
+		break;
+	case EQ:
+		o = IRInstr::cmp_eq;
+		break;
+	case NE:
+		o = IRInstr::cmp_ne;
+		break;
+
+
+	}
+
+	cfg->addInstruction(o, INT64, { reg3,reg1,reg2 });
+	return reg3;
 }
 
 void BinaryExpression::print(GraphPrinter *printer) const

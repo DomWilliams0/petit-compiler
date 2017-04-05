@@ -41,6 +41,7 @@ public:
 	Interpreter(Document* d): doc(d), varCounter(0){};
 	virtual ~Interpreter();
 	void solveScopes();
+	void buildIR();
 
 };
 
