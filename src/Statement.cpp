@@ -112,13 +112,14 @@ void Iter::print(GraphPrinter *printer) const
 }
 Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg)
 {
-	SymbolTable *blockTable = environments->back();
-	for (Node *node : *(this->contents)) {
-		if (node->getType() == BLOCK) {
-			SymbolTable *env = new SymbolTable();
-			environments->push_back(env);
+	if (contents) {
+		for (Node *node : *(this->contents)) {
+			if (node->getType() == BLOCK) {
+				SymbolTable *env = new SymbolTable();
+				environments->push_back(env);
+			}
+			node->solveScopes(environments, varCounter,  cfg);
 		}
-		node->solveScopes(environments, varCounter,  cfg);
 	}
 	delete environments->back();
 	environments->pop_back();
