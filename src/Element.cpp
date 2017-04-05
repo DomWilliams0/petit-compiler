@@ -148,9 +148,11 @@ Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounte
 {
 	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
 	{
-		if (this->getVarType() != this->getValue()->solveScopes(environments, varCounter,  cfg))
+		Type valueType = this->getValue()->solveScopes(environments, varCounter,  cfg);
+		if (this->getVarType() != valueType)
 		{
-			std::cerr << "Error: variable " << identifier << " initialized with mismatching type expression" << std::endl;
+			std::cerr << "Error: variable " << identifier << " initialized with mismatching type expression; expected "
+				<< typeToString(getVarType()) << "but got " << typeToString(valueType) << "instead"<< std::endl;
 		}
 
 		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
