@@ -114,13 +114,12 @@ class VarDeclList : public Element
 		std::vector<Element *> *declarations;
 
 	public:
-		VarDeclList(Type type, std::vector<Element *> *declarations) : Element(""), type(type), declarations(declarations) {}
+		VarDeclList(Type type, std::vector<Element *> *declarations);
 		~VarDeclList();
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 		ElementType getType() const{ return VAR_DECL; };
 
-		void addDeclaration(VarDecl *decl);
 		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
 		std::string buildIR(CFG* cfg);
 };

@@ -80,6 +80,18 @@ std::string VarDecl::buildIR(CFG * cfg)
 	return std::string();
 }
 
+VarDeclList::VarDeclList(Type type, std::vector<Element *> *declarations) : Element(""), type(type), declarations(declarations)
+{
+	if (declarations)
+	{
+		for (Element *e : *declarations)
+			if (e->getType() == VAR_DECL)
+				((VarDecl *)e)->updateType(this->type);
+			else if (e->getType() == VAR_DEF)
+				((VarDef *)e)->updateType(this->type);
+	}
+}
+
 std::string VarDeclList::printSelf() const
 {
 	std::stringstream out;
@@ -95,12 +107,6 @@ void VarDeclList::print(GraphPrinter *printer) const
 		printer->addConnection((Node *)this, e);
 		e->print(printer);
 	}
-}
-
-void VarDeclList::addDeclaration(VarDecl *decl)
-{
-	decl->updateType(type);
-	declarations->push_back(decl);
 }
 
 Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
