@@ -248,7 +248,12 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounte
 		}
 		
 		environments->push_back(blockTable);
-		block->solveScopes(environments, varCounter,  cfg);
+
+		Type ret = block->solveScopes(environments, varCounter,  cfg);
+		Type expected = decl.getFuncType();
+		if (ret != expected) {
+			std::cerr << "Error: bad return type, " << identifier << " expected " << typeToString(expected) << "but got " << typeToString(ret) << "instead" << std::endl;
+		}
 	}
 	else
 	{

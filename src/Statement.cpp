@@ -112,18 +112,39 @@ void Iter::print(GraphPrinter *printer) const
 }
 Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg)
 {
+	// blocks are void by default, unless a return statement changes it
+	// only 1 return statement is allowed
+
+	Type returned = NOTYPE;
+
 	if (contents) {
 		for (Node *node : *(this->contents)) {
 			if (node->getType() == BLOCK) {
 				SymbolTable *env = new SymbolTable();
 				environments->push_back(env);
 			}
-			node->solveScopes(environments, varCounter,  cfg);
+			Type result = node->solveScopes(environments, varCounter,  cfg);
+
+			if (node->getType() == RETURN_STAT) {
+				if (returned == NOTYPE) {
+					// first and only return statement
+					returned = result;
+				}
+				else
+				{
+					// uh oh, multiple
+					std::cerr << "Warning: multiple return statements" << std::endl;
+					returned = NOTYPE;
+				}
+			}
+
 		}
 	}
 	delete environments->back();
 	environments->pop_back();
-	return NOTYPE;
+
+	// return void otherwise
+	return returned == NOTYPE ? VOID : returned;
 }
 
 std::string Block::buildIR(CFG * cfg)
@@ -334,9 +355,9 @@ Return::~Return()
 	value = nullptr;
 }
 
-Type Return::solveScopes(std::deque<SymbolTable*>*, int * varCounter, CFG* cfg)
+Type Return::solveScopes(std::deque<SymbolTable*> *environments, int * varCounter, CFG* cfg)
 {
-	return NOTYPE;
+	return value ? value->solveScopes(environments, varCounter, cfg) : VOID;
 }
 
 std::string Return::buildIR(CFG * cfg)
