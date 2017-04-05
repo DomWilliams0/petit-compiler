@@ -58,7 +58,7 @@ void VarDecl::updateType(Type type)
 }
 
 
-Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
+Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
 	{
@@ -70,7 +70,9 @@ Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCount
 	}
 	else
 	{
-		std::cerr << "Error: redeclaration of variable: " << this->identifier << std::endl;
+		std::stringstream err;
+		err << "Error: redeclaration of variable: " << this->identifier;
+		errors.addError(err.str());
 	}
 	return NOTYPE;
 }
@@ -109,11 +111,11 @@ void VarDeclList::print(GraphPrinter *printer) const
 	}
 }
 
-Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
+Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	for (Element* e : *declarations)
 	{
-		e->solveScopes(environments, varCounter,  cfg);
+		e->solveScopes(environments, varCounter,  cfg, errors);
 	}
 	return NOTYPE;
 }
@@ -144,15 +146,17 @@ void VarDef::updateType(Type type)
 	decl->updateType(type);
 }
 
-Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
+Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
 	{
-		Type valueType = this->getValue()->solveScopes(environments, varCounter,  cfg);
+		Type valueType = this->getValue()->solveScopes(environments, varCounter,  cfg, errors);
 		if (this->getVarType() != valueType)
 		{
-			std::cerr << "Error: variable " << identifier << " initialized with mismatching type expression; expected "
-				<< typeToString(getVarType()) << "but got " << typeToString(valueType) << "instead"<< std::endl;
+			std::stringstream err;
+			err << "Error: variable " << identifier << " initialized with mismatching type expression; expected "
+				<< typeToString(getVarType()) << "but got " << typeToString(valueType) << "instead";
+			errors.addError(err.str());
 		}
 
 		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
@@ -163,7 +167,9 @@ Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounte
 	}
 	else
 	{
-		std::cerr << "Error: redefinition of variable: " << this->identifier << std::endl;
+		std::stringstream err;
+		err << "Error: redefinition of variable: " << this->identifier;
+		errors.addError(err.str());
 	}
 	
 	return NOTYPE;
@@ -179,7 +185,7 @@ std::string FuncDecl::printSelf() const
 	return "Function Declaration: " + typeToString(functionType) + identifier;
 }
 
-Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
+Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	if ((environments->back()->funct).find(identifier) == (environments->back()->funct).end())
 	{
@@ -232,7 +238,7 @@ void FuncDef::print(GraphPrinter *printer) const
 	block->print(printer);
 }
 
-Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounter, CFG* cfg){
+Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int *varCounter, CFG *cfg, ErrorList &errors){
 	SymbolTable *blockTable = new SymbolTable();
 	auto it= (environments->back()->funct).find(identifier);
 	if (it == (environments->back()->funct).end())
@@ -249,10 +255,12 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounte
 		
 		environments->push_back(blockTable);
 
-		Type ret = block->solveScopes(environments, varCounter,  cfg);
+		Type ret = block->solveScopes(environments, varCounter, cfg, errors);
 		Type expected = decl.getFuncType();
 		if (ret != expected) {
-			std::cerr << "Error: bad return type, " << identifier << " expected " << typeToString(expected) << "but got " << typeToString(ret) << "instead" << std::endl;
+			std::stringstream err;
+			err << "Error: bad return type, " << identifier << " expected " << typeToString(expected) << "but got " << typeToString(ret) << "instead";
+			errors.addError(err.str());
 		}
 	}
 	else
@@ -274,10 +282,14 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounte
 			}
 			if (!identical)
 			{
-				std::cerr << "Error: definition of function args do not match with previous declaration: " << this->identifier << std::endl;
+				std::stringstream err;
+				err << "Error: definition of function args do not match with previous declaration: " << this->identifier;
+				errors.addError(err.str());
 			}
 		}
-		std::cerr << "Error: redefinition of function: " << this->identifier << std::endl;
+		std::stringstream err;
+		err << "Error: redefinition of function: " << this->identifier;
+		errors.addError(err.str());
 	}
 	return decl.getFuncType();
 }

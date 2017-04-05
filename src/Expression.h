@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include "Element.h"
+#include "Interpreter.h"
 struct SymbolTable;
 enum UnaryOperator { EXCLAMATION, NEG, POS };
 enum BinaryOperator { PLUS, MINUS, MULT, DIV, MODULO, LT, LE, GT, GE, EQ, NE, AND, OR, COMMA };
@@ -18,7 +19,7 @@ class Expression : public Node
 		virtual std::string printSelf() const = 0;
 		virtual ElementType getType() const = 0;
 
-		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter,CFG* cfg) = 0;
+		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors) = 0;
 		virtual std::string buildIR(CFG* cfg) = 0;
 };
 
@@ -37,7 +38,7 @@ class Variable : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return VAR; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter,CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 };
 
@@ -50,7 +51,7 @@ class ConstInteger : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return CONSTINT; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 
 	protected:
@@ -66,7 +67,7 @@ class ConstCharacter : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return CONSTCHAR; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 
 	protected:
@@ -87,7 +88,7 @@ class Affectation : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 };
 
@@ -107,7 +108,7 @@ class AffectationIncrement : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION_INC; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 };
 
@@ -126,7 +127,7 @@ class AffectationCompound : public Expression
 		std::string printSelf() const;
 		ElementType getType() const { return AFFECTATION_COMPOUND; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 };
 
@@ -146,7 +147,7 @@ class FunctionAppel : public Expression
 		//std::map<std::string,Element*> computeSymbolTable();
 		void addArg(Expression* e) { args.push_back(e); }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 };
 
@@ -164,7 +165,7 @@ class UnaryExpression : public Expression
 		std::string printSelf() const;
 		ElementType getType() const  {return UNARY; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 };
 
@@ -188,7 +189,7 @@ class BinaryExpression : public Expression
 		Expression *getRightExpression() const { return rExpression; }
 		BinaryOperator getOperator() const { return op; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 };
 

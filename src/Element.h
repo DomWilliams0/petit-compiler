@@ -7,6 +7,7 @@
 #include <vector>
 #include <deque>
 #include "IR.h"
+#include "Interpreter.h"
 
 struct SymbolTable;
 
@@ -22,7 +23,7 @@ class Node
 		virtual std::string printSelf() const = 0;
 		virtual ElementType getType() const = 0;
 
-		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg) = 0;
+		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors) = 0;
 		virtual std::string buildIR(CFG* cfg) = 0;
 	protected:
 		Node() {}
@@ -31,7 +32,6 @@ class Node
 class Block;
 class Expression;
 
-//                                    vvvvvvvvvvvvvvvv unknown at time of parsing
 struct Value
 {
 	Type type;
@@ -76,7 +76,7 @@ class Element : public Node
 
 		const std::string &getIdentifier() const { return identifier; }
 
-		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter,CFG* cfg) = 0;
+		virtual Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors) = 0;
 		virtual std::string buildIR(CFG* cfg) = 0;
 
 	protected:
@@ -98,7 +98,7 @@ class VarDecl : public Element
 		ElementType getType() const{return VAR_DECL;};
 		Type getVarType() { return type; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 
 	protected:
@@ -120,7 +120,7 @@ class VarDeclList : public Element
 		std::string printSelf() const;
 		ElementType getType() const{ return VAR_DECL; };
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 };
 
@@ -138,7 +138,7 @@ class VarDef : public Element
 		Expression* getValue() { return value; }
 		Type getVarType() { return decl->getVarType(); }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 
 	protected:
@@ -158,7 +158,7 @@ class FuncDecl : public Element
 		std::vector<Element *> *getArgs() { return args;}
 		Type getFuncType() { return functionType; }
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 	protected:
 		Type functionType;
@@ -178,7 +178,7 @@ class FuncDef : public Element
 	 	Block*& getBlock()  { return block; }
 		FuncDecl *getDecl() { return &decl; }
 
-		Type solveScopes(std::deque<SymbolTable*>*,int* varCounter, CFG* cfg);
+		Type solveScopes(std::deque<SymbolTable*>*,int *varCounter, CFG *cfg, ErrorList &errors);
 		std::string buildIR(CFG* cfg);
 
 	protected:
@@ -201,7 +201,7 @@ class Document : public Node
 		ElementType getType() const {return DOCUMENT;}
 
 
-		Type solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg) { return NOTYPE; }
+		Type solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors) { return NOTYPE; }
 		std::string buildIR(CFG* cfg);
 
 	std::vector<Element*>& getElements()  {

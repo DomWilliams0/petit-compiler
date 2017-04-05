@@ -1,4 +1,3 @@
-#include <iostream>
 #include <algorithm>
 #include <sstream>
 #include "Printer.h"
@@ -34,15 +33,15 @@ void Cond::updateElse(Statement *newElse)
 		elseBlock = newElse;
 }
 
-Type Cond::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
+Type Cond::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 
-	this->condition->solveScopes(environments, varCounter,  cfg);
+	this->condition->solveScopes(environments, varCounter,  cfg, errors);
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);
-	this->ifBlock->solveScopes(environments, varCounter,  cfg);
+	this->ifBlock->solveScopes(environments, varCounter,  cfg, errors);
 	if(this->elseBlock != nullptr)
-		this->elseBlock->solveScopes(environments, varCounter,  cfg);
+		this->elseBlock->solveScopes(environments, varCounter,  cfg, errors);
 
 	return NOTYPE;
 }
@@ -110,7 +109,7 @@ void Iter::print(GraphPrinter *printer) const
 	condition->print(printer);
 	iterBlock->print(printer);
 }
-Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg)
+Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg, ErrorList &errors)
 {
 	// blocks are void by default, unless a return statement changes it
 	// only 1 return statement is allowed
@@ -123,7 +122,7 @@ Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter,
 				SymbolTable *env = new SymbolTable();
 				environments->push_back(env);
 			}
-			Type result = node->solveScopes(environments, varCounter,  cfg);
+			Type result = node->solveScopes(environments, varCounter,  cfg, errors);
 
 			if (node->getType() == RETURN_STAT) {
 				if (returned == NOTYPE) {
@@ -133,7 +132,9 @@ Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter,
 				else
 				{
 					// uh oh, multiple
-					std::cerr << "Warning: multiple return statements" << std::endl;
+					std::stringstream err;
+					err << "Warning: multiple return statements";
+					errors.addError(err.str());
 					returned = NOTYPE;
 				}
 			}
@@ -307,14 +308,14 @@ For::~For()
 	block = nullptr;
 }
 
-Type For::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
+Type For::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);
-	this->init->solveScopes(environments, varCounter,  cfg);
-	this->cond->solveScopes(environments, varCounter,  cfg);
-	this->inc->solveScopes(environments, varCounter,  cfg);
-	this->block->solveScopes(environments, varCounter, cfg);
+	this->init->solveScopes(environments, varCounter,  cfg, errors);
+	this->cond->solveScopes(environments, varCounter,  cfg, errors);
+	this->inc->solveScopes(environments, varCounter,  cfg, errors);
+	this->block->solveScopes(environments, varCounter, cfg, errors);
 
 	return NOTYPE;
 }
@@ -333,12 +334,12 @@ Iter::~Iter()
 	iterBlock = nullptr;
 }
 
-Type Iter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter, CFG* cfg)
+Type Iter::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
-	this->condition->solveScopes(environments, varCounter,  cfg);
+	this->condition->solveScopes(environments, varCounter,  cfg, errors);
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);	
-	this->iterBlock->solveScopes(environments, varCounter,  cfg);
+	this->iterBlock->solveScopes(environments, varCounter,  cfg, errors);
 	return NOTYPE;
 }
 
@@ -355,9 +356,9 @@ Return::~Return()
 	value = nullptr;
 }
 
-Type Return::solveScopes(std::deque<SymbolTable*> *environments, int * varCounter, CFG* cfg)
+Type Return::solveScopes(std::deque<SymbolTable*> *environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
-	return value ? value->solveScopes(environments, varCounter, cfg) : VOID;
+	return value ? value->solveScopes(environments, varCounter, cfg, errors) : VOID;
 }
 
 std::string Return::buildIR(CFG * cfg)

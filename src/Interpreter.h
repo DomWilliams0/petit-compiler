@@ -19,19 +19,35 @@ class Element;
 class Document;
 class CFG;
 
-typedef struct VarRef
+struct VarRef
 {
 	Node* ref;
 	int id;
-} VarRef;
+};
 
-typedef struct SymbolTable
+struct SymbolTable
 {
 	std::map<std::string,VarRef> vars;
 	std::map<std::string, Element*> funct;
-} SymbolTable;
+};
+
+struct Error
+{
+	Error(const std::string &msg) : msg(msg) {}
+
+	std::string msg;
+	// TODO further attributes about location
+};
+
+struct ErrorList
+{
+	std::vector<Error> errors;
+
+	inline void addError(const std::string &err) { errors.emplace_back(err); }
+};
 
 class Interpreter {
+
 protected:
 	Document* doc;
 	std::deque<SymbolTable*>* environments;
@@ -40,7 +56,7 @@ protected:
 public:
 	Interpreter(Document* d): doc(d), varCounter(0){};
 	virtual ~Interpreter();
-	void solveScopes();
+	void solveScopes(ErrorList &errors);
 	void buildIR();
 
 };

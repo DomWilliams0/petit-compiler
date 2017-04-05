@@ -60,9 +60,18 @@ int main(int argc, char **argv)
 	printer.printGraph(&doc);
 	myfile.close();
 
+	ErrorList errors;
 	Interpreter inter(&doc);
-	inter.solveScopes();
-	
+	inter.solveScopes(errors);
+	bool errors_present = errors.errors.size() > 0;
+	if (errors_present)
+	{
+		std::cerr << errors.errors.size() << " semantic error(s):" << std::endl;
+		for (Error &e : errors.errors)
+		{
+			std::cerr << e.msg << std::endl;
+		}
+	}
 
 	
 	return 0;

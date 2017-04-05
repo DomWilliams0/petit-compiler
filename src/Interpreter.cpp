@@ -13,7 +13,7 @@ Interpreter::~Interpreter() {
 	// TODO Auto-generated destructor stub
 }
 
-void Interpreter::solveScopes(){
+void Interpreter::solveScopes(ErrorList &errors) {
 	varCounter = 0;
 	environments = new std::deque<SymbolTable*>;
 	std::vector<Element *> elements=doc->getElements();
@@ -49,7 +49,7 @@ void Interpreter::solveScopes(){
 			}
 		}
 
-		elements[i]->solveScopes(environments, &varCounter, curCFG);
+		elements[i]->solveScopes(environments, &varCounter, curCFG, errors);
 	}
 	delete environments->back();
 	environments->pop_back();
