@@ -8,6 +8,7 @@
 #include <map>
 
 #include "Element.h"
+#include "Expression.h"
 #include "Register.h"
 #include "Data.h"
 
@@ -16,19 +17,38 @@ class CFG;
 
 class Operand {
 public : 
-	// we have 2 kins of operands : a variable or a constant
-	enum OperandType {
+	// we have 2 kinds of operands : a variable or a constant
+	enum class OperandType {
 		OperandVariable,
 		OperandConstant
 	};
-	Operand(OperandType operand_type);
+	Operand(OperandType operatnd_type);
 	virtual ~Operand() = 0;
+	// type of the concerned operand
+protected:
+	const OperandType operand_type;
 };
 
-struct Variable : public Operand {
-	static std::unique_ptr<Variable> Create(const std::shared_ptr<OperandVariable> variable);
-	Variable(const std::shared_ptr<const OperandVariable> variable);
-	~OperandVariable();
+class Constant : public Operand {
+public:
+	static std::unique_ptr<Constant> Create(const std::shared_ptr<OperandType> constant);
+	Constant(std::shared_ptr<OperandType> constant);
+	~Constant();
+	// value of the concerned constant
+protected:
+	int64_t value;
+};
+
+class Variable_op : public Operand {
+public:
+	//                                                           ^^^^^^^^^^^^ todo: to correct?
+	static std::unique_ptr<Variable_op> Create(const std::shared_ptr<const OperandType> variable);
+	//                            ^^^^^^^^^^^^^ todo : to correct?
+	Variable_op(const std::shared_ptr<const OperandType> variable);
+	~Variable_op();
+protected:
+	// expression of the concerned variable
+	const std::shared_ptr<const OperandType> variable;
 };
 
 class IRInstr {
@@ -42,33 +62,90 @@ public:
 			callOp,
 		//add_Assign, sub_Assign, mul_Assign, div_Assign, mod_Assign,
 			assignOp,
+		// read on memory
 			read, // read on memory
 			write, // write on memory
 		};
 
-		IRInstr(OpType op_type) : op(op_type) {};
+		IRInstr(OpType op_type) : op_type(op_type) {};
 		virtual ~IRInstr() = 0;
-		const OpType op;
+		// type of the concerned instruction(operation)
+		const OpType op_type;
 
-	//typedef std::shared_ptr<Instruction> sh_Instruction;
+	/*typedef std::shared_ptr<Instruction> sh_Instruction;
 	void gen_codeAsm(std::ostream &o);
 	virtual std::string toX86() const = 0;
 
 	std::vector<sh_Register> getReadRegisterVector() const;
 	std::vector<sh_Register> getWroteRegisterVector() const;
 	std::vector<sh_Data> getReadDataVector() const;
-	std::vector<sh_Data> getWroteDataVector() const;
+	std::vector<sh_Data> getWroteDataVector() const;*/
 
-protected:
+/*protected:
 	BasicBlock * bb;
 	OpType op_type;
 	Type type;
-	std::vector<std::string> params;
+	std::vector<std::string> params;*/
 
-	std::vector<sh_Register> readRegisterVector;
+	/*std::vector<sh_Register> readRegisterVector;
 	std::vector<sh_Register> wroteRegisterVector;
 	std::vector<sh_Data> readDataVector;
-	std::vector<sh_Data> wroteDataVector;
+	std::vector<sh_Data> wroteDataVector;*/
+};
+
+class CallOp : public IRInstr {
+// Call function "function" with arguments "args" and return value is "ret"
+public:
+	//                                                                                 ^^^^^^^^^^^^^^ todo : to modify?
+	static std::unique_ptr<CallOp> Create(std::shared_ptr<Operand> args, std::shared_ptr<FunctionAppel> function, std::shared_ptr<Variable_op> ret);
+	//                                                    ^^^^^^^^^^^^^^ todo : to modify?
+	CallOp(std::shared_ptr<Operand> args, std::shared_ptr<FunctionAppel> function, std::shared_ptr<Variable_op> ret);
+	virtual ~CallOp();
+protected:
+	std::shared_ptr<FunctionAppel> function;
+	std::shared_ptr<Operand> args;
+	std::shared_ptr<Variable_op> ret;
+};
+
+class BinOp : public IRInstr {
+// Binary Operation with result in "dest", "dest" = "left" "bin_operator" "right"
+public:
+	enum class BinOperator {
+		Add, // left + right
+		Sub, // left - right
+		Mul, // left * right
+		Div, // left / right
+		Mod, // left % right
+		Equal, // left == right
+		Greater, // left > right
+		GreaterOrEqual, // left >= right
+		Lower, // left < right
+		LowerOrEqual, // left <= right
+		NotEqual // left != right
+	};
+
+	static std::unique_ptr<BinOp> Create(std::shared_ptr<Variable_op> dest, std::shared_ptr<Operand> left, BinOperator bin_operator, std::shared_ptr<Operand> right);
+	BinOp(std::shared_ptr<Variable_op> dest, std::shared_ptr<Operand> left, BinOperator bin_operator, std::shared_ptr<Operand> right);
+	virtual	~BinOp();
+protected:
+	std::shared_ptr<Variable_op> dest;
+	std::shared_ptr<Operand> left;
+	BinOperator bin_operator;
+	std::shared_ptr<Variable_op> right;
+};
+
+class UnaOp : public IRInstr {
+	enum class UnaOperator {
+		pre_increment, //++expr 
+		pre_decrement, //--expr
+		post_increment, //expr++
+		post_decrement, //expr--
+		unary_plus, //+expr
+		unary_minus, //-expr
+		unary_not //!expr
+	};
+
+	static std::shared_ptr<UnaOp> Create(std::shared_ptr<Variable_op> dest, UnaOperator una_operator);
 };
 
 class BasicBlock {
@@ -85,8 +162,10 @@ protected:
 	BasicBlock* exit_false; /**< pointer to the next basic block, false branch. If null_ptr, the basic block ends with an unconditional jump */
 };
 
-// Le "Control Flow Graph" qui represente l'execution sequentielle des "basic blocks" qui sont chacun une sequence d'instructions.
+
+
 class CFG {
+// Le "Control Flow Graph" qui represente l'execution sequentielle des "basic blocks" qui sont chacun une sequence d'instructions.
 public:
 	//CFG(AST * ast);
 	//AST * ast;
