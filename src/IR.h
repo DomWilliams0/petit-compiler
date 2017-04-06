@@ -14,52 +14,43 @@
 class BasicBlock;
 class CFG;
 
+class Operand {
+public : 
+	// we have 2 kins of operands : a variable or a constant
+	enum OperandType {
+		OperandVariable,
+		OperandConstant
+	};
+	Operand(OperandType operand_type);
+	virtual ~Operand() = 0;
+};
+
+struct Variable : public Operand {
+	static std::unique_ptr<Variable> Create(const std::shared_ptr<OperandVariable> variable);
+	Variable(const std::shared_ptr<const OperandVariable> variable);
+	~OperandVariable();
+};
+
 class IRInstr {
 public:
-	typedef enum {
-//unary operation
-		pre_increment,
-		pre_decrement,
-		post_increment,
-		post_decrement,
-		parenthesis, // todo : to delete?
-		unary_plus,
-		unary_minus,
-		unary_not,
-//binary operation
-		add,
-		sub,
-		mul,
-		div,
-		modulus,
-		equal,
-		greater,
-		greaterOrEqual,
-		lower,
-		lowerOrEqual,
-		notEqual,
-		assignInstr,
-		add_Assign,
-		sub_Assign,
-		mul_Assign,
-		div_Assign,
-		mod_Assign,
-		read, // read on memory
-		write, // write on memory
-		call_function
-	} Operation;
+		enum class OpType {
+		//pre_increment, pre_decrement, post_increment, post_decrement, parenthesis, unary_plus, unary_minus, unary_not.
+			unaOp,
+		//add, sub, mul, div, modulus, equal, greater, greaterOrEqual, lower, lowerOrEqual, notEqual.
+			binOp,
+		//call_function.
+			callOp,
+		//add_Assign, sub_Assign, mul_Assign, div_Assign, mod_Assign,
+			assignOp,
+			read, // read on memory
+			write, // write on memory
+		};
 
-	//todo : to delete?
-	typedef enum {
-		unary_expr,
-		binary_expr,
-		assignType,
-		assignIncrement
-	} Type;
+		IRInstr(OpType op_type) : op(op_type) {};
+		virtual ~IRInstr() = 0;
+		const OpType op;
 
 	//typedef std::shared_ptr<Instruction> sh_Instruction;
-	
-	IRInstr(Operation op, Type t, std::vector<std::string> ls_param) : op(op), type(t), params(ls_param) {};
 	void gen_codeAsm(std::ostream &o);
 	virtual std::string toX86() const = 0;
 
@@ -70,7 +61,7 @@ public:
 
 protected:
 	BasicBlock * bb;
-	Operation op;
+	OpType op_type;
 	Type type;
 	std::vector<std::string> params;
 
@@ -86,7 +77,7 @@ public:
 	/**< x86 assembly code generation for this basic block (very simple) */
 	void gen_codeAsm(std::ostream & o);
 	//                                      ^^^^^^^^^^^^^ todo: to modify?
-	void add_IRInstr(IRInstr::Operation op, IRInstr::Type type, std::vector<std::string> params);
+	void add_IRInstr(IRInstr::OpType op_type, std::vector<std::string> params);
 protected:
 	CFG* cfg;
 	std::vector<std::string> ls_IRInstr;

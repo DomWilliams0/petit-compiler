@@ -1,4 +1,5 @@
 #include "Register.h"
+#include <string>
 
 std::string Register::getAsmRegisterName() const
 {
