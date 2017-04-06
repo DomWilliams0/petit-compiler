@@ -161,11 +161,11 @@ void printUsage(char *arg0)
 	static const char usage[] =
         "Un petit compiler.\n"
         "   Usage:\n"
-        "       %s <file>\n"
+        "       %s <options> <file>\n"
         "\n"
         "   Options:\n"
         "       -a          Static analysis.\n"
-        "       -o          Enable optimisation.\n"
+        "       -o          Enable optimisation. <NOT IMPLEMENTED>\n"
         "       -c          Compile to <file>.asm, or the path specified by `--outfile` if given.\n"
         "       --outfile   Specify the output path for compilation.\n"
         "       -t          Generate a Graphviz dot graph of the AST in <file>.dot, or the path specified by `--astfile` if given.\n"
