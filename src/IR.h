@@ -22,7 +22,7 @@ public :
 		OperandVariable,
 		OperandConstant
 	};
-	Operand(OperandType operatnd_type);
+	Operand(OperandType op_type) : operand_type(op_type) {};
 	virtual ~Operand() = 0;
 	// type of the concerned operand
 protected:
@@ -31,21 +31,22 @@ protected:
 
 class Constant : public Operand {
 public:
-	static std::unique_ptr<Constant> Create(const std::shared_ptr<OperandType> constant);
-	Constant(std::shared_ptr<OperandType> constant);
-	~Constant();
+	static std::unique_ptr<Constant> Create(int64_t value);
+	Constant(int64_t value) : Operand(OperandType::OperandConstant), value(value) {};
+	~Constant() {};
 	// value of the concerned constant
 protected:
 	int64_t value;
 };
 
 class Variable_op : public Operand {
+	// Not satisfied with this domination, but class Variable exists already as subclass of Expression...
 public:
 	//                                                           ^^^^^^^^^^^^ todo: to correct?
 	static std::unique_ptr<Variable_op> Create(const std::shared_ptr<const OperandType> variable);
 	//                            ^^^^^^^^^^^^^ todo : to correct?
-	Variable_op(const std::shared_ptr<const OperandType> variable);
-	~Variable_op();
+	Variable_op(const std::shared_ptr<const OperandType> variable) : Operand(OperandType::OperandVariable), variable(variable) {};
+	~Variable_op() {};
 protected:
 	// expression of the concerned variable
 	const std::shared_ptr<const OperandType> variable;
@@ -94,13 +95,13 @@ public:
 };
 
 class CallOp : public IRInstr {
-// Call function "function" with arguments "args" and return value is "ret"
+	// Call function "function" with arguments "args" and return value is "ret"
 public:
 	//                                                                                 ^^^^^^^^^^^^^^ todo : to modify?
 	static std::unique_ptr<CallOp> Create(std::shared_ptr<Operand> args, std::shared_ptr<FunctionAppel> function, std::shared_ptr<Variable_op> ret);
 	//                                                    ^^^^^^^^^^^^^^ todo : to modify?
-	CallOp(std::shared_ptr<Operand> args, std::shared_ptr<FunctionAppel> function, std::shared_ptr<Variable_op> ret);
-	virtual ~CallOp();
+	CallOp(std::shared_ptr<Operand> args, std::shared_ptr<FunctionAppel> function, std::shared_ptr<Variable_op> ret) : IRInstr(OpType::callOp), function(function), args(args), ret(ret) {};
+	virtual ~CallOp() {};
 protected:
 	std::shared_ptr<FunctionAppel> function;
 	std::shared_ptr<Operand> args;
@@ -135,6 +136,7 @@ protected:
 };
 
 class UnaOp : public IRInstr {
+public:
 	enum class UnaOperator {
 		pre_increment, //++expr 
 		pre_decrement, //--expr
@@ -145,7 +147,13 @@ class UnaOp : public IRInstr {
 		unary_not //!expr
 	};
 
-	static std::shared_ptr<UnaOp> Create(std::shared_ptr<Variable_op> dest, UnaOperator una_operator);
+	static std::shared_ptr<UnaOp> Create(std::shared_ptr<Variable_op> dest, UnaOperator una_operator, std::shared_ptr<Operand> expr);
+	UnaOp(std::shared_ptr<Variable_op> dest, UnaOperator una_operator, std::shared_ptr<Operand> expr);
+	virtual ~UnaOp();
+protected:
+	std::shared_ptr<Variable_op> dest;
+	UnaOperator una_operator;
+	std::shared_ptr<Operand> expr;
 };
 
 class BasicBlock {
@@ -161,8 +169,6 @@ protected:
 	BasicBlock* exit_true;  /**< pointer to the next basic block, true branch. If nullptr, return from procedure */
 	BasicBlock* exit_false; /**< pointer to the next basic block, false branch. If null_ptr, the basic block ends with an unconditional jump */
 };
-
-
 
 class CFG {
 // Le "Control Flow Graph" qui represente l'execution sequentielle des "basic blocks" qui sont chacun une sequence d'instructions.
