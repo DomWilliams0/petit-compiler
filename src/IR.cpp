@@ -107,33 +107,33 @@ void IRInstr::gen_asm(std::ostream & o)
 	{
 		case ldconst: {
 			int offset = bb->cfg->get_var_index(params[0]);
-			o << "movq $" << params[1] << " , -" << offset << "(%rbp)" << std::endl;
+			o << "movq $" << params[1] << " , " << offset << "(%rbp)" << std::endl;
 		}
 					  break;
 		case wmem: {
 			int offset = bb->cfg->get_var_index(params[0]);
 			int offsetR = bb->cfg->get_var_index(params[1]);
-			o << "movq    -" << offsetR << "(%rbp), %rax" << std::endl;
-			o << "movq    %rax, -" << offset << "(%rbp)" << std::endl;
+			o << "movq    " << offsetR << "(%rbp), %rax" << std::endl;
+			o << "movq    %rax, " << offset << "(%rbp)" << std::endl;
 		}
 					 break;
 		case add: {
 			int offset = bb->cfg->get_var_index(params[1]);
 			int offsetR = bb->cfg->get_var_index(params[2]);
 			int offsetD = bb->cfg->get_var_index(params[0]);
-			std::cerr << "dest is : " << params[0] << std::endl;
-			o << "movq    -" << offset << "(%rbp), %rdx" << std::endl;
-			o << "movq    -" << offsetR << "(%rbp), %rax" << std::endl;
+			//std::cerr << "dest is : " << params[0] << std::endl;
+			o << "movq    " << offset << "(%rbp), %rdx" << std::endl;
+			o << "movq    " << offsetR << "(%rbp), %rax" << std::endl;
 			o << "addq    %rdx, %rax" << std::endl;
-			o << "movq    %rax, -" << offsetD << "(%rbp)" << std::endl;
+			o << "movq    %rax, " << offsetD << "(%rbp)" << std::endl;
 		}
 				  break;
 		case sub: {
 			int offset = bb->cfg->get_var_index(params[1]);
 			int offsetR = bb->cfg->get_var_index(params[2]);
 			int offsetD = bb->cfg->get_var_index(params[0]);
-			o << "movq    -" << offsetR << "(%rbp), %rdx" << std::endl;
-			o << "movq    -" << offset << "(%rbp), %rax" << std::endl;
+			o << "movq    " << offsetR << "(%rbp), %rdx" << std::endl;
+			o << "movq    " << offset << "(%rbp), %rax" << std::endl;
 			o << "subq    %rdx, %rax" << std::endl;
 			o << "movq    %rax, -" << offsetD << "(%rbp)" << std::endl;
 		}
@@ -142,8 +142,8 @@ void IRInstr::gen_asm(std::ostream & o)
 			int offset = bb->cfg->get_var_index(params[1]);
 			int offsetR = bb->cfg->get_var_index(params[2]);
 			int offsetD = bb->cfg->get_var_index(params[0]);
-			o << "movq    -" << offset << "(%rbp), %rdx" << std::endl;
-			o << "movq    -" << offsetR << "(%rbp), %rax" << std::endl;
+			o << "movq    " << offset << "(%rbp), %rdx" << std::endl;
+			o << "movq    " << offsetR << "(%rbp), %rax" << std::endl;
 			o << "imulq    %rdx, %rax" << std::endl;
 			o << "movq    %rax, -" << offsetD << "(%rbp)" << std::endl;
 		}
@@ -152,22 +152,22 @@ void IRInstr::gen_asm(std::ostream & o)
 			int offset = bb->cfg->get_var_index(params[1]);
 			int offsetR = bb->cfg->get_var_index(params[2]);
 			int offsetD = bb->cfg->get_var_index(params[0]);
-			o << "movq    -" << offsetR << "(%rbp), %r9" << std::endl;
-			o << "movq    -" << offset << "(%rbp), %rax" << std::endl;
+			o << "movq    " << offsetR << "(%rbp), %r9" << std::endl;
+			o << "movq    " << offset << "(%rbp), %rax" << std::endl;
 			o << "cqto" << std::endl;
 			o << "idivq    %r9" << std::endl;
-			o << "movq    %rax, -" << offsetD << "(%rbp)" << std::endl;
+			o << "movq    %rax, " << offsetD << "(%rbp)" << std::endl;
 		}
 				   break;
 		case mod: {
 			int offset = bb->cfg->get_var_index(params[1]);
 			int offsetR = bb->cfg->get_var_index(params[2]);
 			int offsetD = bb->cfg->get_var_index(params[0]);
-			o << "movq    -" << offsetR << "(%rbp), %r9" << std::endl;
-			o << "movq    -" << offset << "(%rbp), %rax" << std::endl;
+			o << "movq    " << offsetR << "(%rbp), %r9" << std::endl;
+			o << "movq    " << offset << "(%rbp), %rax" << std::endl;
 			o << "cqto" << std::endl;
 			o << "idivq    %r9" << std::endl;
-			o << "movq    %rdx, -" << offsetD << "(%rbp)" << std::endl;
+			o << "movq    %rdx, " << offsetD << "(%rbp)" << std::endl;
 		}
 				  break;
 	}
