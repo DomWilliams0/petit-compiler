@@ -38,6 +38,8 @@ void yyerror(Document *doc, const char *p)
 	std::cout << "Error: " << p << std::endl;
 }
 
+unsigned int errorCount = 0;
+
 %}
 
 //la structure UNION de la pile de grammaires. La pile est un tableau statique dont chaque element decrit un element grammatical.
@@ -226,6 +228,8 @@ stat
 	| iter
 	| block { $$ = (Statement *)$1; }
 	| expr ';'  { $$ = (Statement *)$1; }
-	| ';' { $$ = nullptr; }
+	| expr error ';'  { $$ = nullptr; errorCount += 1; }
+	| error ';' { $$ = nullptr; errorCount += 1; }
 	| return_stat
+	| error { errorCount += 1; yyerror(doc, "Uh oh"); }
 %%

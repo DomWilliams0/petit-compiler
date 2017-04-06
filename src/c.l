@@ -1,7 +1,6 @@
 N [0-9]
 IC [a-zA-Z_]
 
-
 %{
 #include "Element.h"
 #include "Statement.h"
@@ -15,9 +14,18 @@ extern "C" {
 		return 1;
 	}
 }
+
+int yyerror(const char *error)
+{
+	fprintf(stderr, "Syntax error at line %d %s: %s\n", yylineno, error, yytext);
+	return 0;
+}
 %}
 
+%option noyywrap
+%option yylineno
 %option nounput
+
 
 %%
 
@@ -41,7 +49,55 @@ extern "C" {
 
 {IC}({IC}|{N})* { yylval.string = new std::string(yytext); return IDENTIFIER; /* pour toutes les suites commancant avec une lettre et suivies par des lettres et/ou des chiffres, on les consideres comme un string */ }
 
-"'"."'" { yylval.character = yytext[1]; return CONSTANT_CHARACTER; /* TODO escape characters */ }
+"'"."'" { yylval.character = yytext[1]; return CONSTANT_CHARACTER; }
+"'\\"."'" {
+	switch(yytext[2])
+	{
+		case 'a':
+			yylval.character = '\a';
+			break;
+
+		case 'b':
+			yylval.character = '\b';
+			break;
+
+		case 'f':
+			yylval.character = '\f';
+			break;
+
+		case 'n':
+			yylval.character = '\n';
+			break;
+
+		case 'r':
+			yylval.character = '\r';
+			break;
+
+		case 't':
+			yylval.character = '\t';
+			break;
+
+		case 'v':
+			yylval.character = '\v';
+			break;
+
+		case '\\':
+			yylval.character = '\\';
+			break;
+
+		case '\'':
+			yylval.character = '\'';
+			break;
+
+		case '"':
+			yylval.character = '\"';
+			break;
+		default:
+			yyerror("Unknown character");
+			break;
+
+	}
+	return CONSTANT_CHARACTER; }
 
 "++" { return INC_OP; }
 "--" { return DEC_OP; }
@@ -74,4 +130,6 @@ extern "C" {
 "%" { return '%'; }
 "<" { return '<'; }
 ">" { return '>'; }
+
+. { yyerror("Unexpected token"); }
 %%

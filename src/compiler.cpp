@@ -18,6 +18,7 @@
 #include "Interpreter.h"
 
 extern int yyparse(Document *);
+extern int errorCount;
 extern FILE *yyin;
 
 struct Settings
@@ -218,8 +219,15 @@ int doWork(const Settings &settings)
 	Document d;
 	int ret = yyparse(&d);
 	fclose(in);
-	if (ret != 0)
+	if (errorCount > 0)
+	{
+		std::cerr << errorCount << " syntax error(s)" << std::endl;
 		return 2;
+	}
+
+	if (ret != 0)
+		return 3;
+
 	d.createBlocks();
 
 	bool valid = true;
@@ -247,7 +255,7 @@ int doWork(const Settings &settings)
 		if (os == NULL)
 		{
 			std::cerr << "Invalid ast out file" << std::endl;
-			return 3;
+			return 4;
 		}
 
 		GraphPrinter printer(*os);
@@ -260,7 +268,7 @@ int doWork(const Settings &settings)
 
 	// exit if errors
 	if (!valid)
-		return 3;
+		return 5;
 
 	// TODO optimisation
 
@@ -272,7 +280,7 @@ int doWork(const Settings &settings)
 		if (os == NULL)
 		{
 			std::cerr << "Invalid compile out file" << std::endl;
-			return 4;
+			return 6;
 		}
 
 		interpreter.buildIR();
