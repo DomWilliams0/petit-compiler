@@ -241,7 +241,8 @@ int doWork(const Settings &settings)
 		interpreter.solveScopes(errors);
 		valid = errors.errors.empty();
 
-		std::cerr << errors.errors.size() << " semantic error(s):" << std::endl;
+		if (!valid)
+			std::cerr << errors.errors.size() << " semantic error(s):" << std::endl;
 
 		for (Error &e : errors.errors)
 			std::cerr << e.msg << std::endl;
