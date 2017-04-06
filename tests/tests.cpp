@@ -99,6 +99,16 @@ void test_errors_semantic()
 	ASSERT_FAIL("Mismatched type in assignment", "void main() { char a = 5; }");
 }
 
+void test_valid_programs()
+{
+	ASSERT_PASS("Global declaration", "int32_t a;");
+	ASSERT_PASS("Global declaration and definition", "int64_t a = 5;");
+	ASSERT_PASS("Multiple definitions and declarations", "int64_t a, b = 5, c = 2, d, e;");
+	ASSERT_PASS("Include", "#include <stdint.h>\n int64_t a, b = 5, c = 2, d, e;");
+	ASSERT_PASS("Increment and decrement", "void main() { int64_a a = 5; a++; a--; ++a; --a;");
+	// ... etc
+}
+
 #define RUN_SUITE(suite) run_suite(suite, #suite)
 
 void run_suite(void (*suite)(), const char *name)
@@ -116,5 +126,6 @@ int main()
 	RUN_SUITE(test_errors_lexer);
 	RUN_SUITE(test_errors_syntax);
 	RUN_SUITE(test_errors_semantic);
+	RUN_SUITE(test_valid_programs);
 	return 0;
 }
