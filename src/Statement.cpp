@@ -150,7 +150,11 @@ Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter,
 
 std::string Block::buildIR(CFG * cfg)
 {
-	return std::string();
+	for (auto &el : *(this->contents))
+	{
+		el->buildIR(cfg);
+	}
+	return "";
 }
 
 //SymbolTable * Block::computeSymbolTable()

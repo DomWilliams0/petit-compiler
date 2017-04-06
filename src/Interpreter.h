@@ -58,6 +58,7 @@ public:
 	virtual ~Interpreter();
 	void solveScopes(ErrorList &errors);
 	void buildIR();
+	void genAsm(std::ostream &o);
 
 };
 

@@ -10,7 +10,7 @@ extern int yyparse(Document *);
 
 int main(int argc, char **argv)
 {
-	VarDef* a = new VarDef(new  VarDecl("a", 1), new ConstInteger(0));a->updateType(INT64);
+	/*VarDef* a = new VarDef(new  VarDecl("a", 1), new ConstInteger(0));a->updateType(INT64);
 	Affectation * v = new Affectation(new Variable("b"),new Variable("a"));
 	VarDef* d = new VarDef(new  VarDecl("d", 1), new ConstInteger(1)); d->updateType(INT64);
 	AffectationIncrement* i = new AffectationIncrement(POST_INC, new Variable("d"));
@@ -27,10 +27,10 @@ int main(int argc, char **argv)
 	std::vector<Element*>* args = new std::vector<Element*>;
 	args->push_back(j); args->push_back(k);
 	FuncDef* F1 = new FuncDef("F1",VOID, args, b);
-	VarDef* q = new VarDef(new  VarDecl("c", 1), new ConstInteger(2)); q->updateType(INT64);
-	VarDef* l = new VarDef(new  VarDecl("b", 1), new ConstInteger(0)); l->updateType(INT64);
+	VarDef* q = new VarDef(new  VarDecl("c", 1), new ConstInteger(2)); q->updateType(INT64);*/
+	//VarDef* l = new VarDef(new  VarDecl("b", 1), new ConstInteger(0)); l->updateType(INT64);
 
-	FunctionAppel* call = new FunctionAppel("F1");
+	/*FunctionAppel* call = new FunctionAppel("F1");
 	call->addArg(new Variable("a"));
 	call->addArg(new Variable("c"));
 	Block* bl = new Block();
@@ -38,18 +38,25 @@ int main(int argc, char **argv)
 
 	lb->push_back(call);
 	bl->setContents(lb);
-	Cond* cond = new Cond(bl, new BinaryExpression(new Variable("b"), EQ, new ConstInteger(0)));
+	//Cond* cond = new Cond(bl, new BinaryExpression(new Variable("b"), EQ, new ConstInteger(0)));*/
 	Block* m = new Block();
 	std::vector<Node*>* kl= new std::vector<Node*>;
-	kl->push_back(l);
-	kl->push_back(cond);
+	VarDecl *j = new  VarDecl("b", 1); j->updateType(INT64);
+	VarDef* q = new VarDef(new  VarDecl("c", 1), new ConstInteger(2)); q->updateType(INT64);
+	Affectation * v = new Affectation(new Variable("b"), new Variable("c"));
+	AffectationIncrement* i = new AffectationIncrement(POST_INC, new Variable("b"));
+	kl->push_back(j);
+	kl->push_back(q);
+	kl->push_back(v);
+	kl->push_back(i);
+	//kl->push_back(cond);
 	m->setContents(kl);
 	FuncDef* MAIN = new FuncDef("main", VOID, new std::vector<Element*>, m);
 
 	Document doc;
-	doc.addElement(a);
-	doc.addElement(F1);
-	doc.addElement(q);
+	//doc.addElement(a);
+	//doc.addElement(F1);
+	//doc.addElement(q);
 	doc.addElement(MAIN);
 	
 	doc.createBlocks();
@@ -59,6 +66,7 @@ int main(int argc, char **argv)
 	GraphPrinter printer(myfile);
 	printer.printGraph(&doc);
 	myfile.close();
+	
 
 	ErrorList errors;
 	Interpreter inter(&doc);
@@ -72,7 +80,8 @@ int main(int argc, char **argv)
 			std::cerr << e.msg << std::endl;
 		}
 	}
-
+	inter.buildIR();
+	inter.genAsm(std::cout);
 	
 	return 0;
 }

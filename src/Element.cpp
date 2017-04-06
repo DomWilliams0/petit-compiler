@@ -65,7 +65,7 @@ Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int *varCounte
 		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
 		if (cfg != nullptr)
 		{
-			cfg->add_to_symbol_table(identifier, this->getVarType());
+			cfg->add_to_symbol_table(std::to_string(environments->back()->vars[identifier].id) + "_" + identifier, this->getVarType());
 		}
 	}
 	else
@@ -162,7 +162,7 @@ Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter
 		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
 		if (cfg != nullptr)
 		{
-			cfg->add_to_symbol_table(identifier, this->getVarType());
+			cfg->add_to_symbol_table(std::to_string(environments->back()->vars[identifier].id) + "_" + identifier, this->getVarType());
 		}
 	}
 	else
@@ -177,7 +177,10 @@ Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter
 
 std::string VarDef::buildIR(CFG * cfg)
 {
-	return std::string();
+	std::string right = this->value->buildIR(cfg);
+	std::vector<std::string> operands = { this->identifier, right };
+	cfg->addInstruction(IRInstr::wmem, NOTYPE, operands);
+	return this->identifier;
 }
 
 std::string FuncDecl::printSelf() const
@@ -296,7 +299,8 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int *varCounter
 
 std::string FuncDef::buildIR(CFG * cfg)
 {
-	return std::string();
+	// BASIC
+	return this->block->buildIR(cfg);
 }
 
 std::string Document::printSelf() const

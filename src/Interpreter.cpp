@@ -57,6 +57,23 @@ void Interpreter::solveScopes(ErrorList &errors) {
 
 void Interpreter::buildIR()
 {
+	std::vector<Element *> elements = doc->getElements();
 
+	for (int i = 0; i < elements.size(); i++)
+	{
+		if (elements[i]->getType() == FUNC_DEF)
+		{
+			elements[i]->buildIR(CFGs[i]);
+		}
+	}
+}
+
+void Interpreter::genAsm(std::ostream & o)
+{
+	o << ".text" << std::endl << ".globl main" << std::endl << ".type main, @function" << std::endl;
+	for (auto &cfg : CFGs)
+	{
+		cfg->gen_asm(o);
+	}
 }
 

@@ -29,6 +29,7 @@ Type Variable::solveScopes(std::deque<SymbolTable*>* environments, int *varCount
 
 	if (var_id != -777) {
 		// VAR FOUND -> BUILD ASM
+		this->name = std::to_string(var_id) + "_" + this->name;
 		if (ref->getType() == VAR_DECL) {
 			return ((VarDecl*)(ref))->getVarType();
 		}
@@ -77,7 +78,7 @@ std::string ConstInteger::buildIR(CFG * cfg)
 	std::vector<std::string> operands = { name,std::to_string(value) };
 	cfg->addInstruction(IRInstr::ldconst, INT64, operands);
 
-	return std::string();
+	return name;
 }
 
 void ConstInteger::print(GraphPrinter *printer) const
@@ -100,7 +101,11 @@ Type ConstCharacter::solveScopes(std::deque<SymbolTable*>* environments, int *va
 
 std::string ConstCharacter::buildIR(CFG * cfg)
 {
-	return std::string();
+	std::string name = cfg->create_new_tempvar(CHAR);
+	std::vector<std::string> operands = { name, std::to_string(this->value) };
+	cfg->addInstruction(IRInstr::ldconst, CHAR, operands);
+
+	return name;
 }
 
 void ConstCharacter::print(GraphPrinter *printer) const
@@ -127,7 +132,11 @@ Type AffectationCompound::solveScopes(std::deque<SymbolTable*>* environments, in
 
 std::string AffectationCompound::buildIR(CFG * cfg)
 {
-	return std::string();
+	std::string right = this->rvalue->buildIR(cfg);
+	std::string left = this->lvalue->buildIR(cfg);
+	std::vector<std::string> operands = { left, right };
+	cfg->addInstruction(IRInstr::wmem, NOTYPE, operands);
+	return right;
 }
 
 void AffectationCompound::print(GraphPrinter *printer) const
@@ -164,7 +173,24 @@ Type AffectationIncrement::solveScopes(std::deque<SymbolTable*>* environments, i
 
 std::string AffectationIncrement::buildIR(CFG * cfg)
 {
-	return std::string();
+	BinaryOperator bop;
+	switch (op)
+	{
+	case POST_INC:
+	case PRE_INC:
+		bop = PLUS;
+		break;
+	case POST_DEC:
+	case PRE_DEC:
+		bop = MINUS;
+	}
+	Variable *v = new Variable(*this->lvalue);
+	BinaryExpression ex = BinaryExpression(v, bop, new ConstInteger(1));
+	std::string right = ex.buildIR(cfg);
+	std::string left = this->lvalue->buildIR(cfg);
+	std::vector<std::string> operands = { left, right };
+	cfg->addInstruction(IRInstr::wmem, NOTYPE, operands);
+	return right;
 }
 
 void AffectationIncrement::print(GraphPrinter *printer) const
@@ -194,7 +220,11 @@ Type Affectation::solveScopes(std::deque<SymbolTable*>* environments, int *varCo
 
 std::string Affectation::buildIR(CFG * cfg)
 {
-	return std::string();
+	std::string right = this->rOperand->buildIR(cfg);
+	std::string left = this->lOperand->buildIR(cfg);
+	std::vector<std::string> operands = { left, right };
+	cfg->addInstruction(IRInstr::wmem, NOTYPE, operands);
+	return right;
 }
 
 void Affectation::print(GraphPrinter *printer) const
@@ -307,6 +337,7 @@ Type FunctionAppel::solveScopes(std::deque<SymbolTable*>* environments, int *var
 
 std::string FunctionAppel::buildIR(CFG * cfg)
 {
+	// TODO
 	return std::string();
 }
 
@@ -340,6 +371,7 @@ Type UnaryExpression::solveScopes(std::deque<SymbolTable*>* environments, int *v
 
 std::string UnaryExpression::buildIR(CFG * cfg)
 {
+	// TODO
 	return std::string();
 }
 
