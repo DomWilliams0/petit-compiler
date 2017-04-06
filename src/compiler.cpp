@@ -268,7 +268,7 @@ int doWork(const Settings &settings)
 	{
 		std::ostream *os;
 		bool freeMe = false;
-		parseFileName(settings.fileToCompile, settings.compileOutFile, ".o", &os, freeMe);
+		parseFileName(settings.fileToCompile, settings.compileOutFile, ".asm", &os, freeMe);
 		if (os == NULL)
 		{
 			std::cerr << "Invalid compile out file" << std::endl;
