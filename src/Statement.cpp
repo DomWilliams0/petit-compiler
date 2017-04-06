@@ -1,4 +1,3 @@
-#include <iostream>
 #include <algorithm>
 #include <sstream>
 #include "Printer.h"
@@ -34,17 +33,22 @@ void Cond::updateElse(Statement *newElse)
 		elseBlock = newElse;
 }
 
-Type Cond::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Cond::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 
-	this->condition->solveScopes(environments, varCounter);
+	this->condition->solveScopes(environments, varCounter,  cfg, errors);
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);
-	this->ifBlock->solveScopes(environments, varCounter);
+	this->ifBlock->solveScopes(environments, varCounter,  cfg, errors);
 	if(this->elseBlock != nullptr)
-		this->elseBlock->solveScopes(environments, varCounter);
+		this->elseBlock->solveScopes(environments, varCounter,  cfg, errors);
 
 	return NOTYPE;
+}
+
+std::string Cond::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 std::string For::printSelf() const
@@ -105,19 +109,56 @@ void Iter::print(GraphPrinter *printer) const
 	condition->print(printer);
 	iterBlock->print(printer);
 }
-Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter)
+Type Block::solveScopes(std::deque<SymbolTable*>* environments, int* varCounter, CFG* cfg, ErrorList &errors)
 {
-	/* SymbolTable *blockTable = environments->back(); */
-	for (Node *node : *(this->contents)) {
-		if (node->getType() == BLOCK) {
-			SymbolTable *env = new SymbolTable();
-			environments->push_back(env);
+	// blocks are void by default, unless a return statement changes it
+	// only 1 return statement is allowed
+
+
+	Type returned = NOTYPE;
+
+	if (contents) {
+		for (Node *node : *(this->contents)) {
+			if (node->getType() == BLOCK) {
+				SymbolTable *env = new SymbolTable();
+				environments->push_back(env);
+			}
+			Type result = node->solveScopes(environments, varCounter,  cfg, errors);
+
+			if (node->getType() == RETURN_STAT) {
+				if (returned == NOTYPE) {
+					// first and only return statement
+					returned = result;
+				}
+				else
+				{
+					// uh oh, multiple
+					std::stringstream err;
+					err << "Warning: multiple return statements";
+					errors.addError(err.str());
+					returned = NOTYPE;
+				}
+			}
+
 		}
-		node->solveScopes(environments, varCounter);
 	}
 	delete environments->back();
 	environments->pop_back();
-	return NOTYPE;
+
+	// return void otherwise
+	return returned == NOTYPE ? VOID : returned;
+}
+
+std::string Block::buildIR(CFG * cfg)
+{
+	if (contents)
+	{
+		for (auto &el : *(this->contents))
+		{
+			el->buildIR(cfg);
+		}
+	}
+	return "";
 }
 
 //SymbolTable * Block::computeSymbolTable()
@@ -275,16 +316,21 @@ For::~For()
 	block = nullptr;
 }
 
-Type For::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type For::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);
-	this->init->solveScopes(environments, varCounter);
-	this->cond->solveScopes(environments, varCounter);
-	this->inc->solveScopes(environments, varCounter);
-	this->block->solveScopes(environments, varCounter);
+	this->init->solveScopes(environments, varCounter,  cfg, errors);
+	this->cond->solveScopes(environments, varCounter,  cfg, errors);
+	this->inc->solveScopes(environments, varCounter,  cfg, errors);
+	this->block->solveScopes(environments, varCounter, cfg, errors);
 
 	return NOTYPE;
+}
+
+std::string For::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 Iter::~Iter()
@@ -296,13 +342,18 @@ Iter::~Iter()
 	iterBlock = nullptr;
 }
 
-Type Iter::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type Iter::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
-	this->condition->solveScopes(environments, varCounter);
+	this->condition->solveScopes(environments, varCounter,  cfg, errors);
 	SymbolTable* temp = new SymbolTable();
 	environments->push_back(temp);	
-	this->iterBlock->solveScopes(environments, varCounter);
+	this->iterBlock->solveScopes(environments, varCounter,  cfg, errors);
 	return NOTYPE;
+}
+
+std::string Iter::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 Return::~Return()
@@ -313,8 +364,13 @@ Return::~Return()
 	value = nullptr;
 }
 
-Type Return::solveScopes(std::deque<SymbolTable*>*, int * varCounter)
+Type Return::solveScopes(std::deque<SymbolTable*> *environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
-	return NOTYPE;
+	return value ? value->solveScopes(environments, varCounter, cfg, errors) : VOID;
+}
+
+std::string Return::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 

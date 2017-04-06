@@ -35,6 +35,11 @@ void Document::createBlocks()
 	}
 }
 
+std::string Document::buildIR(CFG * cfg)
+{
+	return std::string();
+}
+
 
 std::string VarDecl::printSelf() const
 {
@@ -55,17 +60,40 @@ void VarDecl::updateType(Type type)
 }
 
 
-Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type VarDecl::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
 	{
 		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
+		if (cfg != nullptr)
+		{
+			cfg->add_to_symbol_table(std::to_string(environments->back()->vars[identifier].id) + "_" + identifier, this->getVarType());
+		}
 	}
 	else
 	{
-		std::cerr << "Error: redeclaration of variable: " << this->identifier << std::endl;
+		std::stringstream err;
+		err << "Error: redeclaration of variable: " << this->identifier;
+		errors.addError(err.str());
 	}
 	return NOTYPE;
+}
+
+std::string VarDecl::buildIR(CFG * cfg)
+{
+	return std::string();
+}
+
+VarDeclList::VarDeclList(Type type, std::vector<Element *> *declarations) : Element(""), type(type), declarations(declarations)
+{
+	if (declarations)
+	{
+		for (Element *e : *declarations)
+			if (e->getType() == VAR_DECL)
+				((VarDecl *)e)->updateType(this->type);
+			else if (e->getType() == VAR_DEF)
+				((VarDef *)e)->updateType(this->type);
+	}
 }
 
 std::string VarDeclList::printSelf() const
@@ -85,19 +113,22 @@ void VarDeclList::print(GraphPrinter *printer) const
 	}
 }
 
-void VarDeclList::addDeclaration(VarDecl *decl)
-{
-	decl->updateType(type);
-	declarations->push_back(decl);
-}
-
-Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	for (Element* e : *declarations)
 	{
-		e->solveScopes(environments, varCounter);
+		e->solveScopes(environments, varCounter,  cfg, errors);
 	}
 	return NOTYPE;
+}
+
+std::string VarDeclList::buildIR(CFG * cfg)
+{
+	for (Element* e : *declarations)
+	{
+		e->buildIR(cfg);
+	}
+	return "";
 }
 
 std::string VarDef::printSelf() const
@@ -121,23 +152,41 @@ void VarDef::updateType(Type type)
 	decl->updateType(type);
 }
 
-Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type VarDef::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	if ((environments->back()->vars).find(identifier) == (environments->back()->vars).end())
 	{
-		if (this->getVarType() != this->getValue()->solveScopes(environments, varCounter))
+		Type valueType = this->getValue()->solveScopes(environments, varCounter,  cfg, errors);
+		if (this->getVarType() != valueType)
 		{
-			std::cerr << "Error: variable " << identifier << " initialized with mismatching type expression" << std::endl;
+			std::stringstream err;
+			err << "Error: variable " << identifier << " initialized with mismatching type expression; expected "
+				<< typeToString(getVarType()) << "but got " << typeToString(valueType) << "instead";
+			errors.addError(err.str());
 		}
 
 		(environments->back()->vars)[identifier] = { this,(*varCounter)++ };
+		if (cfg != nullptr)
+		{
+			cfg->add_to_symbol_table(std::to_string(environments->back()->vars[identifier].id) + "_" + identifier, this->getVarType());
+		}
 	}
 	else
 	{
-		std::cerr << "Error: redefinition of variable: " << this->identifier << std::endl;
+		std::stringstream err;
+		err << "Error: redefinition of variable: " << this->identifier;
+		errors.addError(err.str());
 	}
 	
 	return NOTYPE;
+}
+
+std::string VarDef::buildIR(CFG * cfg)
+{
+	std::string right = this->value->buildIR(cfg);
+	std::vector<std::string> operands = { this->identifier, right };
+	cfg->addInstruction(IRInstr::wmem, NOTYPE, operands);
+	return this->identifier;
 }
 
 std::string FuncDecl::printSelf() const
@@ -145,13 +194,18 @@ std::string FuncDecl::printSelf() const
 	return "Function Declaration: " + typeToString(functionType) + identifier;
 }
 
-Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int * varCounter)
+Type FuncDecl::solveScopes(std::deque<SymbolTable*>* environments, int *varCounter, CFG *cfg, ErrorList &errors)
 {
 	if ((environments->back()->funct).find(identifier) == (environments->back()->funct).end())
 	{
 		(environments->back()->funct)[identifier] = { this };
 	}
 	return functionType;
+}
+
+std::string FuncDecl::buildIR(CFG * cfg)
+{
+	return std::string();
 }
 
 void FuncDecl::print(GraphPrinter *printer) const
@@ -188,7 +242,7 @@ void FuncDef::print(GraphPrinter *printer) const
 	block->print(printer);
 }
 
-Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounter){
+Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int *varCounter, CFG *cfg, ErrorList &errors){
 	SymbolTable *blockTable = new SymbolTable();
 	auto it= (environments->back()->funct).find(identifier);
 	if (it == (environments->back()->funct).end())
@@ -197,10 +251,21 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounte
 		for (Element * n : *(this->decl.getArgs())) {
 			VarDecl* temp = (VarDecl*)n;
 			(blockTable->vars)[temp->getIdentifier()] = { temp,(*varCounter)++ };
+			if (cfg != nullptr)
+			{
+				cfg->add_to_symbol_table(temp->getIdentifier(), temp->getVarType());
+			}
 		}
 		
 		environments->push_back(blockTable);
-		block->solveScopes(environments, varCounter);
+
+		Type ret = block->solveScopes(environments, varCounter, cfg, errors);
+		Type expected = decl.getFuncType();
+		if (ret != expected) {
+			std::stringstream err;
+			err << "Error: bad return type, " << identifier << " expected " << typeToString(expected) << "but got " << typeToString(ret) << "instead";
+			errors.addError(err.str());
+		}
 	}
 	else
 	{
@@ -221,12 +286,22 @@ Type FuncDef::solveScopes(std::deque<SymbolTable*>* environments,int * varCounte
 			}
 			if (!identical)
 			{
-				std::cerr << "Error: definition of function args do not match with previous declaration: " << this->identifier << std::endl;
+				std::stringstream err;
+				err << "Error: definition of function args do not match with previous declaration: " << this->identifier;
+				errors.addError(err.str());
 			}
 		}
-		std::cerr << "Error: redefinition of function: " << this->identifier << std::endl;
+		std::stringstream err;
+		err << "Error: redefinition of function: " << this->identifier;
+		errors.addError(err.str());
 	}
 	return decl.getFuncType();
+}
+
+std::string FuncDef::buildIR(CFG * cfg)
+{
+	// BASIC
+	return this->block->buildIR(cfg);
 }
 
 std::string Document::printSelf() const

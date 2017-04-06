@@ -5,6 +5,7 @@
 #include <map>
 #include "Element.h"
 #include "Expression.h"
+#include "Interpreter.h"
 #include <map>
 
 
@@ -16,8 +17,8 @@ class Statement : public Node
 		virtual void print(GraphPrinter *) const = 0;
 		virtual std::string printSelf() const = 0;
 
-		virtual Type solveScopes(std::deque<SymbolTable*>*, int* varCounter) = 0;		
-
+		virtual Type solveScopes(std::deque<SymbolTable*>*, int *varCounter, CFG *cfg, ErrorList &errors) = 0;
+		virtual std::string buildIR(CFG* cfg) = 0;
 };
 
 class Block : public Statement
@@ -40,11 +41,9 @@ class Block : public Statement
 		void print(GraphPrinter *) const;
 		std::string printSelf() const;
 
-		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>*, int *varCounter, CFG *cfg, ErrorList &errors);
+		std::string buildIR(CFG* cfg);
 		
-		//SymbolTable * computeSymbolTable();
-
-		;
 	protected:
 		std::vector<Node *> *contents;
 };
@@ -60,7 +59,8 @@ class Cond : public Statement
 		// only change if currently null
 		void updateElse(Statement *newElse);
 
-		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>*, int *varCounter, CFG *cfg, ErrorList &errors);
+		std::string buildIR(CFG* cfg);
 
 		ElementType getType() const {
 			return COND;
@@ -92,9 +92,9 @@ class For : public Statement
 		Statement*& getBlock()  {
 			return block;
 		}
-
-
-		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		
+		Type solveScopes(std::deque<SymbolTable*>*, int *varCounter, CFG *cfg, ErrorList &errors);
+		std::string buildIR(CFG* cfg);
 
 	protected:
 		Node *init;
@@ -116,9 +116,9 @@ class Iter : public Statement
 		Statement*& getIterBlock()  {
 			return iterBlock;
 		}
-
-
-		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		
+		Type solveScopes(std::deque<SymbolTable*>*, int *varCounter, CFG *cfg, ErrorList &errors);
+		std::string buildIR(CFG* cfg);
 
 	;
 	protected:
@@ -135,7 +135,8 @@ class Return : public Statement
 		Return(Expression *value = nullptr) : value(value) {}
 		~Return();
 
-		Type solveScopes(std::deque<SymbolTable*>*, int* varCounter);
+		Type solveScopes(std::deque<SymbolTable*>*, int *varCounter, CFG *cfg, ErrorList &errors);
+		std::string buildIR(CFG* cfg);
 
 	protected:
 		Expression *value;

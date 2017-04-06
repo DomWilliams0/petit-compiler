@@ -222,6 +222,22 @@ int doWork(const Settings &settings)
 		return 2;
 	d.createBlocks();
 
+	bool valid = true;
+	Interpreter interpreter(&d);
+
+	// static analysis
+	if (settings.compile || settings.staticAnalysis)
+	{
+		ErrorList errors;
+		interpreter.solveScopes(errors);
+		valid = errors.errors.empty();
+
+		std::cerr << errors.errors.size() << " semantic error(s):" << std::endl;
+
+		for (Error &e : errors.errors)
+			std::cerr << e.msg << std::endl;
+	}
+
 	// print ast
 	if (settings.astTree)
 	{
@@ -242,7 +258,11 @@ int doWork(const Settings &settings)
 			delete os;
 	}
 
-	// TODO optimise
+	// exit if errors
+	if (!valid)
+		return 3;
+
+	// TODO optimisation
 
 	if (settings.compile)
 	{
@@ -255,7 +275,8 @@ int doWork(const Settings &settings)
 			return 4;
 		}
 
-		// TODO compile me
+		interpreter.buildIR();
+		interpreter.genAsm(*os);
 
 		if (freeMe)
 			delete os;
