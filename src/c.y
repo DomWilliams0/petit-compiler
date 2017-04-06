@@ -35,7 +35,7 @@
 extern int yylex();
 void yyerror(Document *doc, const char *p)
 {
-	std::cout << "Error: " << p << std::endl;
+	std::cerr << "Error: " << p << std::endl;
 }
 
 unsigned int errorCount = 0;

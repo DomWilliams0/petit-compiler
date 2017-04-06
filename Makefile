@@ -42,6 +42,7 @@ compiler: $(TARGET)
 
 .PHONY: tests
 tests: $(TARGET_TESTS)
+	./$(TARGET_TESTS)
 
 .PHONY: ast
 ast: $(TARGET)

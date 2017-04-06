@@ -15,9 +15,12 @@ extern "C" {
 	}
 }
 
+extern unsigned int errorCount;
+
 int yyerror(const char *error)
 {
-	fprintf(stderr, "Syntax error at line %d %s: %s\n", yylineno, error, yytext);
+	errorCount += 1;
+	std::cerr << "Syntax error at line " << yylineno << " " << error << ": " << yytext << std::endl;
 	return 0;
 }
 %}
