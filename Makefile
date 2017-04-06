@@ -1,7 +1,6 @@
 OBJ = obj
 BIN = bin
 SRC = src
-LIB = lib
 INC = $(SRC)
 
 FLEX_SRC = $(SRC)/c.l
@@ -13,14 +12,11 @@ BISON_OUT = $(OBJ)/c.tab.c
 SRCS := $(shell find $(SRC) -type f -name '*.cpp')
 OBJS := $(addprefix $(OBJ)/,$(notdir $(SRCS:%.cpp=%.o)))
 
-LIBS := $(shell find $(LIB) -type f -name '*.cpp')
-OBJS += $(addprefix $(OBJ)/,$(notdir $(LIBS:%.cpp=%.o)))
-
 TARGET = c
 CC = g++
-CFLAGS = -std=c++11 -Wall -g -I$(INC) -I$(LIB) -O0
+CFLAGS = -std=c++11 -Wall -g -I$(INC) -O0
 
-VPATH=%.cpp $(SRC) $(SRC)/IR/data $(SRC)/IR/Instructions $(LIB)/getopt
+VPATH=%.cpp $(SRC) $(SRC)/IR/data $(SRC)/IR/Instructions
 
 .PHONY: default
 default: $(TARGET)
