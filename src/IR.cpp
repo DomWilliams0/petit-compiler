@@ -171,5 +171,7 @@ void IRInstr::gen_asm(std::ostream & o)
 			o << "movq    %rdx, " << offsetD << "(%rbp)" << std::endl;
 		}
 				  break;
+		default:
+				  break;
 	}
 }

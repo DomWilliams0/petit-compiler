@@ -58,7 +58,7 @@ void Interpreter::buildIR()
 {
 	std::vector<Element *> elements = doc->getElements();
 
-	for (int i = 0; i < elements.size(); i++)
+	for (size_t i = 0; i < elements.size(); i++)
 	{
 		if (elements[i]->getType() == FUNC_DEF)
 		{

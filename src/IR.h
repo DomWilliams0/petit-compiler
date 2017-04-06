@@ -121,21 +121,24 @@ class IRInstr {
 
 class BasicBlock {
 	public:
-		BasicBlock(CFG* _cfg, std::string entry_label, BasicBlock *_exit_true = nullptr, BasicBlock *_exit_false = nullptr) :cfg(_cfg), label(entry_label), exit_true(_exit_true), exit_false(_exit_false){ instrs = new std::vector<IRInstr*>(); }
+		BasicBlock(CFG* _cfg,
+				std::string entry_label,
+				BasicBlock *_exit_true = nullptr,
+				BasicBlock *_exit_false = nullptr)
+			: cfg(_cfg), label(entry_label), exit_true(_exit_true),
+			exit_false(_exit_false) { instrs = new std::vector<IRInstr*>(); }
+
 		virtual ~BasicBlock() { delete instrs; }
 		void gen_asm(std::ostream &o); /**< x86 assembly code generation for this basic block (very simple) */
 
 		void add_IRInstr(IRInstr::Operation op, Type t, std::vector<std::string> params);
 
 		// No encapsulation whatsoever here. Feel free to do better.
+		CFG* cfg; /** < the CFG where this block belongs */
+		std::string label; /**< label of the BB, also will be the label in the generated code */
 		BasicBlock* exit_true;  /**< pointer to the next basic block, true branch. If nullptr, return from procedure */
 		BasicBlock* exit_false; /**< pointer to the next basic block, false branch. If null_ptr, the basic block ends with an unconditional jump */
-		std::string label; /**< label of the BB, also will be the label in the generated code */
-		CFG* cfg; /** < the CFG where this block belongs */
 		std::vector<IRInstr*> *instrs; /** < the instructions themselves. */
-	protected:
-
-
 };
 
 

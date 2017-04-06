@@ -14,7 +14,7 @@ OBJS := $(addprefix $(OBJ)/,$(notdir $(SRCS:%.cpp=%.o)))
 
 TARGET = c
 CC = g++
-CFLAGS = -std=c++11 -Wall -g -I$(INC) -O0
+CFLAGS = -std=c++11 -Wall -I$(INC) -O1
 
 VPATH=%.cpp $(SRC) $(SRC)/IR/data $(SRC)/IR/Instructions
 

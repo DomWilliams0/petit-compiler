@@ -182,7 +182,9 @@ std::string AffectationIncrement::buildIR(CFG * cfg)
 		break;
 	case POST_DEC:
 	case PRE_DEC:
+	default:
 		bop = MINUS;
+		break;
 	}
 	Variable *v = new Variable(*this->lvalue);
 	BinaryExpression ex = BinaryExpression(v, bop, new ConstInteger(1));
@@ -446,7 +448,8 @@ std::string BinaryExpression::buildIR(CFG * cfg)
 	case NE:
 		o = IRInstr::cmp_ne;
 		break;
-
+	default:
+		return ""; // unimplemented operators
 
 	}
 
