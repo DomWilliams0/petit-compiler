@@ -50,8 +50,10 @@ void Interpreter::solveScopes(ErrorList &errors) {
 
 		elements[i]->solveScopes(environments, &varCounter, curCFG, errors);
 	}
-	delete environments->back();
-	environments->pop_back();
+
+	for (SymbolTable *st : *environments)
+		delete st;
+	delete environments;
 }
 
 void Interpreter::buildIR()
