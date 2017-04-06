@@ -85,8 +85,8 @@ void BasicBlock::gen_asm(std::ostream & o)
 	{
 		this->cfg->gen_asm_epilogue(o);
 	}
-	IRInstr::Operation op = (*instrs)[instrs->size() - 1]->getOp();
-	/*if (exit_false!=nullptr && op !=IRInstr::Operation::cmp_eq
+	/*IRInstr::Operation op = (*instrs)[instrs->size() - 1]->getOp();
+	if (exit_false!=nullptr && op !=IRInstr::Operation::cmp_eq
 		&& op != IRInstr::Operation::cmp_ne	&& op != IRInstr::Operation::cmp_lt
 		&& op != IRInstr::Operation::cmp_le && op != IRInstr::Operation::cmp_gt
 		&& op != IRInstr::Operation::cmp_ge)
@@ -135,7 +135,7 @@ void IRInstr::gen_asm(std::ostream & o)
 			o << "movq    " << offsetR << "(%rbp), %rdx" << std::endl;
 			o << "movq    " << offset << "(%rbp), %rax" << std::endl;
 			o << "subq    %rdx, %rax" << std::endl;
-			o << "movq    %rax, -" << offsetD << "(%rbp)" << std::endl;
+			o << "movq    %rax, " << offsetD << "(%rbp)" << std::endl;
 		}
 				  break;
 		case mult: {
@@ -145,7 +145,7 @@ void IRInstr::gen_asm(std::ostream & o)
 			o << "movq    " << offset << "(%rbp), %rdx" << std::endl;
 			o << "movq    " << offsetR << "(%rbp), %rax" << std::endl;
 			o << "imulq    %rdx, %rax" << std::endl;
-			o << "movq    %rax, -" << offsetD << "(%rbp)" << std::endl;
+			o << "movq    %rax, " << offsetD << "(%rbp)" << std::endl;
 		}
 				  break;
 		case div: {

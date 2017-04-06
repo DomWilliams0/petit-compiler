@@ -1,4 +1,15 @@
+#ifdef _WIN32
+#define WINDOZE
+#endif
+
+
+#ifndef WINDOZE
+#include <getopt.h>
+#endif
+
+#include <cstdio>
 #include <iostream>
+#include <fstream>
 #include "Printer.h"
 #include "Element.h"
 #include "Expression.h"
@@ -7,94 +18,270 @@
 #include "Interpreter.h"
 
 extern int yyparse(Document *);
+extern FILE *yyin;
+
+struct Settings
+{
+	Settings() :
+		staticAnalysis(false), optimisation(false),
+		compile(false), compileOutFileSpecified(false),
+		astTree(false), astOutFileSpecified(false) {}
+
+	void printSelf() const
+	{
+		std::cout << "Compiling file '" << fileToCompile << "'";
+
+		if (staticAnalysis)
+			std::cout << ", static analysis";
+
+		if (optimisation)
+			std::cout << ", optimising";
+
+		if (compile)
+		{
+			std::cout << ", compiling to ";
+			if (compileOutFileSpecified)
+				std::cout << "specified file '" << compileOutFile << "'";
+			else
+				std::cout << "default .asm file";
+		}
+
+		if (astTree)
+		{
+			std::cout << ", printing AST to ";
+			if (astOutFileSpecified)
+				std::cout << "specified file '" << astOutFile << "'";
+			else
+				std::cout << "default .png file";
+		}
+
+	};
+
+	bool staticAnalysis;
+	bool optimisation;
+	bool compile;
+	bool compileOutFileSpecified;
+	std::string compileOutFile;
+
+	bool astTree;
+	bool astOutFileSpecified;
+	std::string astOutFile;
+
+	std::string fileToCompile;
+};
+
+int doWork(const Settings &settings);
+void printUsage(char *arg0);
 
 int main(int argc, char **argv)
 {
-	/*VarDef* a = new VarDef(new  VarDecl("a", 1), new ConstInteger(0));a->updateType(INT64);
-	Affectation * v = new Affectation(new Variable("b"),new Variable("a"));
-	VarDef* d = new VarDef(new  VarDecl("d", 1), new ConstInteger(1)); d->updateType(INT64);
-	AffectationIncrement* i = new AffectationIncrement(POST_INC, new Variable("d"));
+	Settings settings;
+#ifndef WINDOZE
+	option options[] = {
+		{"outfile", required_argument, 0, 0},
+		{"astfile", required_argument, 0, 0},
+		{0, 0, 0, 0}
+	};
 
-	Block* b = new Block(); 
-	std::vector<Node*>* t = new std::vector<Node*>;
-	t->push_back(v);
-	t->push_back(d);
-	t->push_back(i);
-	b->setContents(t);
+	int optionIndex = 0;
 
-	VarDecl *j = new  VarDecl("b", 1); j->updateType(INT64);
-	VarDecl *k = new  VarDecl("c", 1); k->updateType(INT64);
-	std::vector<Element*>* args = new std::vector<Element*>;
-	args->push_back(j); args->push_back(k);
-	FuncDef* F1 = new FuncDef("F1",VOID, args, b);
-	VarDef* q = new VarDef(new  VarDecl("c", 1), new ConstInteger(2)); q->updateType(INT64);*/
-	//VarDef* l = new VarDef(new  VarDecl("b", 1), new ConstInteger(0)); l->updateType(INT64);
-
-	/*FunctionAppel* call = new FunctionAppel("F1");
-	call->addArg(new Variable("a"));
-	call->addArg(new Variable("c"));
-	Block* bl = new Block();
-	std::vector<Node*>* lb = new std::vector<Node*>;
-
-	lb->push_back(call);
-	bl->setContents(lb);
-	//Cond* cond = new Cond(bl, new BinaryExpression(new Variable("b"), EQ, new ConstInteger(0)));*/
-	Block* m = new Block();
-	std::vector<Node*>* kl= new std::vector<Node*>;
-	VarDecl *j = new  VarDecl("b", 1); j->updateType(INT64);
-	VarDef* q = new VarDef(new  VarDecl("c", 1), new ConstInteger(2)); q->updateType(INT64);
-	Affectation * v = new Affectation(new Variable("b"), new Variable("c"));
-	AffectationIncrement* i = new AffectationIncrement(POST_INC, new Variable("b"));
-	kl->push_back(j);
-	kl->push_back(q);
-	kl->push_back(v);
-	kl->push_back(i);
-	//kl->push_back(cond);
-	m->setContents(kl);
-	FuncDef* MAIN = new FuncDef("main", VOID, new std::vector<Element*>, m);
-
-	Document doc;
-	//doc.addElement(a);
-	//doc.addElement(F1);
-	//doc.addElement(q);
-	doc.addElement(MAIN);
-	
-	doc.createBlocks();
-	std::ofstream myfile;
-	myfile.open("graph.txt");
-		
-	GraphPrinter printer(myfile);
-	printer.printGraph(&doc);
-	myfile.close();
-	
-
-	ErrorList errors;
-	Interpreter inter(&doc);
-	inter.solveScopes(errors);
-	bool errors_present = errors.errors.size() > 0;
-	if (errors_present)
+	bool error = false;
+	int i;
+	while ((i = getopt_long(argc, argv, "aoct", options, &optionIndex)) != -1)
 	{
-		std::cerr << errors.errors.size() << " semantic error(s):" << std::endl;
-		for (Error &e : errors.errors)
+		switch (i)
 		{
-			std::cerr << e.msg << std::endl;
+			// long option
+			case 0:
+				switch (optionIndex) // god help us all
+				{
+					case 0:
+						settings.compileOutFile = optarg;
+						settings.compileOutFileSpecified = true;
+						break;
+
+					case 1:
+						settings.astOutFile = optarg;
+						settings.astOutFileSpecified = true;
+						break;
+				}
+				break;
+
+			case 'a':
+				settings.staticAnalysis = true;
+				break;
+
+			case 'c':
+				settings.compile = true;
+				break;
+
+			case 'o':
+				settings.optimisation = true;
+				break;
+
+			case 't':
+				settings.astTree = true;
+				break;
+			case '?':
+				error = true;
+				break;
+
 		}
 	}
-	inter.buildIR();
-	inter.genAsm(std::cout);
-	
-	return 0;
+
+	if (optind + 1 != argc)
+	{
+		std::cerr << "A single file to compile must be given" << std::endl;
+		error = true;
+	}
+
+	if (error)
+	{
+		printUsage(argv[0]);
+		return 1;
+	}
+
+	settings.fileToCompile = argv[optind];
+#else
+
+	// placeholder options without getopt for those who
+	// torture themselves with windows
+	settings.astTree = true;
+	settings.staticAnalysis = true;
+	settings.compile = true;
+	settings.fileToCompile = argc > 1 ? argv[1] : "file.c";
+
+#endif
+
+	return doWork(settings);
+}
+
+void printUsage(char *arg0)
+{
+	static const char usage[] =
+        "Un petit compiler.\n"
+        "   Usage:\n"
+        "       %s <file>\n"
+        "\n"
+        "   Options:\n"
+        "       -a          Static analysis.\n"
+        "       -o          Enable optimisation.\n"
+        "       -c          Compile to <file>.asm, or the path specified by `--outfile` if given.\n"
+        "       --outfile   Specify the output path for compilation.\n"
+        "       -t          Generate a Graphviz dot graph of the AST in <file>.dot, or the path specified by `--astfile` if given.\n"
+        "       --astfile   Specify the output path for AST graph\n"
+        "\n";
+	fprintf(stderr, usage, arg0);
 }
 
 
-/*Document d;
-int ret = yyparse(&d);
-if (ret != 0)
-return 1;
+void parseFileName(const std::string &originalFile, const std::string &replacement, const std::string &extension, std::ostream **out,
+		bool &freeMe)
+{
+	*out = NULL;
 
-d.createBlocks();
+	// stdout
+	if (replacement == "-")
+	{
+		*out = &std::cout;
+		return;
+	}
 
-GraphPrinter printer(std::cerr);
-printer.printGraph(&d);
+	std::string outFile(replacement);
+	if (replacement.empty())
+	{
+		// get prefix
+		size_t dotIndex = originalFile.rfind('.');
+		if (dotIndex == std::string::npos)
+			dotIndex = originalFile.size();
 
-std::cout << std::endl;*/
+		outFile = std::string(originalFile, 0, dotIndex);
+		outFile += extension;
+	}
+
+	*out = new std::ofstream(outFile);
+	freeMe = true;
+}
+
+int doWork(const Settings &settings)
+{
+	// open file
+	FILE *in = std::fopen(settings.fileToCompile.c_str(), "r");
+	if (in == NULL)
+	{
+		std::cerr << "Failed to open file '" << settings.fileToCompile << "'" << std::endl;
+		return 1;
+	}
+	yyin = in;
+
+	// create AST
+	Document d;
+	int ret = yyparse(&d);
+	fclose(in);
+	if (ret != 0)
+		return 2;
+	d.createBlocks();
+
+	bool valid = true;
+	Interpreter interpreter(&d);
+
+	// static analysis
+	if (settings.compile || settings.staticAnalysis)
+	{
+		ErrorList errors;
+		interpreter.solveScopes(errors);
+		valid = errors.errors.empty();
+
+		std::cerr << errors.errors.size() << " semantic error(s):" << std::endl;
+
+		for (Error &e : errors.errors)
+			std::cerr << e.msg << std::endl;
+	}
+
+	// print ast
+	if (settings.astTree)
+	{
+		std::ostream *os;
+		bool freeMe = false;
+		parseFileName(settings.fileToCompile, settings.astOutFile, ".dot", &os, freeMe);
+		if (os == NULL)
+		{
+			std::cerr << "Invalid ast out file" << std::endl;
+			return 3;
+		}
+
+		GraphPrinter printer(*os);
+		printer.printGraph(&d);
+		*os << std::endl;
+
+		if (freeMe)
+			delete os;
+	}
+
+	// exit if errors
+	if (!valid)
+		return 3;
+
+	// TODO optimisation
+
+	if (settings.compile)
+	{
+		std::ostream *os;
+		bool freeMe = false;
+		parseFileName(settings.fileToCompile, settings.compileOutFile, ".o", &os, freeMe);
+		if (os == NULL)
+		{
+			std::cerr << "Invalid compile out file" << std::endl;
+			return 4;
+		}
+
+		interpreter.buildIR();
+		interpreter.genAsm(*os);
+
+		if (freeMe)
+			delete os;
+	}
+
+
+	return 0;
+}

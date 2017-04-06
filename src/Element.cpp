@@ -122,7 +122,11 @@ Type VarDeclList::solveScopes(std::deque<SymbolTable*>* environments, int *varCo
 
 std::string VarDeclList::buildIR(CFG * cfg)
 {
-	return std::string();
+	for (Element* e : *declarations)
+	{
+		e->buildIR(cfg);
+	}
+	return "";
 }
 
 std::string VarDef::printSelf() const
