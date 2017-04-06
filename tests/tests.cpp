@@ -1,4 +1,5 @@
 #include <sstream>
+#include <algorithm>
 #include <stdio.h>
 #include "Element.h"
 #include "Statement.h"
@@ -17,7 +18,9 @@ unsigned int fail_count = 0;
 	if (!pass) \
 	{ \
 		fail_count += 1; \
-		std::cerr << " (" << out.str() << ")"; \
+		std::string output(out.str()); \
+		std::replace(output.begin(), output.end(), '\n', '|'); \
+		std::cerr << " (" << output << ")"; \
 	} \
 	std::cerr << std::endl; \
 	} while (false)
