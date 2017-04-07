@@ -21,37 +21,61 @@ To run tests use `make tests`.
        --outfile   Specify the output path for compilation.
        -t          Generate a Graphviz dot graph of the AST in <file>.dot, or the path specified by `--astfile` if given.
        --astfile   Specify the output path for AST graph
-```gist.
+```
 # Available features
 - Syntax analysis
-   Function declaration
-   Function definition
-   Global variables
-   Arrays
-   Function calls
-   Binary operations
-   Unary operations
-   Multiple definitions (int a,b,c = ...)
-   Conditional structures : if, while, for
-   Nested blocks
+
+Function declaration
+
+Function definition
+
+Global variables
+
+Arrays
+
+Function calls
+
+Binary operations
+
+Unary operations
+
+Multiple definitions (int a,b,c = ...)
+
+Conditional structures : if, while, for
+
+Nested blocks
    
 - Semantic analysis
-   Scope solving
-   Variables and functions redefinitions
-   Undefined variables and functions
-   Mismatching arguments (number / type) for function calls
-   Non compatible types for expressions
+
+Scope solving
+
+Variables and functions redefinitions
+
+Undefined variables and functions
+
+Mismatching arguments (number / type) for function calls
+
+Non compatible types for expressions
    
 - Assembly generation
-   Basic arithmetic expressions and return (offset problems)
+
+Basic arithmetic expressions and return (offset problems)
    
 # Features not covered
 - Semantic analysis
-   Forward declarations of functions
-   Arrays
+
+Forward declarations of functions
+
+Arrays
+
 - Optimization
-   No optimization at all
+
+No optimization at all
+
 - Assembly generation
-   Function calls
-   Conditional structures
-   Arrays
+
+Function calls
+
+Conditional structures
+
+Arrays
