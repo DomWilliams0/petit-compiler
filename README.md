@@ -45,7 +45,7 @@ Conditional structures : if, while, for
 
 Nested blocks
    
-## Semantic analysis
+## Semantic analysis
 
 Scope solving
 
@@ -57,7 +57,7 @@ Mismatching arguments (number / type) for function calls
 
 Non compatible types for expressions
    
-## Assembly generation
+## Assembly generation
 
 Basic arithmetic expressions and return (offset problems)
    
@@ -68,7 +68,7 @@ Forward declarations of functions
 
 Arrays
 
-## Optimization
+## Optimization
 
 No optimization at all
 
