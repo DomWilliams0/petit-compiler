@@ -23,7 +23,7 @@ To run tests use `make tests`.
        --astfile   Specify the output path for AST graph
 ```
 # Available features
-- Syntax analysis
+**Syntax analysis**
 
 Function declaration
 
@@ -45,7 +45,7 @@ Conditional structures : if, while, for
 
 Nested blocks
    
-- Semantic analysis
+**Semantic analysis**
 
 Scope solving
 
@@ -57,22 +57,22 @@ Mismatching arguments (number / type) for function calls
 
 Non compatible types for expressions
    
-- Assembly generation
+**Assembly generation**
 
 Basic arithmetic expressions and return (offset problems)
    
 # Features not covered
-- Semantic analysis
+**Semantic analysis**
 
 Forward declarations of functions
 
 Arrays
 
-- Optimization
+**Optimization**
 
 No optimization at all
 
-- Assembly generation
+**Assembly generation**
 
 Function calls
 
