@@ -194,7 +194,7 @@ void parseFileName(const std::string &originalFile, const std::string &replaceme
 		// get prefix
 		size_t dotIndex = originalFile.rfind('.');
 		size_t slashIndex = originalFile.rfind('/');
-		if (dotIndex == std::string::npos || dotIndex < slashIndex)
+		if (dotIndex == std::string::npos || (slashIndex != std::string::npos && dotIndex < slashIndex))
 			dotIndex = originalFile.size();
 
 		outFile = std::string(originalFile, 0, dotIndex);
