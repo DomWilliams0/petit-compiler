@@ -21,7 +21,7 @@ To run tests use `make tests`.
        --outfile   Specify the output path for compilation.
        -t          Generate a Graphviz dot graph of the AST in <file>.dot, or the path specified by `--astfile` if given.
        --astfile   Specify the output path for AST graph
-```
+```gist.
 # Available features
 - Syntax analysis
    Function declaration
