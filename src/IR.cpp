@@ -27,7 +27,7 @@ void CFG::gen_asm_prologue(std::ostream & o)
 {
 	int offset = this->SymbolIndex.size() * 8;
 	o << this->label << ":" << std::endl;
-	o << "push %rbp" << std::endl << "movq %rsp, %rbp" << std::endl << "addq $" << std::to_string(offset) << ", %rsp" << std::endl;
+	o << "push %rbp" << std::endl << "movq %rsp, %rbp" << std::endl << "subq $" << std::to_string(offset) << ", %rsp" << std::endl;
 }
 void CFG::gen_asm_epilogue(std::ostream & o)
 {
