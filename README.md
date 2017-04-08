@@ -6,7 +6,7 @@ All object files can be found in `obj`, and binaries (i.e. tests and the compile
 
 
 To build the compiler use `make`.
-To run tests use `make tests`.
+To run tests use `make tests`. Please note that these currently only test the front-end (up to generation of the AST).
 
 
 # Usage
@@ -22,60 +22,43 @@ To run tests use `make tests`.
        -t          Generate a Graphviz dot graph of the AST in <file>.dot, or the path specified by `--astfile` if given.
        --astfile   Specify the output path for AST graph
 ```
-# Available features
+
+# Implemented features
 ## Syntax analysis
 
-Function declaration
++ Function declarations
++ Function definitions
++ Global variable declaration/definitions
++ Mixed variable definitions and declarations (`char a, b = 'b', c, d ...`)
++ Array declarations
++ Function calls
++ All C binary operators except bitwise operators
++ All C unary operators
++ Flow control: if, while, for
++ Nested blocks
 
-Function definition
-
-Global variables
-
-Arrays
-
-Function calls
-
-Binary operations
-
-Unary operations
-
-Multiple definitions (int a,b,c = ...)
-
-Conditional structures : if, while, for
-
-Nested blocks
-   
 ## Semantic analysis
 
-Scope solving
-
-Variables and functions redefinitions
-
-Undefined variables and functions
-
-Mismatching arguments (number / type) for function calls
-
-Non compatible types for expressions
-   
-## Assembly generation
-
-Basic arithmetic expressions and return (offset problems)
-   
-# Features not covered
-## Semantic analysis
-
-Forward declarations of functions
-
-Arrays
-
-## Optimization
-
-No optimization at all
++ Scope verification
+    + Redefinitions
+	+ Use without declaring
+	+ Allows identically named variables in nested scopes
++ Type checking in all expressions
++ Return statement verification
+	+ Missing return
+	+ Return wrong type
 
 ## Assembly generation
 
-Function calls
++ Basic arithmetic expressions
++ Return from function (with offset problems)
 
-Conditional structures
+# Unimplemented features
 
-Arrays
++ Forward declarations of functions
++ Array semantics
++ Optimisation
++ Assembly generation
+	+ Function calls
+	+ Flow control
+	+ Correct type sizes and alignment
